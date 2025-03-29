@@ -1,0 +1,1084 @@
+basicInfos:
+  id: b6482220-0935-4a68-9e24-a15890f486a3
+  projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+  aboutProject: |-
+    *   幼稚園・保育園における図書管理の現状、課題、ニーズを分析し、これらの施設に特化した図書管理システムの市場機会を考察する。
+
+    *   幼児教育における読書の重要性を踏まえ、効率性や教育効果の向上を目指す。
+
+    *   具体的には、幼稚園・保育園特有のニーズ（シンプルなUX/UI、教育目標連携、保護者連携）に対応したシステム（機能、差別化戦略、収益モデル、導入・展開戦略）を提案する。
+
+    *   導入により、教職員の事務負担軽減、園児の読書習慣形成促進、教育の質向上を目指す。
+  currentSystem: |2-
+       多くの幼稚園・保育園では、*体系的な図書管理システムは導入されていない**。
+
+       絵本の整理、保管、貸出・返却記録、保護者連絡などの業務は*手作業**で行われていることが多い。
+
+    *   汎用的なソフトウェア（例: Excelなど）を利用している場合もある。
+
+       一部の園では、「読書通帳機」のような*簡易的なデジタルソリューション**の導入が始まっている。
+
+    *   公共図書館や学校図書館と比較して、システム導入は遅れている。
+  problems: |-
+    *   教職員の負担が大きい: 手作業による管理は時間と手間がかかり、人員不足の中で負担が増加している。記録ミスや紛失のリスクもある。
+
+    *   専門知識の不足: 図書館司書の資格を持つ職員が少なく、専門的な知識に基づいた図書管理（分類、選書など）が難しい。
+
+    *   蔵書管理の不明確化: 蔵書が増えるにつれて、分類や管理方法が不明確になり、適切な運用ができていない。
+
+    *   図書資源の有効活用が困難: 上記の課題により、園にある絵本を有効に活用しきれていない。
+
+    *   利用者（園児・保護者）のペインポイント:
+
+        *   園児：絵本を探したり借りたりするプロセスが複雑だと利用しにくい。
+
+        *   保護者：園で気軽に借りたい、子どもの読書状況を知りたい、成長に合った絵本を選びたいというニーズがある。
+  directionOfSolution: |-
+    *   専用図書管理システムの導入: 幼稚園・保育園に特化したシステムを導入することで、課題を解決し、効率的・効果的な運用を目指す。
+
+    *   教職員の業務効率化: システム化により、貸出・返却、在庫管理、レポート作成などの事務作業を大幅に削減する。
+
+    *   読書習慣の形成支援: 子どもたちが本に触れやすく、選びやすい環境を整え、読書記録やバーチャル報酬などで意欲を高める。
+
+    *   保護者との連携強化: 子どもの読書状況の共有、おすすめ絵本の提案、読み聞かせサポート情報などを提供し、家庭での読書活動を促進する。
+
+    *   UX/UIの重視: ITスキルにばらつきがある教職員や園児でも直感的に操作できる、シンプルで分かりやすいインターフェースを提供する。
+
+    *   幼稚園・保育園特化機能: 年齢別の推奨リスト、保育カリキュラムとの連携など、教育現場のニーズに合致した機能を提供する。
+  scope:
+    - '利用者管理: 園児情報（氏名、年齢、クラスなど）の登録・管理、貸出履歴の確認、利用状況の可視化、保護者アカウント管理。'
+    - '蔵書管理: ISBNバーコード/手動による図書登録、年齢別・テーマ別などの分類、カスタムタグ設定、在庫管理、書籍の状態管理。'
+    - '貸出・返却管理: QRコードまたは手動による貸出・返却処理、返却予定日の自動管理、延滞通知、予約管理。'
+    - '各種レポート・統計機能: 人気書籍ランキング、貸出状況（年齢別、クラス別など）、延滞書籍一覧、図書利用統計データの出力。'
+  actor:
+    - '管理者: 幼稚園・保育園の教職員（保育士、幼稚園教諭など）。システムの設定、蔵書管理、利用者管理、レポート確認などを行う。'
+    - '利用者（園児）: 絵本の検索・閲覧、読書記録（任意）などを行う。'
+    - '保護者: 子どもの貸出履歴・読書進捗の確認、おすすめ絵本の閲覧、園からのお知らせ確認などを行う。'
+  budget: null
+  schedule: null
+  organization: null
+  phase: 1
+functionsList:
+  - id: 0468f0be-12ab-41db-ba2f-bf252ad15180
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-001
+    category: 利用者管理
+    functionName: 園児情報登録
+    description: 新しい園児の情報をシステムに登録する。
+    input: 園児の氏名、年齢、クラスなどの情報
+    output: 登録完了メッセージ、園児ID
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 45b57cfa-9065-4563-9a67-24fdf92fcef0
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-002
+    category: 利用者管理
+    functionName: 園児情報更新
+    description: 登録済みの園児情報を修正する。
+    input: 園児ID、修正する情報
+    output: 更新完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 00ba11d2-4ad9-4181-8a78-4be5bdd9d473
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-003
+    category: 利用者管理
+    functionName: 園児情報削除
+    description: 登録済みの園児情報を削除する。
+    input: 園児ID
+    output: 削除完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 47a96d04-04cb-48ee-a2bc-671f4bf0d37d
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-004
+    category: 利用者管理
+    functionName: 貸出履歴表示
+    description: 特定の園児の貸出履歴を表示する。
+    input: 園児ID
+    output: 貸出履歴（本のタイトル、貸出日、返却日など）
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: 41834063-c86d-4999-af84-18a06293e849
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-005
+    category: 利用者管理
+    functionName: 利用状況集計
+    description: 園児全体の図書利用状況を集計する。
+    input: 集計期間、年齢、クラスなどの条件
+    output: 年齢別、クラス別の貸出冊数、利用園児数など
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: 1cc69162-2dbc-4279-9631-cc9476312351
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-006
+    category: 利用者管理
+    functionName: 保護者アカウント作成
+    description: 保護者アカウントを作成する。
+    input: 保護者の氏名、連絡先、園児との紐付け情報
+    output: アカウント作成完了メッセージ、ログイン情報
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: e36f9f2f-f04c-4387-b400-7b960d34df41
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-007
+    category: 利用者管理
+    functionName: 保護者アカウント情報変更
+    description: 保護者アカウントの情報を変更する。
+    input: 保護者アカウントID、変更する情報
+    output: アカウント情報変更完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 30d8366a-db9e-42f7-9f43-92b36807a1cc
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-008
+    category: 利用者管理
+    functionName: 保護者アカウント削除
+    description: 保護者アカウントを削除する。
+    input: 保護者アカウントID
+    output: アカウント削除完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: a59e59ca-2096-4dd8-bdf5-4939d19e7b32
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-009
+    category: 蔵書管理
+    functionName: 図書登録（ISBNバーコード）
+    description: ISBNバーコードをスキャンして図書情報を登録する。
+    input: ISBNバーコード
+    output: 書籍名、著者名、出版社などの情報
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 2a43d762-e78f-4374-ac88-b4c470edca93
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-010
+    category: 蔵書管理
+    functionName: 図書登録（手動）
+    description: 手動で図書情報を登録する。
+    input: 書籍名、著者名、出版社などの情報
+    output: 登録完了メッセージ、図書ID
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 726ab87c-e34c-4106-beb8-38241b24c680
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-011
+    category: 蔵書管理
+    functionName: 図書情報更新
+    description: 登録済みの図書情報を修正する。
+    input: 図書ID、修正する情報
+    output: 更新完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 122c8c82-37df-4838-afa9-d46fba546311
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-012
+    category: 蔵書管理
+    functionName: 図書情報削除
+    description: 登録済みの図書情報を削除する。
+    input: 図書ID
+    output: 削除完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: f806bd51-f0f6-4228-90cd-a347bf0d4fee
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-013
+    category: 蔵書管理
+    functionName: 図書分類設定
+    description: 図書を年齢別、テーマ別などのカテゴリに分類する。
+    input: 図書ID、カテゴリ情報
+    output: 分類設定完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 5b3b8882-c8a5-4692-8031-95f72b64e518
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-014
+    category: 蔵書管理
+    functionName: カスタムタグ設定
+    description: 図書にカスタムタグを設定する。
+    input: 図書ID、タグ情報
+    output: タグ設定完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: c27684e9-83f3-4a2f-80fa-1eb44e2efd4d
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-015
+    category: 蔵書管理
+    functionName: 在庫状況確認
+    description: 各図書の在庫状況を確認する。
+    input: 図書ID
+    output: 貸出中、蔵書中、紛失などのステータス
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 065b69f6-f7db-4c5a-90c7-ebcec99f9a95
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-016
+    category: 蔵書管理
+    functionName: 図書状態管理
+    description: 図書の状態（良好、破損、修理中など）を記録・管理する。
+    input: 図書ID、状態情報
+    output: 状態管理完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 5471c00a-7195-42d6-a1dc-ff00a56b8a2a
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-017
+    category: 貸出・返却管理
+    functionName: 貸出処理（QRコード）
+    description: QRコードをスキャンして貸出処理を行う。
+    input: 園児のQRコード、図書のQRコード
+    output: 貸出完了メッセージ、貸出日、返却予定日
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: f25ceed5-2756-4726-afdb-48d2089e157b
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-018
+    category: 貸出・返却管理
+    functionName: 貸出処理（手動）
+    description: 手動で貸出処理を行う。
+    input: 園児名、図書名、貸出日、返却予定日
+    output: 貸出完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: c7241121-e577-44c9-a5da-f55f9a5a0d58
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-019
+    category: 貸出・返却管理
+    functionName: 返却処理
+    description: 返却された図書の返却処理を行う。
+    input: 図書ID
+    output: 返却完了メッセージ、返却日
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 46a22f1d-7eeb-4ce2-afec-1fd888170b99
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-020
+    category: 貸出・返却管理
+    functionName: 延滞通知設定
+    description: 返却予定日を過ぎた図書に対する延滞通知を設定する。
+    input: 図書ID、通知方法、通知タイミング
+    output: 延滞通知設定完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 544dfecf-b5e1-4ecb-aecc-832eab3765b9
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-021
+    category: 貸出・返却管理
+    functionName: 延滞通知送信
+    description: 延滞している利用者へ通知を送信する
+    input: 延滞者リスト、通知方法
+    output: 送信結果
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 34da802c-1f79-44c9-8ee8-e5c7b6864f16
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-022
+    category: 貸出・返却管理
+    functionName: 予約受付
+    description: 貸出中の図書の予約を受け付ける。
+    input: 図書ID、園児ID
+    output: 予約受付完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: e259eba6-0a7a-4473-a0e1-e18665c3d0af
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-023
+    category: 貸出・返却管理
+    functionName: 予約待ち通知
+    description: 図書の返却後、予約者に通知する。
+    input: 図書ID、予約者リスト
+    output: 通知送信完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: a77dbde9-94b1-4a18-804b-cc42fd787dea
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-024
+    category: レポート・統計機能
+    functionName: 人気書籍ランキング表示
+    description: 貸出回数に基づいて、人気書籍のランキングを表示する。
+    input: 期間（月、年など）
+    output: 人気書籍ランキング
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: 9fbf5d9e-dd9f-45de-aee9-892c8bca5e32
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-025
+    category: レポート・統計機能
+    functionName: 貸出状況表示（年齢別、クラス別）
+    description: 年齢別またはクラス別の貸出状況を表示する。
+    input: 年齢またはクラス
+    output: 各年齢またはクラスの貸出冊数、利用園児数など
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: 6eee85f9-78cc-41ba-90c3-bac08d1ead39
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-026
+    category: レポート・統計機能
+    functionName: 延滞書籍一覧表示
+    description: 返却期限を過ぎた図書の一覧を表示する。
+    input: なし
+    output: 延滞書籍一覧（延滞日数、貸出中の園児名など）
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 79e93f7b-ffe2-4727-89fb-bcb34f0911e6
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-027
+    category: レポート・統計機能
+    functionName: 図書利用統計データ出力
+    description: 図書利用に関する統計データをCSV形式などで出力する。
+    input: 出力項目
+    output: CSV形式の統計データ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 81abb390-a506-4c51-a0ed-07d51a3edef5
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-028
+    category: 検索・閲覧機能
+    functionName: 図書検索
+    description: 年齢別、テーマ別などの条件で図書を検索する。
+    input: 検索条件（年齢、テーマなど）
+    output: 検索結果一覧
+    actor: 利用者（園児）
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: 4fe8a709-5642-477d-a13f-4b4ae04f345b
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-029
+    category: 検索・閲覧機能
+    functionName: 新着書籍表示
+    description: 新着書籍を表示する。
+    input: なし
+    output: 新着書籍一覧
+    actor: 利用者（園児）
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 8787b354-75da-4c4a-abf1-8db3026fd9c3
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-030
+    category: 検索・閲覧機能
+    functionName: おすすめ書籍表示
+    description: おすすめ書籍を表示する。
+    input: 年齢
+    output: おすすめ書籍一覧
+    actor: 利用者（園児）
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: d1247eda-6234-4917-b838-36977bcb6836
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-031
+    category: 読書記録・達成度管理
+    functionName: 読書記録登録
+    description: 読んだ本の記録を登録する。
+    input: 図書ID
+    output: 読書記録登録完了メッセージ
+    actor: 利用者（園児）
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: f6cbd7c5-b3c5-43d9-967e-6757a435e6db
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-032
+    category: 読書記録・達成度管理
+    functionName: 読書量表示
+    description: 読書量を表示する。
+    input: 園児ID
+    output: 読んだ本の数
+    actor: 利用者（園児）
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 668376d5-8ab5-4df3-b1ad-0e2e187f5726
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-033
+    category: 読書記録・達成度管理
+    functionName: バーチャル報酬
+    description: 読書量に応じてバーチャル報酬を提供する。
+    input: 読書量
+    output: バーチャル報酬（バッジなど）
+    actor: 利用者（園児）
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 759edcfe-2165-42c3-b4b4-4c4ae1d5ac60
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-034
+    category: コミュニティ機能
+    functionName: レビュー投稿
+    description: 絵本のレビューを投稿する。
+    input: 図書ID, レビュー内容（星評価、絵文字など）
+    output: レビュー投稿完了メッセージ
+    actor: 保護者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 1878ea7e-9cf2-49be-9201-110bc8b6ceed
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-035
+    category: コミュニティ機能
+    functionName: レビュー閲覧
+    description: 絵本のレビューを閲覧する。
+    input: 図書ID
+    output: レビュー一覧
+    actor: 利用者（園児）, 保護者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 8977424b-f426-42ed-a21e-bf4a822f9aa5
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-036
+    category: コミュニティ機能
+    functionName: おすすめ絵本共有
+    description: おすすめの絵本を共有する。
+    input: おすすめ絵本
+    output: 共有完了
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: cf8ca37d-42ee-42c1-938e-9e3fe1b17f6b
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-037
+    category: 保護者向け機能
+    functionName: 貸出履歴確認
+    description: 子どもの貸出履歴を確認する。
+    input: 園児ID
+    output: 貸出履歴
+    actor: 保護者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 63bc0069-3900-4490-a981-c31f4f8eb028
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-038
+    category: 保護者向け機能
+    functionName: 読書進捗確認
+    description: 子どもの読書進捗を確認する。
+    input: 園児ID
+    output: 読書冊数、読書時間
+    actor: 保護者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 37f5091a-fe7d-4e31-b85b-f534a0fb3d22
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-039
+    category: 保護者向け機能
+    functionName: おすすめ絵本提案
+    description: 年齢に合わせたおすすめ絵本を提案する。
+    input: 園児の年齢
+    output: おすすめ絵本一覧
+    actor: 保護者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: f8a3616e-375a-4968-a322-c6f5cffc09f9
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-040
+    category: 保護者向け機能
+    functionName: 読み聞かせサポート情報
+    description: 読み聞かせのサポート情報を提供する。
+    input: 図書ID
+    output: 読み聞かせのヒント
+    actor: 保護者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 118a5c5e-efbc-4ddd-a3a6-089798493ade
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-041
+    category: 保護者向け機能
+    functionName: イベント情報
+    description: 幼稚園の図書イベント情報を表示する。
+    input: なし
+    output: イベント情報
+    actor: 保護者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: facd6802-0ee5-46b6-b550-c28fc1df59e2
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-042
+    category: システム管理
+    functionName: システム設定
+    description: システム全体の基本設定を行う。
+    input: 設定項目
+    output: 設定完了メッセージ
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 707f3b7a-9054-4f01-9749-5eac55297da6
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-043
+    category: システム管理
+    functionName: ユーザ管理
+    description: システム利用者のアカウント管理を行う。
+    input: ユーザ情報
+    output: アカウント管理結果
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 8d24575e-58e1-4c1e-a0d2-548c3d1f0cbb
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-044
+    category: 図書検索
+    functionName: キーワード検索
+    description: キーワードを用いて図書を検索する
+    input: キーワード
+    output: 検索結果
+    actor: 利用者（園児）, 保護者, 管理者
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: befd8fe8-7273-4151-be0f-ee3625413aea
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-045
+    category: 図書検索
+    functionName: 詳細検索
+    description: 詳細な条件を指定して図書を検索する
+    input: 詳細な検索条件
+    output: 検索結果
+    actor: 利用者（園児）, 保護者, 管理者
+    estimationCategory: function
+    difficulty: Moderate
+    manMonth:
+      requirement_definition: '0.0200'
+      design: '0.0200'
+      implementation: '0.0800'
+      test: '0.0400'
+      release: '0.0200'
+      migration: '0.0200'
+    phase: 1
+    target: true
+  - id: 5e7ee6a9-6a9c-4909-a80c-aa2a65992be3
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-046
+    category: 図書表示
+    functionName: 図書詳細表示
+    description: 図書の詳細情報を表示する
+    input: 図書ID
+    output: 図書詳細情報
+    actor: 利用者（園児）, 保護者, 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 2a8e9662-1ce2-4abd-a2ee-148169971a79
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-047
+    category: 利用者管理
+    functionName: クラス別園児一覧表示
+    description: クラス別に園児の一覧を表示する
+    input: クラス
+    output: 園児一覧
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: f92131f8-16ba-49fb-8fb7-436d5777d822
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-048
+    category: 図書管理
+    functionName: 図書廃棄処理
+    description: 不要になった図書を廃棄する
+    input: 図書ID
+    output: 廃棄完了
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 475c9f5a-4242-4d0e-8417-22212f5fecd8
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-049
+    category: 図書管理
+    functionName: 図書修理依頼
+    description: 破損した図書の修理を依頼する。
+    input: 図書ID, 破損箇所
+    output: 依頼完了
+    actor: 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: 85c2d76c-4224-4f76-b6e5-4b0c3a2261c0
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-050
+    category: その他
+    functionName: ログイン
+    description: システムにログインする
+    input: ユーザID、パスワード
+    output: ログイン成功/失敗
+    actor: 利用者（園児）, 保護者, 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+  - id: a630851e-84e4-4331-8a7c-97d5d3044dd8
+    projectId: 32abe7d7-7e64-4596-91b9-45606a9c4c1e
+    functionId: fun-051
+    category: その他
+    functionName: ログアウト
+    description: システムからログアウトする
+    input: なし
+    output: ログアウト
+    actor: 利用者（園児）, 保護者, 管理者
+    estimationCategory: function
+    difficulty: Simple
+    manMonth:
+      requirement_definition: '0.0150'
+      design: '0.0150'
+      implementation: '0.0600'
+      test: '0.0300'
+      release: '0.0150'
+      migration: '0.0150'
+    phase: 1
+    target: true
+erDiagram: null
+screensList: []
+backendHandlesList: []
