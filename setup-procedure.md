@@ -127,14 +127,19 @@ Route::group([
 npx nuxi@latest init .
 ```
 
+初期化時の質問には以下のように回答します：
+- Which package manager would you like to use? → **npm**
+- Initialize git repository? → **No** （すでにルートで初期化済み）
+- モジュール選択では **ESLint integration** のみを選択
+
 #### 1.3.2 Vuetify 3 のインストールと設定
 
 UI フレームワークとして Vuetify をインストールし、Nuxt プロジェクトに設定します。
 
 ```bash
 # frontend ディレクトリで実行
-yarn add vuetify@^3.0.0 @mdi/font
-yarn add -D vite-plugin-vuetify@^1.0.0
+npm add vuetify@^3.7.0 @mdi/font
+npm add -D vite-plugin-vuetify@^2.0.0
 ```
 
 `nuxt.config.ts` を編集して Vuetify を有効にします。
@@ -166,7 +171,7 @@ export default defineNuxtConfig({
     },
   },
   // CSSの追加
-  css: ["vuetify/styles", "@mdi/font/css/materialdesignicons.css"],
+  css: ["vuetify/lib/styles/main.sass", "@mdi/font/css/materialdesignicons.min.css"],
   // Piniaの設定
   pinia: {
     autoImports: [
@@ -178,9 +183,21 @@ export default defineNuxtConfig({
 });
 ```
 
+また、Vuetify でSassを使用するため、Sassもインストールします。
+
+```bash
+# frontend ディレクトリで実行
+npm add -D sass
+```
+
 #### 1.3.3 状態管理 (Pinia) の設定
 
 状態管理ライブラリとして Pinia を導入します。（`nuxt.config.ts` の設定は 1.3.2 で実施済み）
+
+```bash
+# frontend ディレクトリで実行
+npm add @pinia/nuxt pinia
+```
 
 認証情報を管理するストアを作成します。
 
@@ -203,7 +220,7 @@ touch stores/auth.ts
 
 ```bash
 # frontend ディレクトリで実行
-yarn add axios
+npm add axios
 ```
 
 Axios のインスタンス設定やリクエスト/レスポンスインターセプター（JWT トークン付与など）を定義するプラグインを作成します。
@@ -342,12 +359,12 @@ volumes:
 # frontend/Dockerfile
 FROM node:22-alpine AS base
 WORKDIR /app
-COPY package.json yarn.lock* ./
-RUN yarn install --frozen-lockfile
+COPY package.json package-lock.json* ./
+RUN npm ci
 COPY . .
-RUN yarn build
+RUN npm run build
 EXPOSE 3000
-CMD ["yarn", "start"]
+CMD ["npm", "run", "start"]
 ```
 
 #### 1.4.3 ルート .env ファイルの作成
@@ -455,12 +472,14 @@ DB_PASSWORD=password
 
 #### 2.2.1 ESLint + Prettier の設定
 
+初期化時に ESLint を選択している場合は、Prettier を追加で設定します：
+
 ```bash
 # frontend ディレクトリで実行
-npm install --save-dev eslint @nuxtjs/eslint-config-typescript prettier eslint-plugin-prettier eslint-config-prettier
+npm install --save-dev prettier eslint-plugin-prettier eslint-config-prettier
 ```
 
-`.eslintrc.js` ファイルを作成します：
+`.eslintrc.js` ファイルを編集します：
 
 ```javascript
 module.exports = {
@@ -727,8 +746,4 @@ jobs:
       - name: Run tests
         working-directory: ./frontend
         run: npm run test
-```
-
-```
-
 ```

@@ -1,0 +1,101 @@
+# Docker Compose設定ファイル
+# version属性は非推奨のため削除
+
+services:
+  # Laravel バックエンド (Sail を利用)
+  laravel.test:
+    build:
+      context: './backend/vendor/laravel/sail/runtimes/8.4'
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: sail-8.3/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '${APP_PORT:-8000}:80'
+      - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+    environment:
+      WWWUSER: '${WWWUSER}'
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+      IGNITION_EDITOR: '${IGNITION_EDITOR:-vscode}'
+      IGNITION_REMOTE_SITES_PATH: '${IGNITION_REMOTE_SITES_PATH:-}'
+      IGNITION_LOCAL_SITES_PATH: '${IGNITION_LOCAL_SITES_PATH:-}'
+      NODE_OPTIONS: '--openssl-legacy-provider'
+    volumes:
+      - './backend:/var/www/html'
+    networks:
+      - sail
+    depends_on:
+      - pgsql
+
+  # Nuxt.js フロントエンド
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile # frontend ディレクトリ内に Dockerfile を作成する必要があります
+    image: book-management-frontend
+    ports:
+      - '${FRONTEND_PORT:-3000}:3000'
+    volumes:
+      - './frontend:/app'
+      - '/app/node_modules' # node_modules をホストと共有しないように設定
+    environment:
+      HOST: '0.0.0.0' # コンテナ外からのアクセスを許可
+      NODE_ENV: 'development' # 開発環境で実行
+      # バックエンドAPIのURL（コンテナ名を指定）
+      API_BASE_URL: 'http://laravel.test/api'
+      NUXT_PUBLIC_API_BASE_URL: 'http://laravel.test/api' # Nuxt 3 用
+    networks:
+      - sail
+    depends_on:
+      - laravel.test # バックエンドが起動してからフロントエンドを起動
+
+  # PostgreSQL データベース
+  pgsql:
+    image: 'postgres:16'
+    container_name: book-management-pgsql
+    restart: unless-stopped
+    ports:
+      - '${FORWARD_DB_PORT:-5432}:5432'
+    environment:
+      PGPASSWORD: '${DB_PASSWORD:-password}'
+      POSTGRES_DB: '${DB_DATABASE:-book_management}'
+      POSTGRES_USER: '${DB_USERNAME:-sail}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:-password}'
+    volumes:
+      - 'sail-pgsql:/var/lib/postgresql/data'
+      - './backend/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+    networks:
+      - sail
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "${DB_DATABASE:-book_management}", "-U", "${DB_USERNAME:-sail}"]
+      retries: 3
+      timeout: 5s
+
+  # pgAdmin (オプション)
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - sail-pgadmin:/var/lib/pgadmin
+    networks:
+      - sail
+    depends_on:
+      - pgsql
+
+networks:
+  sail:
+    driver: bridge
+
+volumes:
+  sail-pgsql:
+    driver: local
+  sail-pgadmin:
+    driver: local
