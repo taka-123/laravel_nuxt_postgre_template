@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  frontend-lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+      - name: Install dependencies
+        run: cd frontend && npm ci
+      - name: Lint
+        run: cd frontend && npm run lint
+      - name: Test
+        run: cd frontend && npm test
+
+  backend-lint-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: book_management_testing
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pgsql, pdo_pgsql
+      - name: Install dependencies
+        run: cd backend && composer install --prefer-dist --no-interaction --no-progress
+      - name: Lint
+        run: cd backend && composer lint
+      - name: Static analysis
+        run: cd backend && composer analyze
+      - name: Create test database
+        run: cd backend && cp .env.example .env.testing
+      - name: Generate application key
+        run: cd backend && php artisan key:generate --env=testing
+      - name: Run migrations
+        run: cd backend && php artisan migrate --env=testing
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: book_management_testing
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+      - name: Run tests
+        run: cd backend && composer test
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: book_management_testing
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+      - name: Install backend dependencies
+        run: cd backend && composer install --prefer-dist --no-interaction --no-progress
+      - name: Audit frontend packages
+        run: cd frontend && npm audit --audit-level=moderate
+      - name: Audit backend packages
+        run: cd backend && composer audit

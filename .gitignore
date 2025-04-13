@@ -1,4 +1,25 @@
-# Nuxt dev/build outputs
+# General
+.DS_Store
+.fleet
+.idea
+.nova
+.vscode
+.zed
+Thumbs.db
+*.log
+logs
+npm-debug.log
+yarn-error.log
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Node dependencies
+node_modules
+
+# Nuxt.js
 .output
 .data
 .nuxt
@@ -6,57 +27,36 @@
 .cache
 dist
 
-# Node dependencies
-node_modules
-
-# Logs
-logs
-*.log
-
-# Misc
-.DS_Store
-.fleet
-.idea
-
-# Local env files
-.env
-.env.*
-!.env.example
-
 # Laravel
-/backend/vendor/
-/backend/node_modules/
-/backend/.phpunit.result.cache
-/backend/public/storage
-/backend/public/hot
+/backend/.phpunit.cache
+/backend/node_modules
 /backend/public/build
+/backend/public/hot
+/backend/public/storage
 /backend/storage/*.key
+/backend/storage/pail
+/backend/vendor
 /backend/.env
 /backend/.env.backup
 /backend/.env.production
-/backend/.phpunit.cache
+/backend/.phpactor.json
+/backend/.phpunit.result.cache
 /backend/Homestead.json
 /backend/Homestead.yaml
 /backend/auth.json
-/backend/npm-debug.log
-/backend/yarn-error.log
-/backend/.idea
-/backend/.vscode
 
-# Nuxt.js
-/frontend/node_modules
-/frontend/.nuxt
-/frontend/dist
-/frontend/.output
-/frontend/npm-debug.log
-/frontend/yarn-error.log
-/frontend/.env
-/frontend/.DS_Store
-/frontend/.idea
-/frontend/.vscode
+# Husky
+.husky/_
 
-# General
-.DS_Store
-.idea
-.vscode
-Thumbs.db
+# Test coverage
+coverage
+.nyc_output
+/frontend/coverage
+/backend/coverage
+
+# Vitest
+/frontend/__snapshots__
+/frontend/vitest-*.json
+
+# PHPStan
+/backend/.phpstan-cache

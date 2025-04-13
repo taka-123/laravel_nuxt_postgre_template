@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "security:check": "npm audit && cd frontend && npm audit && cd ../backend && composer audit"
+  }
+}

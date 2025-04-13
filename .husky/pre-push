@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# フロントエンドのテスト実行
+cd frontend && npm run lint && npm test
+
+# バックエンドのテスト実行
+cd backend && composer lint && composer test
