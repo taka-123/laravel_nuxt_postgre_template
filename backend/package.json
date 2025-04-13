@@ -19,5 +19,10 @@
         "laravel-vite-plugin": "^1.2.0",
         "tailwindcss": "^4.0.0",
         "vite": "^6.0.11"
+    },
+    "dependencies": {
+        "@zxing/browser": "^0.1.5",
+        "@zxing/library": "^0.21.3",
+        "jsbarcode": "^3.11.6"
     }
 }

@@ -2,40 +2,81 @@
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { md3 } from 'vuetify/blueprints'
+import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
 
 export default defineNuxtPlugin(nuxtApp => {
   const vuetify = createVuetify({
+    ssr: true,
     components,
     directives,
+    // Material Design 3 を使用
+    blueprint: md3,
+    // アイコンセット
+    icons: {
+      defaultSet: 'mdi',
+      aliases,
+      sets: {
+        mdi,
+      },
+    },
+    // カスタムテーマ
     theme: {
       defaultTheme: 'light',
       themes: {
         light: {
           dark: false,
           colors: {
-            primary: '#1976D2',
-            secondary: '#424242',
-            accent: '#82B1FF',
-            error: '#FF5252',
-            info: '#2196F3',
-            success: '#4CAF50',
-            warning: '#FB8C00',
-          }
+            primary: '#1976D2', // メインカラー
+            secondary: '#673AB7', // セカンダリー
+            accent: '#FF5722', // アクセント
+            error: '#F44336', // エラー
+            warning: '#FFC107', // 警告
+            info: '#00BCD4', // 情報
+            success: '#4CAF50', // 成功
+            background: '#F5F5F5', // 背景色
+          },
         },
         dark: {
           dark: true,
           colors: {
             primary: '#2196F3',
-            secondary: '#616161',
-            accent: '#82B1FF',
+            secondary: '#9C27B0',
+            accent: '#FF9800',
             error: '#FF5252',
-            info: '#2196F3',
+            warning: '#FFC107',
+            info: '#00BCD4',
             success: '#4CAF50',
-            warning: '#FB8C00',
-          }
-        }
-      }
-    }
+            background: '#121212',
+          },
+        },
+      },
+    },
+    // デフォルトプロパティ
+    defaults: {
+      VCard: {
+        elevation: 2,
+        rounded: 'lg',
+      },
+      VBtn: {
+        rounded: 'lg',
+        elevation: 2,
+        fontWeight: 'medium',
+      },
+      VAlert: {
+        borderRadius: 'lg',
+      },
+      VTextField: {
+        variant: 'outlined',
+        density: 'comfortable',
+        rounded: 'lg',
+      },
+      VSelect: {
+        variant: 'outlined',
+        density: 'comfortable',
+        rounded: 'lg',
+      },
+    },
   })
 
   nuxtApp.vueApp.use(vuetify)

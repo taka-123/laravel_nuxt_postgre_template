@@ -5,12 +5,14 @@ FROM node:22-alpine AS base
 WORKDIR /app
 
 # 依存関係をインストールするためのファイルをコピー
-COPY package.json yarn.lock* ./ 
+COPY package.json yarn.lock* ./
 # If you have package-lock.json, copy that instead of yarn.lock
 # COPY package.json package-lock.json* ./
 
 # 依存関係をインストール
 RUN yarn install --frozen-lockfile
+# 明示的にquagga2をインストール
+RUN yarn add @ericblade/quagga2
 
 # アプリケーションコードをコピー
 COPY . .

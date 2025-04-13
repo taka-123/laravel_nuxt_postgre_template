@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\Api\BookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +30,23 @@ Route::group([
 
 });
 
-// 書籍関連のルート（今後実装）
-Route::group(['middleware' => 'auth:api'], function () {
-    // 書籍のCRUD操作のルートをここに追加
+// バーコードとISBN関連のルート（認証不要）
+Route::group(['prefix' => 'barcode'], function () {
+    Route::post('generate', [BookController::class, 'generateBarcode'])->name('barcode.generate');
+});
+
+Route::group(['prefix' => 'isbn'], function () {
+    Route::post('fetch', [BookController::class, 'fetchBookInfoByIsbn'])->name('isbn.fetch');
+});
+
+// テスト用：認証不要の書籍一覧エンドポイント
+Route::get('/public/books', [BookController::class, 'index'])->name('books.public.index');
+
+// 書籍関連のルート（認証必要）
+Route::group(['middleware' => 'auth:api', 'prefix' => 'books'], function () {
+    Route::get('/', [BookController::class, 'index'])->name('books.index');
+    Route::post('/', [BookController::class, 'store'])->name('books.store');
+    Route::get('/{id}', [BookController::class, 'show'])->name('books.show');
+    Route::put('/{id}', [BookController::class, 'update'])->name('books.update');
+    Route::delete('/{id}', [BookController::class, 'destroy'])->name('books.destroy');
 });

@@ -5,9 +5,11 @@
       <v-spacer></v-spacer>
       <v-btn to="/" text>ホーム</v-btn>
       <v-btn to="/books" text>書籍一覧</v-btn>
-      <template v-if="isLoggedIn">
+      <v-btn to="/barcode" text>バーコード読取</v-btn>
+      <v-btn to="/generate-barcode" text>バーコード生成</v-btn>
+      <template v-if="isAuthenticated">
         <v-btn to="/profile" text>プロフィール</v-btn>
-        <v-btn @click="logout" text>ログアウト</v-btn>
+        <v-btn @click="handleLogout" text>ログアウト</v-btn>
       </template>
       <template v-else>
         <v-btn to="/login" text>ログイン</v-btn>
@@ -29,15 +31,18 @@
   </v-app>
 </template>
 
-<script setup lang="ts">
-import { useAuthStore } from '~/stores/auth';
-import { storeToRefs } from 'pinia';
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-const authStore = useAuthStore();
-const { isLoggedIn } = storeToRefs(authStore);
+// 認証状態（実際には適切な認証システムと連携する）
+const isAuthenticated = ref(false);
+const router = useRouter();
 
-const logout = async () => {
-  await authStore.logout();
-  navigateTo('/login');
+// ログアウト処理
+const handleLogout = async () => {
+  // ここに実際のログアウト処理を実装
+  isAuthenticated.value = false;
+  router.push('/login');
 };
 </script>

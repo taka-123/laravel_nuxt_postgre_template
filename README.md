@@ -20,11 +20,57 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理シス�
 | PostgreSQL             | 5432   |
 | pgAdmin                | 5050   |
 
+## Docker 環境の起動方法
+
+本プロジェクトでは 2 つの Docker Compose 設定があります：
+
+1. **プロジェクトルートの`docker-compose.yml`**：
+
+   - フロントエンド、バックエンド、データベースを一括で起動
+   - 開発環境全体の構築に使用
+
+2. **`backend/docker-compose.yml`**：
+   - バックエンドのみ（Laravel + PostgreSQL）を起動
+   - バックエンド単体の開発に使用
+
+### 重要: 同時に両方の環境を起動しないでください
+
+これらの設定には同じポートを使用するサービスが含まれるため、**どちらか一方のみを起動**してください。
+両方を同時に起動するとポート競合が発生します。
+
+### 正しい起動方法
+
+```bash
+# 全体環境を起動する場合
+docker compose up -d
+
+# または、バックエンドのみを起動する場合
+cd backend
+docker compose up -d
+```
+
+### 正しい停止方法
+
+```bash
+# 起動したのと同じディレクトリで停止する
+docker compose down
+```
+
+既存の環境をすべて停止するには：
+
+```bash
+# 既存のコンテナをすべて確認
+docker ps -a
+
+# 特定のコンテナを停止・削除
+docker stop [コンテナID] && docker rm [コンテナID]
+```
+
 ## 開発サーバーの起動
 
-### Dockerを使用した起動（推奨）
+### Docker を使用した起動（推奨）
 
-1. Docker Desktopを起動します
+1. Docker Desktop を起動します
 2. 以下のコマンドを実行します：
 
 ```bash
@@ -56,10 +102,10 @@ npm run dev
 
 開発を始める前に、以下のドキュメントを確認してください：
 
-- [開発環境ガイド](./DEVELOPMENT.md) - コーディング規約、品質管理ツール、Gitワークフロー
+- [開発環境ガイド](./DEVELOPMENT.md) - コーディング規約、品質管理ツール、Git ワークフロー
 - [詳細なセットアップ手順](./setup-procedure.md) - プロジェクト環境構築の詳細手順
-- [Gitワークフロー](./docs/git-workflow.md) - ブランチ戦略とコミットメッセージ規約
+- [Git ワークフロー](./docs/git-workflow.md) - ブランチ戦略とコミットメッセージ規約
 
 ## 本番環境へのデプロイ
 
-本番環境へのデプロイ方法については、[Nuxtのデプロイメントドキュメント](https://nuxt.com/docs/getting-started/deployment)を参照してください。
+本番環境へのデプロイ方法については、[Nuxt のデプロイメントドキュメント](https://nuxt.com/docs/getting-started/deployment)を参照してください。

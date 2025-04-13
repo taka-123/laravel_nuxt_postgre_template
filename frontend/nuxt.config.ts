@@ -24,9 +24,17 @@ export default defineNuxtConfig({
         transformAssetUrls,
       },
     },
+    optimizeDeps: {
+      include: ['@ericblade/quagga2'],
+    },
   },
   css: ['vuetify/lib/styles/main.sass', '@mdi/font/css/materialdesignicons.min.css'],
   typescript: {
     strict: true,
-  }
+  },
+  runtimeConfig: {
+    public: {
+      apiBase: process.env.API_BASE_URL || 'http://localhost:8000/api',
+    },
+  },
 })

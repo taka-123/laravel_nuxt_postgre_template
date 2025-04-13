@@ -24,7 +24,8 @@ services:
         depends_on:
             - pgsql
     pgsql:
-        image: 'postgres:17'
+        image: 'postgres:15'
+        container_name: book-management-pgsql-backend
         ports:
             - '${FORWARD_DB_PORT:-5432}:5432'
         environment:

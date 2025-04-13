@@ -16,10 +16,14 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@ericblade/quagga2": "^1.8.4",
     "@mdi/font": "^7.4.47",
     "@nuxt/image": "^1.10.0",
     "@pinia/nuxt": "^0.10.1",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
     "axios": "^1.8.4",
+    "jsbarcode": "^3.11.6",
     "nuxt": "^3.16.1",
     "pinia": "^3.0.1",
     "sass": "^1.86.0",
