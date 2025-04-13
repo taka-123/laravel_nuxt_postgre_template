@@ -52,6 +52,14 @@ npm run dev
 - メールアドレス: test@example.com
 - パスワード: password
 
+## 開発者向けドキュメント
+
+開発を始める前に、以下のドキュメントを確認してください：
+
+- [開発環境ガイド](./DEVELOPMENT.md) - コーディング規約、品質管理ツール、Gitワークフロー
+- [詳細なセットアップ手順](./setup-procedure.md) - プロジェクト環境構築の詳細手順
+- [Gitワークフロー](./docs/git-workflow.md) - ブランチ戦略とコミットメッセージ規約
+
 ## 本番環境へのデプロイ
 
 本番環境へのデプロイ方法については、[Nuxtのデプロイメントドキュメント](https://nuxt.com/docs/getting-started/deployment)を参照してください。

@@ -1,75 +1,81 @@
-# Nuxt Minimal Starter
+# 書籍管理システム フロントエンド
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+このディレクトリには書籍管理システムのフロントエンド（Nuxt.js 3.16）が含まれています。
 
-## Setup
+## フロントエンド技術スタック
 
-Make sure to install dependencies:
+- **フレームワーク**: Nuxt.js 3.16
+- **UIフレームワーク**: Vuetify 3.7
+- **状態管理**: Pinia
+- **HTTP通信**: Axios
+- **コード品質**: ESLint + Prettier
+- **テスト**: Vitest + Vue Test Utils
+
+## セットアップ
+
+依存関係をインストールします：
 
 ```bash
 # npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+## 開発サーバー
 
-Start the development server on `http://localhost:3000`:
+開発サーバーを起動します（http://localhost:3000）：
 
 ```bash
 # npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
-
-Build the application for production:
+## コマンド一覧
 
 ```bash
-# npm
+# 開発サーバー起動
+npm run dev
+
+# 本番用ビルド
 npm run build
 
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
+# 本番ビルドのプレビュー
 npm run preview
 
-# pnpm
-pnpm preview
+# コード品質チェック
+npm run lint
 
-# yarn
-yarn preview
+# コード品質チェックと自動修正
+npm run lint:fix
 
-# bun
-bun run preview
+# テスト実行
+npm test
+
+# テスト（ウォッチモード）
+npm run test:watch
+
+# テストカバレッジ
+npm run test:coverage
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## ディレクトリ構造
+
+```
+frontend/
+├── assets/           # 静的ファイル（SCSS, 画像など）
+├── components/       # 再利用可能なVueコンポーネント
+├── composables/      # 再利用可能なVue Composables
+├── layouts/          # レイアウトコンポーネント
+├── pages/            # ページコンポーネント（ルーティング）
+├── plugins/          # Nuxtプラグイン
+├── public/           # 公開ファイル
+├── stores/           # Piniaストア
+└── test/             # テストファイル
+```
+
+## 詳細情報
+
+詳細については、以下を参照してください：
+
+- [Nuxt 3 ドキュメント](https://nuxt.com/docs/getting-started/introduction)
+- [Vuetify 3 ドキュメント](https://vuetifyjs.com/en/introduction/why-vuetify/)
+- [プロジェクト開発環境ガイド](../DEVELOPMENT.md)
