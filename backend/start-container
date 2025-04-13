@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# ストレージディレクトリのパーミッション設定
+chmod -R 777 /var/www/html/storage
+chmod -R 777 /var/www/html/bootstrap/cache
+
+# キャッシュのクリア
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
+# マイグレーションの実行（--force オプションで確認なしで実行）
+php artisan migrate --force
+
+# supervisordをフォアグラウンドで実行
+exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf

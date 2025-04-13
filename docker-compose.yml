@@ -5,7 +5,7 @@ services:
   # Laravel バックエンド (Sail を利用)
   laravel.test:
     build:
-      context: './backend/vendor/laravel/sail/runtimes/8.4'
+      context: ./backend
       dockerfile: Dockerfile
       args:
         WWWGROUP: '${WWWGROUP}'
