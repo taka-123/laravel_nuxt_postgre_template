@@ -11,8 +11,6 @@ COPY package.json yarn.lock* ./
 
 # 依存関係をインストール
 RUN yarn install --frozen-lockfile
-# 明示的にquagga2をインストール
-RUN yarn add @ericblade/quagga2
 
 # アプリケーションコードをコピー
 COPY . .

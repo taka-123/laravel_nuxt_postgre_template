@@ -9,46 +9,31 @@
           <v-card>
             <v-card-title class="text-h5">カメラ読み取り</v-card-title>
             <v-card-text>
-              <!-- QuaggaJSコンテナ -->
-              <div v-show="isCameraActive" id="scanner-container" class="position-relative mb-4" style="min-height: 300px;">
-                <div id="scanner" class="w-100 h-100"></div>
+              <!-- ZXing用のビデオコンテナ -->
+              <div v-show="isCameraActive" class="video-container position-relative mb-4">
+                <video id="video-element" class="w-100 h-100"></video>
                 <div class="scan-area"></div>
               </div>
 
               <!-- カメラ非アクティブ表示 -->
-              <div v-show="!isCameraActive" class="video-container position-relative mb-4 d-flex align-center justify-center" style="min-height: 300px; background-color: #f5f5f5;">
+              <div
+                v-show="!isCameraActive"
+                class="video-container position-relative mb-4 d-flex align-center justify-center"
+                style="min-height: 300px; background-color: #f5f5f5"
+              >
                 <span class="text-grey">カメラが起動していません</span>
               </div>
 
               <v-row>
                 <v-col>
-                  <v-btn
-                    block
-                    color="primary"
-                    :disabled="isCameraActive"
-                    @click="startCamera"
-                  >
-                    カメラを起動
-                  </v-btn>
+                  <v-btn block color="primary" :disabled="isCameraActive" @click="startCamera"> カメラを起動 </v-btn>
                 </v-col>
                 <v-col>
-                  <v-btn
-                    block
-                    color="error"
-                    :disabled="!isCameraActive"
-                    @click="stopCamera"
-                  >
-                    カメラを停止
-                  </v-btn>
+                  <v-btn block color="error" :disabled="!isCameraActive" @click="stopCamera"> カメラを停止 </v-btn>
                 </v-col>
               </v-row>
 
-              <v-alert
-                v-if="isCameraActive"
-                type="info"
-                class="mt-4"
-                variant="tonal"
-              >
+              <v-alert v-if="isCameraActive" type="info" class="mt-4" variant="tonal">
                 <div class="font-weight-medium">読み取りのヒント:</div>
                 <ul class="ps-4 mb-0">
                   <li>ISBNバーコードにカメラを近づけてください（10-20cm程度）</li>
@@ -57,11 +42,7 @@
                 </ul>
               </v-alert>
 
-              <v-alert
-                v-if="lastScannedCode"
-                type="success"
-                class="mt-4"
-              >
+              <v-alert v-if="lastScannedCode" type="success" class="mt-4">
                 <div class="font-weight-medium">読み取り結果:</div>
                 <div class="text-body-1 word-break">{{ lastScannedCode }}</div>
                 <div v-if="isIsbn" class="text-caption text-success">ISBN形式で読み取りました</div>
@@ -84,12 +65,7 @@
             <v-card-text>
               <v-row>
                 <v-col v-if="bookInfo.cover_image" cols="4">
-                  <v-img
-                    :src="bookInfo.cover_image"
-                    alt="表紙"
-                    class="rounded-lg"
-                    cover
-                  ></v-img>
+                  <v-img :src="bookInfo.cover_image" alt="表紙" class="rounded-lg" cover></v-img>
                 </v-col>
 
                 <v-col>
@@ -104,13 +80,7 @@
                     <p class="text-body-2">{{ bookInfo.description }}</p>
                   </div>
 
-                  <v-btn
-                    color="success"
-                    class="mt-4"
-                    @click="registerBook"
-                  >
-                    この本を登録する
-                  </v-btn>
+                  <v-btn color="success" class="mt-4" @click="registerBook"> この本を登録する </v-btn>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -118,17 +88,14 @@
 
           <v-card v-else-if="error">
             <v-card-text>
-              <v-alert
-                type="error"
-                variant="tonal"
-              >
+              <v-alert type="error" variant="tonal">
                 {{ error }}
               </v-alert>
             </v-card-text>
           </v-card>
 
           <v-card v-else min-height="300" class="d-flex align-center justify-center flex-column pa-4">
-            <v-icon size="x-large" color="grey" class="mb-4">mdi-barcode</v-icon>
+            <div class="text-grey text-h4 mb-4">📚</div>
             <span class="text-grey text-center">ISBNを読み取るか、手動で入力してください</span>
 
             <!-- 手動入力オプション -->
@@ -165,172 +132,128 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import axios from 'axios'
-import Quagga from '@ericblade/quagga2'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library'
+import { useApi } from '~/composables/useApi'
 
-// RuntimeConfigからAPIベースURLを取得
-const config = useRuntimeConfig()
-// axiosインスタンスを作成
-const api = axios.create({
-  baseURL: 'http://localhost:8000/api'  // ローカルホストのURLを使用
-})
+// API設定
+const api = useApi()
 
 // 状態変数
 const isCameraActive = ref(false)
+const isInitializing = ref(false)
+const scannerInitialized = ref(false)
 const lastScannedCode = ref('')
 const isIsbn = ref(false)
 const bookInfo = ref(null)
+const manualIsbn = ref('')
 const isLoading = ref(false)
 const error = ref(null)
-const manualIsbn = ref('')
-const scannerInitialized = ref(false)
 
-// カメラを開始（Quagga.jsを使用）
+// ZXing用の変数
+const codeReader = ref(null)
+const videoElement = ref(null)
+
+// カメラを起動
 const startCamera = async () => {
   try {
+    if (isCameraActive.value) return
+    isInitializing.value = true
     error.value = null
-    console.log('カメラを起動します...')
 
-    Quagga.init({
-      inputStream: {
-        name: "Live",
-        type: "LiveStream",
-        target: document.querySelector("#scanner"),
-        constraints: {
-          facingMode: "environment", // バックカメラを使用
-          width: { min: 640 },
-          height: { min: 480 },
-          aspectRatio: { min: 1, max: 2 }
-        },
-      },
-      frequency: 10, // スキャン頻度を高く設定
-      locator: {
-        patchSize: "medium",
-        halfSample: true
-      },
-      numOfWorkers: 4, // ワーカースレッド数を増やす
-      decoder: {
-        readers: [
-          "ean_reader", // EAN-13（ISBN-13に対応）
-          "ean_8_reader", // EAN-8
-          "code_39_reader", // CODE-39
-          "code_128_reader" // CODE-128
-        ],
-        debug: {
-          showCanvas: true,
-          showPatches: true,
-          showFoundPatches: true,
-          showSkeleton: true,
-          showLabels: true,
-          showPatchLabels: true,
-          showRemainingPatchLabels: true,
-          boxFromPatches: {
-            showTransformed: true,
-            showTransformedBox: true,
-            showBB: true
-          }
-        }
-      },
-      locate: true
-    }, function(err) {
-      if (err) {
-        console.error('Quagga初期化エラー:', err)
-        error.value = 'カメラの初期化に失敗しました: ' + err
-        return
-      }
+    // DOMが更新されるのを待つ
+    await nextTick()
 
-      scannerInitialized.value = true
-      isCameraActive.value = true
-      console.log('Quagga初期化成功')
-      Quagga.start()
-    })
-
-    // バーコード検出イベントハンドラ
-    Quagga.onDetected(handleBarcodeDetected)
-    Quagga.onProcessed(handleBarcodeProcessed)
+    // バーコードスキャナーを初期化
+    await initializeBarcodeScanner()
   } catch (err) {
-    console.error('カメラの起動に失敗しました', err)
-    error.value = 'カメラへのアクセスに失敗しました。カメラへのアクセス許可を確認してください。'
+    console.error('カメラ起動エラー:', err)
+    error.value = 'カメラの起動に失敗しました: ' + err.message
+    isCameraActive.value = false
+  } finally {
+    isInitializing.value = false
+  }
+}
+
+const initializeBarcodeScanner = async () => {
+  try {
+    // ZXingのBrowserMultiFormatReaderを初期化
+    codeReader.value = new BrowserMultiFormatReader()
+
+    // video要素を取得
+    videoElement.value = document.getElementById('video-element')
+    if (!videoElement.value) {
+      throw new Error('Video要素が見つかりません')
+    }
+
+    // カメラの制約を設定（リアカメラを優先）
+    const constraints = {
+      video: {
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+      audio: false,
+    }
+
+    // デコード結果を処理するコールバック
+    await codeReader.value
+      .decodeFromConstraints(constraints, videoElement.value, (result, err) => {
+        if (result) {
+          const barcode = result.getText()
+          handleBarcodeDetected(barcode)
+        }
+        if (err && !(err instanceof NotFoundException)) {
+          console.error('Decode error:', err)
+        }
+      })
+      .catch((err) => {
+        console.error('Error accessing camera:', err)
+        error.value = 'カメラへのアクセスに失敗しました: ' + err.message
+        isCameraActive.value = false
+      })
+
+    scannerInitialized.value = true
+    isCameraActive.value = true
+  } catch (err) {
+    console.error('バーコードスキャナー初期化エラー:', err)
+    error.value = 'スキャナーの初期化に失敗しました: ' + err.message
+    isCameraActive.value = false
   }
 }
 
 // 検出されたバーコードを処理
-const handleBarcodeDetected = (result) => {
-  if (result && result.codeResult) {
-    const scannedCode = result.codeResult.code
-    console.log('バーコード検出:', scannedCode)
+const handleBarcodeDetected = (scannedCode) => {
+  if (!scannedCode) return
 
-    // 信頼性の確認（確信度が高いコードのみを受け入れる）
-    if (result.codeResult.startInfo.error < 0.25) {
-      // 同じコードの連続スキャンを防止
-      if (lastScannedCode.value !== scannedCode) {
-        lastScannedCode.value = scannedCode
+  // 同じコードの連続スキャンを防止
+  if (lastScannedCode.value !== scannedCode) {
+    lastScannedCode.value = scannedCode
 
-        // スキャンされたコードがISBNかどうかを判定
-        isIsbn.value = isValidIsbn(scannedCode)
-        console.log('ISBN判定:', isIsbn.value)
+    // スキャンされたコードがISBNかどうかを判定
+    isIsbn.value = isValidIsbn(scannedCode)
 
-        // ISBNの場合は書籍情報を取得
-        if (isIsbn.value) {
-          // 一時的にカメラを停止して書籍情報を取得
-          stopCamera()
-          fetchBookInfo(scannedCode)
-        }
-      }
+    // ISBNの場合は書籍情報を取得
+    if (isIsbn.value) {
+      // 一時的にカメラを停止して書籍情報を取得
+      stopCamera()
+      fetchBookInfo(scannedCode)
     }
-  }
-}
-
-// バーコード処理過程の視覚化
-const handleBarcodeProcessed = (result) => {
-  if (!result) return
-
-  try {
-    const drawingCanvas = Quagga.canvas.dom.overlay
-    const drawingCtx = Quagga.canvas.ctx.overlay
-
-    if (result) {
-      if (result.boxes) {
-        drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height)
-
-        // 検出されたバーコードボックスを描画
-        result.boxes.filter(box => box !== result.box).forEach(box => {
-          Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "yellow", lineWidth: 2 })
-        })
-      }
-
-      if (result.box) {
-        // 最も確からしいバーコードボックスを強調表示
-        Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 })
-      }
-
-      if (result.codeResult && result.codeResult.code) {
-        // 読み取ったコードを表示
-        drawingCtx.font = "24px Arial"
-        drawingCtx.fillStyle = "green"
-        drawingCtx.fillText(result.codeResult.code, 10, 50)
-      }
-    }
-  } catch (err) {
-    console.error('キャンバス描画エラー:', err)
   }
 }
 
 // カメラを停止
 const stopCamera = () => {
-  if (scannerInitialized.value) {
-    Quagga.offDetected(handleBarcodeDetected)
-    Quagga.offProcessed(handleBarcodeProcessed)
-    Quagga.stop()
+  if (codeReader.value && scannerInitialized.value) {
+    codeReader.value.reset()
     scannerInitialized.value = false
     isCameraActive.value = false
-    console.log('カメラを停止しました')
   }
+  isLoading.value = false
 }
 
 // コンポーネント破棄時にカメラを停止
-onUnmounted(() => {
+onBeforeUnmount(() => {
   stopCamera()
 })
 
@@ -342,8 +265,6 @@ const isValidIsbn = (code) => {
   // ハイフンを削除
   const isbn = cleanedCode.replace(/-/g, '')
 
-  console.log('ISBN検証:', isbn, isbn.length)
-
   // ISBN-10またはISBN-13の長さチェック
   return isbn.length === 10 || isbn.length === 13
 }
@@ -352,7 +273,6 @@ const isValidIsbn = (code) => {
 const searchManualIsbn = () => {
   if (!manualIsbn.value) return
 
-  console.log('手動ISBN検索:', manualIsbn.value)
   isIsbn.value = isValidIsbn(manualIsbn.value)
 
   if (isIsbn.value) {
@@ -373,19 +293,17 @@ const fetchBookInfo = async (isbn) => {
     // ハイフンを削除したISBNを使用
     const cleanIsbn = isbn.replace(/-/g, '')
 
-    console.log('ISBN情報を取得中:', cleanIsbn)
-
-    const response = await api.post('/isbn/fetch', {
-      isbn: cleanIsbn
+    const { data } = await api.post('/isbn/fetch', {
+      isbn: cleanIsbn,
     })
 
-    bookInfo.value = response.data
+    bookInfo.value = data
   } catch (err) {
     console.error('ISBN情報の取得に失敗しました', err)
 
-    if (err.response && err.response.status === 404) {
+    if (err.response?.status === 404) {
       error.value = 'この ISBN に該当する書籍が見つかりませんでした'
-    } else if (err.response && err.response.status === 422) {
+    } else if (err.response?.status === 422) {
       error.value = 'ISBN形式が正しくありません'
     } else {
       error.value = `書籍情報の取得中にエラーが発生しました: ${err.message || 'Unknown error'}`
@@ -403,9 +321,7 @@ const registerBook = async () => {
     isLoading.value = true
     error.value = null
 
-    console.log('書籍を登録します:', bookInfo.value)
-
-    const response = await api.post('/books', bookInfo.value)
+    const { data } = await api.post('/books', bookInfo.value)
 
     // 登録成功
     alert('書籍を登録しました！')
@@ -417,7 +333,7 @@ const registerBook = async () => {
   } catch (err) {
     console.error('書籍の登録に失敗しました', err)
 
-    if (err.response && err.response.data && err.response.data.errors) {
+    if (err.response?.data?.errors) {
       error.value = Object.values(err.response.data.errors).flat().join('\n')
     } else {
       error.value = '書籍の登録中にエラーが発生しました'
@@ -445,23 +361,12 @@ const registerBook = async () => {
   min-height: 300px;
 }
 
-#scanner {
+#video-element {
   position: relative;
   width: 100%;
   height: 100%;
   min-height: 300px;
-  overflow: hidden;
-}
-
-#scanner video, #scanner canvas {
-  width: 100%;
-  height: auto;
-}
-
-.drawingBuffer {
-  position: absolute;
-  top: 0;
-  left: 0;
+  object-fit: cover;
 }
 
 .word-break {
@@ -475,7 +380,7 @@ const registerBook = async () => {
   transform: translate(-50%, -50%);
   width: 70%;
   height: 40%;
-  border: 2px solid #1976D2;
+  border: 2px solid #1976d2;
   border-radius: 8px;
   box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.1);
   animation: pulse 2s infinite;

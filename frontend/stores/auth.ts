@@ -1,6 +1,7 @@
 // stores/auth.ts
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { useApi } from '~/composables/useApi'
+import { useNuxtApp } from '#app'
 
 interface User {
   id: number
@@ -22,96 +23,103 @@ export const useAuthStore = defineStore('auth', {
     token: null,
     refreshToken: null,
     isAuthenticated: false,
-    loading: false
+    loading: false,
   }),
-  
+
   getters: {
     getUser: (state) => state.user,
     isLoggedIn: (state) => state.isAuthenticated,
-    getToken: (state) => state.token
+    getToken: (state) => state.token,
   },
-  
+
   actions: {
     async login(email: string, password: string) {
       this.loading = true
-      
+      const api = useApi()
+
       try {
-        const response = await axios.post('http://localhost:8000/api/auth/login', {
+        const response = await api.post('/auth/login', {
           email,
-          password
+          password,
         })
-        
+
         const { access_token, user } = response.data
-        
+
         this.token = access_token
         this.refreshToken = access_token
         this.user = user
         this.isAuthenticated = true
-        
+
         // トークンをローカルストレージに保存
         if (process.client) {
           localStorage.setItem('auth_token', access_token)
           localStorage.setItem('refresh_token', access_token)
         }
-        
+
         return { success: true }
       } catch (error: any) {
         return {
           success: false,
-          message: error.response?.data?.error || error.response?.data?.message || 'ログインに失敗しました'
+          message: error.response?.data?.error || error.response?.data?.message || 'ログインに失敗しました',
         }
       } finally {
         this.loading = false
       }
     },
-    
+
     async register(name: string, email: string, password: string, password_confirmation: string) {
       this.loading = true
-      
+      const api = useApi()
+
       try {
-        const response = await axios.post('http://localhost:8000/api/auth/register', {
+        const response = await api.post('/auth/register', {
           name,
           email,
           password,
-          password_confirmation
+          password_confirmation,
         })
-        
+
         const { access_token, user } = response.data
-        
+
         this.token = access_token
         this.refreshToken = access_token
         this.user = user
         this.isAuthenticated = true
-        
+
         // トークンをローカルストレージに保存
         if (process.client) {
           localStorage.setItem('auth_token', access_token)
           localStorage.setItem('refresh_token', access_token)
         }
-        
+
         return { success: true }
       } catch (error: any) {
         return {
           success: false,
-          message: error.response?.data?.message || '登録に失敗しました'
+          message: error.response?.data?.message || '登録に失敗しました',
         }
       } finally {
         this.loading = false
       }
     },
-    
+
     async logout() {
       this.loading = true
-      
+      const api = useApi()
+
       try {
         if (this.token) {
-          await axios.post('http://localhost:8000/api/auth/logout', {}, {
-            headers: {
-              'Authorization': `Bearer ${this.token}`
-            }
-          })
+          await api.post(
+            '/auth/logout',
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${this.token}`,
+              },
+            },
+          )
         }
-        
+
         return { success: true }
       } catch (error) {
         // エラーが発生しても、ローカルのログアウト処理は続行
@@ -123,31 +131,32 @@ export const useAuthStore = defineStore('auth', {
         this.refreshToken = null
         this.user = null
         this.isAuthenticated = false
-        
+
         // ローカルストレージからトークンを削除
         if (process.client) {
           localStorage.removeItem('auth_token')
           localStorage.removeItem('refresh_token')
         }
-        
+
         this.loading = false
       }
     },
-    
+
     async fetchUser() {
       if (!this.token) {
         return { success: false, message: '認証されていません' }
       }
-      
+
       this.loading = true
-      
+      const api = useApi()
+
       try {
-        const response = await axios.get('http://localhost:8000/api/auth/user', {
+        const response = await api.get('/auth/user', {
           headers: {
-            'Authorization': `Bearer ${this.token}`
-          }
+            Authorization: `Bearer ${this.token}`,
+          },
         })
-        
+
         this.user = response.data
         return { success: true }
       } catch (error: any) {
@@ -155,31 +164,39 @@ export const useAuthStore = defineStore('auth', {
           // 認証エラーの場合はログアウト
           this.logout()
         }
-        
+
         return {
           success: false,
-          message: error.response?.data?.message || 'ユーザー情報の取得に失敗しました'
+          message: error.response?.data?.message || 'ユーザー情報の取得に失敗しました',
         }
       } finally {
         this.loading = false
       }
     },
-    
+
     // ページ読み込み時にローカルストレージからトークンを復元
     initAuth() {
       if (process.client) {
         const token = localStorage.getItem('auth_token')
         const refreshToken = localStorage.getItem('refresh_token')
-        
+
         if (token) {
           this.token = token
           this.refreshToken = refreshToken
           this.isAuthenticated = true
-          
-          // ユーザー情報を取得
-          this.fetchUser()
+
+          // 開発環境では認証エラーを無視
+          const { $config } = useNuxtApp()
+          if ($config.public.appEnv === 'development') {
+            this.fetchUser().catch(() => {
+              // 開発環境ではエラーを無視
+              console.log('認証情報の取得をスキップします（開発モード）')
+            })
+          } else {
+            this.fetchUser()
+          }
         }
       }
-    }
-  }
+    },
+  },
 })

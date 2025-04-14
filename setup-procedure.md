@@ -128,6 +128,7 @@ npx nuxi@latest init .
 ```
 
 初期化時の質問には以下のように回答します：
+
 - Which package manager would you like to use? → **npm**
 - Initialize git repository? → **No** （すでにルートで初期化済み）
 - モジュール選択では **ESLint integration** のみを選択
@@ -171,7 +172,10 @@ export default defineNuxtConfig({
     },
   },
   // CSSの追加
-  css: ["vuetify/lib/styles/main.sass", "@mdi/font/css/materialdesignicons.min.css"],
+  css: [
+    "vuetify/lib/styles/main.sass",
+    "@mdi/font/css/materialdesignicons.min.css",
+  ],
   // Piniaの設定
   pinia: {
     autoImports: [
@@ -183,7 +187,7 @@ export default defineNuxtConfig({
 });
 ```
 
-また、Vuetify でSassを使用するため、Sassもインストールします。
+また、Vuetify で Sass を使用するため、Sass もインストールします。
 
 ```bash
 # frontend ディレクトリで実行
@@ -325,8 +329,10 @@ services:
       - "/app/node_modules"
     environment:
       HOST: "0.0.0.0"
-      API_BASE_URL: "http://laravel.test:${APP_PORT:-8000}/api"
-      NUXT_PUBLIC_API_BASE_URL: "http://laravel.test:${APP_PORT:-8000}/api" # Nuxt 3 用
+      # ブラウザからアクセスするバックエンドAPI URL
+      BROWSER_API_BASE_URL: "http://localhost:8000/api"
+      # Dockerコンテナ内部での通信用バックエンドAPI URL
+      SERVER_API_BASE_URL: "http://laravel.test:${APP_PORT:-8000}/api"
     networks:
       - sail
     depends_on:

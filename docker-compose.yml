@@ -8,24 +8,24 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        WWWGROUP: '${WWWGROUP}'
+        WWWGROUP: "${WWWGROUP}"
     image: sail-8.3/app
     extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      - "host.docker.internal:host-gateway"
     ports:
-      - '${APP_PORT:-8000}:80'
-      - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+      - "${APP_PORT:-8000}:80"
+      - "${VITE_PORT:-5173}:${VITE_PORT:-5173}"
     environment:
-      WWWUSER: '${WWWUSER}'
+      WWWUSER: "${WWWUSER}"
       LARAVEL_SAIL: 1
-      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
-      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
-      IGNITION_EDITOR: '${IGNITION_EDITOR:-vscode}'
-      IGNITION_REMOTE_SITES_PATH: '${IGNITION_REMOTE_SITES_PATH:-}'
-      IGNITION_LOCAL_SITES_PATH: '${IGNITION_LOCAL_SITES_PATH:-}'
-      NODE_OPTIONS: '--openssl-legacy-provider'
+      XDEBUG_MODE: "${SAIL_XDEBUG_MODE:-off}"
+      XDEBUG_CONFIG: "${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}"
+      IGNITION_EDITOR: "${IGNITION_EDITOR:-vscode}"
+      IGNITION_REMOTE_SITES_PATH: "${IGNITION_REMOTE_SITES_PATH:-}"
+      IGNITION_LOCAL_SITES_PATH: "${IGNITION_LOCAL_SITES_PATH:-}"
+      NODE_OPTIONS: "--openssl-legacy-provider"
     volumes:
-      - './backend:/var/www/html'
+      - "./backend:/var/www/html"
     networks:
       - sail
     depends_on:
@@ -38,16 +38,17 @@ services:
       dockerfile: Dockerfile # frontend ディレクトリ内に Dockerfile を作成する必要があります
     image: book-management-frontend
     ports:
-      - '${FRONTEND_PORT:-3000}:3000'
+      - "${FRONTEND_PORT:-3000}:3000"
     volumes:
-      - './frontend:/app'
-      - '/app/node_modules' # node_modules をホストと共有しないように設定
+      - "./frontend:/app"
+      - "/app/node_modules" # node_modules をホストと共有しないように設定
     environment:
-      HOST: '0.0.0.0' # コンテナ外からのアクセスを許可
-      NODE_ENV: 'development' # 開発環境で実行
-      # バックエンドAPIのURL（コンテナ名を指定）
-      API_BASE_URL: 'http://laravel.test/api'
-      NUXT_PUBLIC_API_BASE_URL: 'http://laravel.test/api' # Nuxt 3 用
+      HOST: "0.0.0.0" # コンテナ外からのアクセスを許可
+      NODE_ENV: "development" # 開発環境で実行
+      # ブラウザからアクセスするバックエンドAPI URL
+      BROWSER_API_BASE_URL: "http://localhost:8000/api"
+      # Dockerコンテナ内部での通信用バックエンドAPI URL
+      SERVER_API_BASE_URL: "http://laravel.test/api"
     networks:
       - sail
     depends_on:
@@ -55,23 +56,32 @@ services:
 
   # PostgreSQL データベース
   pgsql:
-    image: 'postgres:16'
+    image: "postgres:16"
     container_name: book-management-pgsql-main
     restart: unless-stopped
     ports:
-      - '${FORWARD_DB_PORT:-5432}:5432'
+      - "${FORWARD_DB_PORT:-5432}:5432"
     environment:
-      PGPASSWORD: '${DB_PASSWORD:-password}'
-      POSTGRES_DB: '${DB_DATABASE:-book_management}'
-      POSTGRES_USER: '${DB_USERNAME:-sail}'
-      POSTGRES_PASSWORD: '${DB_PASSWORD:-password}'
+      PGPASSWORD: "${DB_PASSWORD:-password}"
+      POSTGRES_DB: "${DB_DATABASE:-book_management}"
+      POSTGRES_USER: "${DB_USERNAME:-sail}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-password}"
     volumes:
-      - 'sail-pgsql:/var/lib/postgresql/data'
-      - './backend/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+      - "sail-pgsql:/var/lib/postgresql/data"
+      - "./backend/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql"
     networks:
       - sail
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "${DB_DATABASE:-book_management}", "-U", "${DB_USERNAME:-sail}"]
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-q",
+          "-d",
+          "${DB_DATABASE:-book_management}",
+          "-U",
+          "${DB_USERNAME:-sail}",
+        ]
       retries: 3
       timeout: 5s
 
