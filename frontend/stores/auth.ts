@@ -185,14 +185,12 @@ export const useAuthStore = defineStore('auth', {
           this.refreshToken = refreshToken
           this.isAuthenticated = true
 
-          // 開発環境では認証エラーを無視
+          // 開発環境では認証APIリクエストをスキップ
           const { $config } = useNuxtApp()
-          if ($config.public.appEnv === 'development') {
-            this.fetchUser().catch(() => {
-              // 開発環境ではエラーを無視
-              console.log('認証情報の取得をスキップします（開発モード）')
-            })
+          if ($config?.public?.appEnv === 'development') {
+            // 開発環境では何もしない
           } else {
+            // 本番環境でのみユーザー情報を取得
             this.fetchUser()
           }
         }
