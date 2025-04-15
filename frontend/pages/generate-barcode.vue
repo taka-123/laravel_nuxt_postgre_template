@@ -23,7 +23,7 @@
                   </v-alert>
                   <div v-else>
                     <!-- 書籍選択 -->
-                    <label for="book-select" class="text-subtitle-1 font-weight-bold mb-2 d-block">書籍を選択:</label>
+                    <label for="book-select" class="text-subtitle-1 font-weight-bold mb-2 d-block">書籍を選択</label>
                     <v-select
                       id="book-select"
                       v-model="selectedBookId"
@@ -134,7 +134,7 @@
 
               <v-sheet class="mb-4">
                 <div class="d-flex align-center mb-1">
-                  <span class="text-subtitle-1 font-weight-medium">バーコードの高さ ({{ height }}px)</span>
+                  <span class="text-subtitle-1 font-weight-medium">バーコードの高さ ({{ height }})</span>
                 </div>
                 <v-slider v-model="height" :min="20" :max="150" :step="10" thumb-label></v-slider>
               </v-sheet>
@@ -165,7 +165,7 @@
           <v-card v-else-if="barcodeData">
             <v-card-title class="text-h5">生成されたバーコード</v-card-title>
             <v-card-text class="text-center">
-              <img v-if="format === 'png'" :src="barcodeData.image_data" alt="バーコード" class="mx-auto mb-2" />
+              <img v-if="format === 'png'" :src="barcodeData.image_data" alt="バーコード" class="mx-auto mb-2">
               <div v-else class="mx-auto mb-2" v-html="barcodeData.image_data"></div>
 
               <p class="text-body-1 text-grey-darken-1">{{ barcodeData.barcode }}</p>
@@ -420,25 +420,25 @@ const printBarcode = () => {
   const printWindow = window.open('', '_blank')
   printWindow.document.write('<html><head><title>バーコード印刷</title>')
   printWindow.document.write(
-    '<style>body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }</style>',
+    '<style>body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }</style>'
   )
   printWindow.document.write('</head><body>')
 
   // 書籍情報がある場合は表示
   if (barcodeData.value.bookInfo) {
     printWindow.document.write(
-      '<div style="font-size: 18px; margin-bottom: 10px;">' + barcodeData.value.bookInfo.title + '</div>',
+      '<div style="font-size: 18px; margin-bottom: 10px;">' + barcodeData.value.bookInfo.title + '</div>'
     )
 
     if (barcodeData.value.bookInfo.author) {
       printWindow.document.write(
-        '<div style="font-size: 14px; margin-bottom: 15px;">' + barcodeData.value.bookInfo.author + '</div>',
+        '<div style="font-size: 14px; margin-bottom: 15px;">' + barcodeData.value.bookInfo.author + '</div>'
       )
     }
   }
 
   printWindow.document.write(
-    '<div style="margin-bottom: 20px;"><img src="' + barcodeData.value.image_data + '" alt="バーコード"></div>',
+    '<div style="margin-bottom: 20px;"><img src="' + barcodeData.value.image_data + '" alt="バーコード"></div>'
   )
   printWindow.document.write('<div style="font-size: 16px;">' + barcodeData.value.barcode + '</div>')
   printWindow.document.write('</body></html>')

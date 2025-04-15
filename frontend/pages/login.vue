@@ -1,127 +1,108 @@
 <template>
-  <div>
-    <v-row justify="center">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card class="mt-5">
-          <v-card-title class="text-h5 text-center">
+  <div class="d-flex align-center justify-center" style="height: 100vh">
+    <v-card class="pa-8 mx-auto" max-width="500">
+      <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
+
+      <v-form @submit.prevent="login">
+        <v-alert v-if="error" type="error" class="mb-4">
+          {{ error }}
+        </v-alert>
+
+        <v-text-field
+          v-model="email"
+          label="メールアドレス"
+          type="email"
+          :error-messages="emailError"
+          required
+          autocomplete="email"
+          @input="clearEmailError"
+        ></v-text-field>
+
+        <v-text-field
+          v-model="password"
+          label="パスワード"
+          type="password"
+          :error-messages="passwordError"
+          required
+          autocomplete="current-password"
+          @input="clearPasswordError"
+        ></v-text-field>
+
+        <div class="d-flex justify-space-between align-center mt-4">
+          <v-btn type="submit" color="primary" size="large" :loading="isLoading" :disabled="isLoading">
             ログイン
-          </v-card-title>
-          <v-card-text>
-            <v-alert
-              v-if="errorMessage"
-              type="error"
-              class="mb-4"
-              closable
-              @click:close="errorMessage = ''"
-            >
-              {{ errorMessage }}
-            </v-alert>
-
-            <v-form @submit.prevent="login" ref="form">
-              <v-text-field
-                v-model="email"
-                label="メールアドレス"
-                type="email"
-                required
-                :rules="[v => !!v || 'メールアドレスは必須です', v => /.+@.+\..+/.test(v) || '有効なメールアドレスを入力してください']"
-                variant="outlined"
-                prepend-inner-icon="mdi-email"
-              ></v-text-field>
-
-              <v-text-field
-                v-model="password"
-                label="パスワード"
-                type="password"
-                required
-                :rules="[v => !!v || 'パスワードは必須です', v => v.length >= 8 || 'パスワードは8文字以上必要です']"
-                variant="outlined"
-                prepend-inner-icon="mdi-lock"
-              ></v-text-field>
-
-              <div class="d-flex justify-space-between align-center mt-2">
-                <v-checkbox
-                  v-model="rememberMe"
-                  label="ログイン状態を保持"
-                  hide-details
-                ></v-checkbox>
-                <v-btn
-                  text
-                  color="primary"
-                  to="/forgot-password"
-                  variant="text"
-                  size="small"
-                >
-                  パスワードをお忘れですか？
-                </v-btn>
-              </div>
-            </v-form>
-          </v-card-text>
-
-          <v-card-actions class="px-4 pb-4">
-            <v-btn
-              color="primary"
-              block
-              :loading="loading"
-              @click="login"
-              variant="elevated"
-              size="large"
-            >
-              ログイン
-            </v-btn>
-          </v-card-actions>
-
-          <v-card-text class="text-center pt-0">
-            アカウントをお持ちでないですか？
-            <v-btn
-              to="/register"
-              variant="text"
-              color="primary"
-              size="small"
-            >
-              新規登録
-            </v-btn>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+          </v-btn>
+          <NuxtLink to="/register" class="text-decoration-none"> 新規登録はこちら </NuxtLink>
+        </div>
+      </v-form>
+    </v-card>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import { useAuthStore } from '~/stores/auth';
+<script setup>
+import { ref, computed } from 'vue'
+import { useAuth } from '~/composables/useAuth'
+import { useRoute, useRouter } from 'vue-router'
 
-const authStore = useAuthStore();
-const router = useRouter();
+// 認証機能を取得
+const { loginAndRedirect, isLoading, getError } = useAuth()
+const route = useRoute()
+const router = useRouter()
 
-const email = ref('');
-const password = ref('');
-const rememberMe = ref(false);
-const errorMessage = ref('');
-const loading = ref(false);
-const form = ref<any>(null);
+// フォーム状態
+const email = ref('')
+const password = ref('')
+const emailError = ref('')
+const passwordError = ref('')
 
-const login = async () => {
-  const { valid } = await form.value.validate();
-  
-  if (!valid) return;
-  
-  loading.value = true;
-  
-  try {
-    const result = await authStore.login(email.value, password.value);
-    
-    if (result.success) {
-      // ログイン成功
-      router.push('/');
-    } else {
-      // ログイン失敗
-      errorMessage.value = result.message || 'ログインに失敗しました。';
-    }
-  } catch (error: any) {
-    errorMessage.value = error.message || 'エラーが発生しました。';
-  } finally {
-    loading.value = false;
+// エラーメッセージ
+const error = computed(() => getError)
+
+// バリデーション関数
+const validateForm = () => {
+  let isValid = true
+
+  // メールアドレスのバリデーション
+  if (!email.value) {
+    emailError.value = 'メールアドレスを入力してください'
+    isValid = false
+  } else if (!/\S+@\S+\.\S+/.test(email.value)) {
+    emailError.value = '有効なメールアドレスを入力してください'
+    isValid = false
   }
-};
+
+  // パスワードのバリデーション
+  if (!password.value) {
+    passwordError.value = 'パスワードを入力してください'
+    isValid = false
+  } else if (password.value.length < 8) {
+    passwordError.value = 'パスワードは8文字以上である必要があります'
+    isValid = false
+  }
+
+  return isValid
+}
+
+// エラーメッセージをクリア
+const clearEmailError = () => {
+  emailError.value = ''
+}
+
+const clearPasswordError = () => {
+  passwordError.value = ''
+}
+
+// ログイン処理
+const login = async () => {
+  if (!validateForm()) return
+
+  try {
+    // クエリパラメータからリダイレクト先を取得（存在する場合）
+    const redirectPath = route.query.redirect || '/'
+
+    await loginAndRedirect(email.value, password.value, redirectPath)
+  } catch (err) {
+    console.error('ログインエラー:', err)
+  }
+}
 </script>
