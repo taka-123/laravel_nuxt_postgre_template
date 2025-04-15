@@ -3,7 +3,8 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { md3 } from 'vuetify/blueprints'
-import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
+// mdi-svgのインポートを削除し、mdi/fontを使用する設定に変更
+import '@mdi/font/css/materialdesignicons.css'
 
 export default defineNuxtPlugin(nuxtApp => {
   const vuetify = createVuetify({
@@ -12,13 +13,9 @@ export default defineNuxtPlugin(nuxtApp => {
     directives,
     // Material Design 3 を使用
     blueprint: md3,
-    // アイコンセット
+    // アイコンセット - MDI フォントに変更
     icons: {
       defaultSet: 'mdi',
-      aliases,
-      sets: {
-        mdi,
-      },
     },
     // カスタムテーマ
     theme: {
