@@ -92,7 +92,9 @@
                 <v-alert v-if="lastScannedCode" type="success" class="mt-4" border="start">
                   <div class="font-weight-medium">読み取り結果:</div>
                   <div class="text-body-1 word-break">{{ lastScannedCode }}</div>
-                  <div v-if="isIsbn" class="text-caption text-success">ISBN形式で読み取りました</div>
+                  <div class="text-caption" :class="isIsbn ? 'text-success' : 'text-primary'">
+                    {{ isIsbn ? 'ISBN形式で読み取りました' : '独自バーコードとして読み取りました' }}
+                  </div>
                 </v-alert>
               </v-card-text>
             </v-card>
@@ -179,15 +181,15 @@
 
             <v-card v-else class="d-flex align-center justify-center flex-column pa-6 elevation-1 rounded-lg">
               <v-icon size="x-large" color="primary" class="mb-3">mdi-book-search</v-icon>
-              <span class="text-h6 text-center mb-3">ISBNを読み取るか、手動で入力してください</span>
+              <span class="text-h6 text-center mb-3">バーコードを読み取るか、手動で入力してください</span>
 
               <!-- 手動入力オプション -->
               <v-divider class="my-4 w-100"></v-divider>
               <v-form @submit.prevent="searchManualIsbn" class="w-100">
                 <v-text-field
                   v-model="manualIsbn"
-                  label="ISBNを手動で入力"
-                  placeholder="例: 9784167158057"
+                  label="ISBNまたはバーコードを手動で入力"
+                  placeholder="例: 9784167158057 または LIBxxxxx"
                   variant="outlined"
                   prepend-inner-icon="mdi-barcode"
                   class="mb-3"
@@ -196,7 +198,7 @@
                   color="primary"
                   block
                   @click="searchManualIsbn"
-                  :disabled="!manualIsbn || manualIsbn.length < 10"
+                  :disabled="!manualIsbn || manualIsbn.length < 3"
                   prepend-icon="mdi-magnify"
                 >
                   検索
@@ -312,11 +314,15 @@ const handleBarcodeDetected = (scannedCode) => {
     // スキャンされたコードがISBNかどうかを判定
     isIsbn.value = isValidIsbn(scannedCode)
 
+    // カメラを一時停止
+    stopCamera()
+
     // ISBNの場合は書籍情報を取得
     if (isIsbn.value) {
-      // 一時的にカメラを停止して書籍情報を取得
-      stopCamera()
       fetchBookInfo(scannedCode)
+    } else {
+      // ISBNでない場合は独自バーコードとして処理
+      fetchBookByBarcode(scannedCode)
     }
   }
 }
@@ -348,7 +354,7 @@ const isValidIsbn = (code) => {
   return isbn.length === 10 || isbn.length === 13
 }
 
-// 手動入力されたISBNを検索
+// 手動入力されたバーコードを検索
 const searchManualIsbn = () => {
   if (!manualIsbn.value) return
 
@@ -356,10 +362,11 @@ const searchManualIsbn = () => {
 
   if (isIsbn.value) {
     fetchBookInfo(manualIsbn.value)
-    lastScannedCode.value = manualIsbn.value
   } else {
-    error.value = '有効なISBN形式ではありません'
+    // ISBNでない場合は独自バーコードとして検索を試みる
+    fetchBookByBarcode(manualIsbn.value)
   }
+  lastScannedCode.value = manualIsbn.value
 }
 
 // ISBN情報を取得
@@ -384,6 +391,35 @@ const fetchBookInfo = async (isbn) => {
       error.value = 'この ISBN に該当する書籍が見つかりませんでした'
     } else if (err.response?.status === 422) {
       error.value = 'ISBN形式が正しくありません'
+    } else {
+      error.value = `書籍情報の取得中にエラーが発生しました: ${err.message || 'Unknown error'}`
+    }
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 独自バーコードから書籍情報を取得
+const fetchBookByBarcode = async (barcode) => {
+  try {
+    isLoading.value = true
+    error.value = null
+    bookInfo.value = null
+
+    const { data } = await api.post('/barcode/search', {
+      barcode: barcode,
+    })
+
+    bookInfo.value = data
+    // ISBNのフラグは偽にする（独自バーコードとして処理）
+    isIsbn.value = false
+  } catch (err) {
+    console.error('バーコードからの書籍情報の取得に失敗しました', err)
+
+    if (err.response?.status === 404) {
+      error.value = 'このバーコードに該当する書籍が見つかりませんでした'
+    } else if (err.response?.status === 422) {
+      error.value = 'バーコード形式が正しくありません'
     } else {
       error.value = `書籍情報の取得中にエラーが発生しました: ${err.message || 'Unknown error'}`
     }

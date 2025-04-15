@@ -313,4 +313,47 @@ class BookController extends Controller
             ],
         ], 201);
     }
+
+    /**
+     * バーコードから書籍情報を検索する
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function findBookByBarcode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'barcode' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $barcode = $request->input('barcode');
+
+        // 書籍を検索
+        $book = Book::where('barcode', $barcode)->first();
+
+        if (!$book) {
+            return response()->json(['error' => 'このバーコードに該当する書籍が見つかりませんでした'], 404);
+        }
+
+        // 書籍情報を返す
+        return response()->json([
+            'id' => $book->id,
+            'isbn' => $book->isbn,
+            'barcode' => $book->barcode,
+            'title' => $book->title,
+            'author' => $book->author,
+            'publisher' => $book->publisher,
+            'publication_year' => $book->publication_year,
+            'description' => $book->description,
+            'cover_image' => $book->cover_image,
+            'location' => $book->location,
+            'status' => $book->status,
+            'created_at' => $book->created_at,
+            'updated_at' => $book->updated_at,
+        ]);
+    }
 }

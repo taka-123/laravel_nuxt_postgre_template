@@ -33,6 +33,7 @@ Route::group([
 // バーコードとISBN関連のルート（認証不要）
 Route::group(['prefix' => 'barcode'], function () {
     Route::post('generate', [BookController::class, 'generateBarcode'])->name('barcode.generate');
+    Route::post('search', [BookController::class, 'findBookByBarcode'])->name('barcode.search');
 });
 
 Route::group(['prefix' => 'isbn'], function () {
