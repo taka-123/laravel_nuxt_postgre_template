@@ -42,6 +42,9 @@ Route::group(['prefix' => 'isbn'], function () {
 // テスト用：認証不要の書籍一覧エンドポイント
 Route::get('/public/books', [BookController::class, 'index'])->name('books.public.index');
 
+// 新規書籍＋バーコード生成エンドポイント（認証不要）
+Route::post('/books/create-with-barcode', [BookController::class, 'createWithBarcode'])->name('books.create-with-barcode');
+
 // 書籍関連のルート（認証必要）
 Route::group(['middleware' => 'auth:api', 'prefix' => 'books'], function () {
     Route::get('/', [BookController::class, 'index'])->name('books.index');

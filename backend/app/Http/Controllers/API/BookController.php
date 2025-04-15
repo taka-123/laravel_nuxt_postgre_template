@@ -239,4 +239,78 @@ class BookController extends Controller
             'image_data' => $dataUri,
         ]);
     }
+
+    /**
+     * 新規書籍登録とバーコード生成を同時に行う
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function createWithBarcode(Request $request)
+    {
+        // 書籍情報のバリデーション
+        $bookData = $request->input('book', []);
+        $bookValidator = Validator::make($bookData, [
+            'isbn' => 'nullable|string|max:20',
+            'title' => 'required|string|max:255',
+            'author' => 'nullable|string|max:255',
+            'publisher' => 'nullable|string|max:255',
+            'publication_year' => 'nullable|integer|min:1000|max:' . (date('Y') + 1),
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'status' => 'nullable|in:available,borrowed,lost,retired',
+        ]);
+
+        if ($bookValidator->fails()) {
+            return response()->json(['errors' => $bookValidator->errors()], 422);
+        }
+
+        // バーコード設定のバリデーション
+        $barcodeValidator = Validator::make($request->all(), [
+            'format' => 'nullable|in:png,svg',
+            'width' => 'nullable|integer|min:1|max:10',
+            'height' => 'nullable|integer|min:10|max:200',
+        ]);
+
+        if ($barcodeValidator->fails()) {
+            return response()->json(['errors' => $barcodeValidator->errors()], 422);
+        }
+
+        // ISBNの検証（指定されている場合）
+        if (!empty($bookData['isbn']) && !$this->isbnService->validateIsbn($bookData['isbn'])) {
+            return response()->json(['errors' => ['isbn' => ['ISBN形式が正しくありません']]], 422);
+        }
+
+        // 独自バーコードの生成
+        $barcode = $this->barcodeService->generateUniqueBarcode();
+
+        // 書籍データにバーコードを追加
+        $bookData['barcode'] = $barcode;
+
+        // 本の登録
+        $book = Book::create($bookData);
+
+        // バーコード画像の生成
+        $format = $request->input('format', 'png');
+        $width = $request->input('width', 2);
+        $height = $request->input('height', 50);
+        $barcodeData = $this->barcodeService->generate($barcode, $format, $width, $height);
+
+        // バーコードデータをBase64エンコード
+        $base64 = base64_encode($barcodeData);
+        $dataUri = 'data:image/' . $format . ';base64,' . $base64;
+
+        // 書籍情報とバーコード情報を含むレスポンス
+        return response()->json([
+            'book' => $book,
+            'barcode' => $barcode,
+            'image_data' => $dataUri,
+            'bookInfo' => [
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->author,
+                'barcode' => $book->barcode,
+            ],
+        ], 201);
+    }
 }
