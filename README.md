@@ -108,4 +108,39 @@ npm run dev
 
 ## 本番環境へのデプロイ
 
-本番環境へのデプロイ方法については、[Nuxt のデプロイメントドキュメント](https://nuxt.com/docs/getting-started/deployment)を参照してください。
+本番環境へのデプロイは、AWSのECSを使用して自動化されています。
+
+### ECSデプロイの前提条件
+
+1. AWS ECSクラスター、サービス、およびタスク定義が作成されていること
+2. Amazon ECRリポジトリが作成されていること
+3. 必要なIAMロールとポリシーが設定されていること
+4. GitHub Actions用のシークレットが設定されていること
+
+### GitHub Secretsの設定
+
+以下のシークレット値をGitHubリポジトリの設定で追加してください：
+
+- `AWS_ACCESS_KEY_ID` - AWSアクセスキーID
+- `AWS_SECRET_ACCESS_KEY` - AWSシークレットアクセスキー
+- `AWS_REGION` - AWSリージョン
+- `ECR_REPOSITORY_BACKEND` - バックエンド用ECRリポジトリ名
+- `ECR_REPOSITORY_FRONTEND` - フロントエンド用ECRリポジトリ名
+- `BACKEND_SERVICE_NAME` - バックエンドECSサービス名
+- `FRONTEND_SERVICE_NAME` - フロントエンドECSサービス名
+- `ECS_CLUSTER` - ECSクラスター名
+- `DB_HOST` - データベースホスト
+- `DB_DATABASE` - データベース名
+- `DB_USERNAME` - データベースユーザー
+- `PRODUCTION_API_URL` - 本番APIのパブリックURL
+- `PRODUCTION_INTERNAL_API_URL` - ECS内部でのAPI通信用URL
+
+### デプロイフロー
+
+1. `main`ブランチにプッシュまたはマージすると、GitHub Actionsが起動します
+2. テストが実行され、問題がなければデプロイが開始されます
+3. Dockerイメージがビルドされ、Amazon ECRにプッシュされます
+4. 新しいECSタスク定義が作成され、サービスが更新されます
+5. アプリケーションが本番環境にデプロイされます
+
+詳細なECS設定については、`.aws/`ディレクトリのファイルを参照してください。

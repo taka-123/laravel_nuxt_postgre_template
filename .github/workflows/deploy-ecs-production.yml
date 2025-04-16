@@ -1,0 +1,162 @@
+name: AWS ECS本番環境デプロイ
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+jobs:
+  test:
+    name: テスト実行
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: sail
+          POSTGRES_DB: book_management_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: PHPセットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, pdo, pdo_pgsql, bcmath, exif, gd
+
+      - name: 環境ファイルの準備
+        run: |
+          cd backend
+          cp .env.example .env.testing
+          sed -i 's/DB_HOST=pgsql/DB_HOST=localhost/g' .env.testing
+          sed -i 's/DB_DATABASE=book_management/DB_DATABASE=book_management_test/g' .env.testing
+          sed -i 's/DB_USERNAME=sail/DB_USERNAME=sail/g' .env.testing
+          sed -i 's/DB_PASSWORD=password/DB_PASSWORD=password/g' .env.testing
+
+      - name: 依存関係のインストール
+        run: cd backend && composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: アプリケーションキーの生成
+        run: cd backend && php artisan key:generate --env=testing
+
+      - name: JWTシークレットの生成
+        run: cd backend && php artisan jwt:secret --force
+
+      - name: マイグレーション実行
+        run: cd backend && php artisan migrate --env=testing
+
+      - name: テスト実行
+        run: cd backend && php artisan test
+
+  deploy:
+    name: ECSデプロイ
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v3
+
+      - name: AWS認証情報の設定
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Amazon ECRにログイン
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: バックエンドイメージのビルドとプッシュ
+        id: build-backend-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_BACKEND }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # バックエンドイメージのビルド
+          docker build \
+            -f .aws/backend-container-dockerfile \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+
+          # ECRにプッシュ
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: フロントエンドイメージのビルドとプッシュ
+        id: build-frontend-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_FRONTEND }}
+          IMAGE_TAG: ${{ github.sha }}
+          BROWSER_API_BASE_URL: ${{ secrets.PRODUCTION_API_URL }}
+          SERVER_API_BASE_URL: ${{ secrets.PRODUCTION_INTERNAL_API_URL }}
+        run: |
+          # フロントエンドイメージのビルド
+          docker build \
+            -f .aws/frontend-container-dockerfile \
+            --build-arg BROWSER_API_BASE_URL=$BROWSER_API_BASE_URL \
+            --build-arg SERVER_API_BASE_URL=$SERVER_API_BASE_URL \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+
+          # ECRにプッシュ
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: バックエンドのECSタスク定義を更新
+        id: backend-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: .aws/backend-task-definition.json
+          container-name: book-management-backend
+          image: ${{ steps.build-backend-image.outputs.image }}
+          environment-variables: |
+            APP_ENV=production
+            DB_CONNECTION=pgsql
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=5432
+            DB_DATABASE=${{ secrets.DB_DATABASE }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+
+      - name: フロントエンドのECSタスク定義を更新
+        id: frontend-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: .aws/frontend-task-definition.json
+          container-name: book-management-frontend
+          image: ${{ steps.build-frontend-image.outputs.image }}
+          environment-variables: |
+            NODE_ENV=production
+            BROWSER_API_BASE_URL=${{ secrets.PRODUCTION_API_URL }}
+            SERVER_API_BASE_URL=${{ secrets.PRODUCTION_INTERNAL_API_URL }}
+
+      - name: バックエンドのECSサービスデプロイ
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.backend-task-def.outputs.task-definition }}
+          service: ${{ secrets.BACKEND_SERVICE_NAME }}
+          cluster: ${{ secrets.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: フロントエンドのECSサービスデプロイ
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.frontend-task-def.outputs.task-definition }}
+          service: ${{ secrets.FRONTEND_SERVICE_NAME }}
+          cluster: ${{ secrets.ECS_CLUSTER }}
+          wait-for-service-stability: true
