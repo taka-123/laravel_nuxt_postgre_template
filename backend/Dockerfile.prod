@@ -1,0 +1,45 @@
+FROM php:8.2-fpm
+
+# 必要なパッケージとPHP拡張のインストール
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
+
+# Composerのインストール
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Nginx のインストールと設定
+RUN apt-get install -y nginx
+COPY docker/nginx/nginx.conf /etc/nginx/sites-available/default
+
+# ワーキングディレクトリの設定
+WORKDIR /var/www/html
+
+# アプリケーションファイルのコピー
+COPY . /var/www/html
+
+# Composer依存関係のインストール
+RUN composer install --optimize-autoloader --no-dev --no-scripts
+
+# 権限の設定
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
+
+# 起動スクリプトのコピーと実行権限の付与
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+# コンテナ起動時に実行されるコマンド
+CMD ["/usr/local/bin/start.sh"]
+
+# ポートの公開
+EXPOSE 80

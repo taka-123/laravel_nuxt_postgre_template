@@ -1,113 +1,163 @@
-# AWS ECSデプロイ設定
+# AWS ECS デプロイ設定
 
-このディレクトリには、AWS ECSへのデプロイに必要な設定ファイルが含まれています。
+本プロジェクトのAWS ECS（Elastic Container Service）へのデプロイに関する情報を記載しています。
 
-## ディレクトリ構成
+## 目次
+
+1. [アーキテクチャ概要](#アーキテクチャ概要)
+2. [必要なAWSリソース](#必要なawsリソース)
+3. [デプロイフロー](#デプロイフロー)
+4. [初期セットアップ手順](#初期セットアップ手順)
+5. [環境変数と設定](#環境変数と設定)
+6. [トラブルシューティング](#トラブルシューティング)
+
+## アーキテクチャ概要
+
+本プロジェクトは以下のAWSサービスを利用しています：
+
+- **ECR (Elastic Container Registry)**: Dockerイメージの保存
+- **ECS (Elastic Container Service)**: コンテナの実行環境
+  - Fargateを使用（サーバーレスコンテナ実行環境）
+- **ALB (Application Load Balancer)**: トラフィックの分散
+- **RDS (Relational Database Service)**: PostgreSQLデータベース
+- **S3**: 静的ファイルの保存
+- **CloudWatch**: ログとメトリクスの収集
+- **IAM**: 権限管理
+
+### システム構成図
 
 ```
-.aws/
-├── backend-container-dockerfile # バックエンド用Dockerfile
-├── frontend-container-dockerfile # フロントエンド用Dockerfile
-├── backend-task-definition.json # バックエンドECSタスク定義
-├── frontend-task-definition.json # フロントエンドECSタスク定義
-├── nginx/ # Nginx設定ファイル
-│   ├── nginx.conf
-│   └── default.conf
-├── php/ # PHP設定ファイル
-│   └── php.ini
-└── supervisord.conf # Supervisor設定ファイル
+Internet --> ALB --> ECS Fargate (Frontend) --> ECS Fargate (Backend) --> RDS
+                                             |
+                                             v
+                                             S3 (Static Files)
 ```
 
-## AWS ECS環境構築手順
+## 必要なAWSリソース
 
-### 1. ECRリポジトリの作成
+### ECR リポジトリ
+- `book-management-frontend`: フロントエンドのDockerイメージ用
+- `book-management-backend`: バックエンドのDockerイメージ用
 
-```bash
-aws ecr create-repository --repository-name book-management-backend
-aws ecr create-repository --repository-name book-management-frontend
-```
+### ECS リソース
+- **クラスター**: `book-management-cluster`
+- **サービス**: 
+  - `book-management-frontend-service`
+  - `book-management-backend-service`
+- **タスク定義**:
+  - `.aws/task-definitions/frontend.json`
+  - `.aws/task-definitions/backend.json`
 
-### 2. IAMロールの作成
-
-以下のロールが必要です：
-
-- `ecsTaskExecutionRole` - タスク実行時に必要な権限
-- `ecsBookManagementTaskRole` - アプリケーション実行時に必要なAWSサービスへのアクセス権限
-
-### 3. ECSクラスターの作成
-
-```bash
-aws ecs create-cluster --cluster-name book-management-cluster
-```
-
-### 4. セキュリティグループの設定
-
-アプリケーションに必要なポートを開放したセキュリティグループを作成します：
-
-- バックエンド: 80ポート
-- フロントエンド: 3000ポート
-
-### 5. ロードバランサーの設定
-
-アプリケーションロードバランサー(ALB)を作成し、ターゲットグループを設定します。
-
-### 6. パラメータストアでシークレット管理
-
-以下のシークレットをAWS Systems Manager Parameter Storeに保存します：
-
-```bash
-aws ssm put-parameter --name "/book-management/app-key" --type "SecureString" --value "APP_KEYの値"
-aws ssm put-parameter --name "/book-management/db-password" --type "SecureString" --value "DBパスワード"
-aws ssm put-parameter --name "/book-management/jwt-secret" --type "SecureString" --value "JWT_SECRETの値"
-```
-
-### 7. ECSサービスの作成
-
-バックエンドとフロントエンドのサービスを作成します：
-
-```bash
-aws ecs create-service --cluster book-management-cluster --service-name book-management-backend-service --task-definition book-management-backend --desired-count 1 --launch-type FARGATE [他のオプション]
-aws ecs create-service --cluster book-management-cluster --service-name book-management-frontend-service --task-definition book-management-frontend --desired-count 1 --launch-type FARGATE [他のオプション]
-```
-
-## GitHub Actionsのセットアップ
-
-リポジトリのシークレット設定で以下の値を設定します：
-
-- `AWS_ACCESS_KEY_ID` - IAMユーザーのアクセスキー
-- `AWS_SECRET_ACCESS_KEY` - IAMユーザーのシークレットキー
-- `AWS_REGION` - AWSリージョン (例: `ap-northeast-1`)
-- `ECR_REPOSITORY_BACKEND` - バックエンドのECRリポジトリ名
-- `ECR_REPOSITORY_FRONTEND` - フロントエンドのECRリポジトリ名
-- `BACKEND_SERVICE_NAME` - バックエンドのECSサービス名
-- `FRONTEND_SERVICE_NAME` - フロントエンドのECSサービス名
-- `ECS_CLUSTER` - ECSクラスター名
-- `DB_HOST` - データベースのホスト名
-- `DB_DATABASE` - データベース名
-- `DB_USERNAME` - データベースユーザー名
-- `PRODUCTION_API_URL` - 外部公開用APIのURL (例: `https://api.example.com`)
-- `PRODUCTION_INTERNAL_API_URL` - ECS内部通信用APIのURL (例: `http://backend.internal`)
+### その他のリソース
+- **VPC** と **サブネット**
+- **セキュリティグループ**
+- **IAMロール**
+- **RDSインスタンス**
+- **ALB**
+- **S3バケット**
 
 ## デプロイフロー
 
-1. GitHub Actionsのワークフローが実行されます (`.github/workflows/deploy-ecs-production.yml`)
-2. テストが実行され、成功するとDockerイメージがビルドされます
-3. イメージがECRにプッシュされます
-4. ECSタスク定義が更新されます
-5. サービスがデプロイされます
+GitHub Actionsを使用して、以下の流れでデプロイを行います：
 
-## ECSサービスの管理
+1. `main`ブランチへのプッシュをトリガーに、ワークフローが開始
+2. テストの実行
+3. Dockerイメージのビルド
+4. ECRへのイメージのプッシュ
+5. ECSタスク定義の更新（新しいイメージを参照）
+6. ECSサービスの更新（ローリングデプロイによるゼロダウンタイム）
 
-サービスの更新や停止は、AWS管理コンソールかAWS CLIを使用して行うことができます：
+詳細なフローは `.github/workflows/deploy-ecs-production.yml` を参照してください。
 
-```bash
-# サービスの更新
-aws ecs update-service --cluster book-management-cluster --service book-management-backend-service --force-new-deployment
+## 初期セットアップ手順
 
-# サービスの停止
-aws ecs update-service --cluster book-management-cluster --service book-management-backend-service --desired-count 0
+### 1. AWSリソースのプロビジョニング
+
+以下のリソースを事前に作成する必要があります：
+
+- VPC、サブネット、ルートテーブル
+- ECRリポジトリ
+- ECSクラスター
+- RDSインスタンス
+- IAMロールとポリシー
+- ALB
+- S3バケット
+
+これらのリソースはAWS CloudFormation、Terraform、またはAWSコンソールを使用して作成できます。
+
+### 2. GitHubシークレットの設定
+
+GitHub Actionsで使用するために、以下のシークレットをリポジトリに設定してください：
+
+- `AWS_ACCESS_KEY_ID`: AWSアクセスキーID
+- `AWS_SECRET_ACCESS_KEY`: AWSシークレットアクセスキー
+- `AWS_REGION`: AWSリージョン
+- `ECR_REPOSITORY_FRONTEND`: フロントエンドECRリポジトリ名
+- `ECR_REPOSITORY_BACKEND`: バックエンドECRリポジトリ名
+- `ECS_CLUSTER`: ECSクラスター名
+- `ECS_SERVICE_FRONTEND`: フロントエンドECSサービス名
+- `ECS_SERVICE_BACKEND`: バックエンドECSサービス名
+
+### 3. タスク定義ファイルの準備
+
+`.aws/task-definitions/` ディレクトリ内のJSONファイルを環境に合わせて更新してください。
+
+## 環境変数と設定
+
+### バックエンド環境変数
+
+バックエンドのタスク定義には、以下の環境変数を設定する必要があります：
+
+```json
+"environment": [
+  { "name": "APP_ENV", "value": "production" },
+  { "name": "APP_DEBUG", "value": "false" },
+  { "name": "DB_CONNECTION", "value": "pgsql" },
+  { "name": "DB_HOST", "value": "YOUR_RDS_ENDPOINT" },
+  { "name": "DB_PORT", "value": "5432" },
+  { "name": "DB_DATABASE", "value": "book_management" },
+  { "name": "DB_USERNAME", "value": "username" },
+  { "name": "CACHE_DRIVER", "value": "redis" },
+  { "name": "SESSION_DRIVER", "value": "redis" },
+  { "name": "REDIS_HOST", "value": "YOUR_REDIS_ENDPOINT" }
+]
 ```
 
-## スケーリング
+**注意**: パスワードなどの機密情報は、AWS Secrets Managerを使用して管理することを推奨します。
 
-アプリケーションの負荷に応じて、タスク数やCPU/メモリ割り当てを調整できます。 
+### フロントエンド環境変数
+
+フロントエンドのタスク定義には、以下の環境変数を設定する必要があります：
+
+```json
+"environment": [
+  { "name": "API_URL", "value": "https://api.yourdomain.com" },
+  { "name": "NODE_ENV", "value": "production" }
+]
+```
+
+## トラブルシューティング
+
+### よくある問題と解決策
+
+1. **デプロイ失敗**
+   - CloudWatchログを確認して、エラーの詳細を確認してください
+   - GitHub Actionsのログも確認してください
+
+2. **コンテナの起動失敗**
+   - ヘルスチェックの設定を確認してください
+   - 必要な環境変数が正しく設定されているか確認してください
+
+3. **データベース接続エラー**
+   - セキュリティグループの設定を確認してください
+   - データベースの認証情報が正しいか確認してください
+
+4. **ロードバランサーのエラー**
+   - ターゲットグループの設定を確認してください
+   - ヘルスチェックのパスが正しいか確認してください
+
+### サポートリソース
+
+- [AWS ECSドキュメント](https://docs.aws.amazon.com/ecs/)
+- [AWS ECRドキュメント](https://docs.aws.amazon.com/ecr/)
+- [GitHub Actions ドキュメント](https://docs.github.com/actions)

@@ -47,6 +47,8 @@ VSCode で開発する場合、プロジェクトを開くと推奨拡張機能�
 }
 ```
 
+この自動フォーマット機能により、チーム全体で一貫したコードスタイルを維持できます。
+
 ## コーディング規約
 
 ### フロントエンド (JavaScript/TypeScript/Vue)
@@ -70,7 +72,7 @@ VSCode で開発する場合、プロジェクトを開くと推奨拡張機能�
   - クラス名: StudlyCaps
   - メソッド名: camelCase
   
-- **PHPStan/Larastan（レベル5）:** 静的解析
+- **PHPStan/Larastan（レベル5）:** 静的解析ツールによる型チェックと潜在的な問題の検出
 
 ## 品質管理ツール
 
@@ -105,35 +107,28 @@ cd backend && composer analyze
 cd backend && composer test
 ```
 
+### 自動実行ツール
+
+**エディタ内での自動実行:**
+- **保存時の自動フォーマット**: VSCode（または互換エディタ）でファイルを保存すると、Prettier（JS/TS/Vue）または PHP-CS-Fixer（PHP）によって自動的にフォーマットされます。
+- **問題のリアルタイム表示**: ESLintとPHPStan/Larastanの警告・エラーがエディタ内にリアルタイムで表示されます。
+
+**注意**: 自動フォーマットが機能するには、必要な拡張機能がインストールされていることを確認してください。
+
 ### Git フック
 
 コミットやプッシュの前に自動的に品質チェックが行われます：
 
 - **pre-commit:** `lint-staged` によるコミット対象ファイルのチェック
+  - JavaScriptファイル: ESLintチェックとPrettierフォーマット
+  - PHPファイル: PHP_CodeSnifferチェック
 - **pre-push:** フロントエンドとバックエンドのテスト実行
+
+これらのフックは、不具合を含むコードがリポジトリに含まれるのを防ぎます。
 
 ## Git ワークフロー
 
-詳細な Git ワークフローについては [docs/git-workflow.md](./docs/git-workflow.md) を参照してください。
-
-### ブランチ戦略
-
-- `main`: 本番環境用のブランチ
-- `develop`: 開発環境用のブランチ
-- 機能開発: `feature/issue-番号-機能名`
-- バグ修正: `fix/issue-番号-修正内容`
-
-### コミットメッセージ規約
-
-```
-タイプ: 簡潔な説明
-
-詳細な説明（オプション）
-
-関連する問題やPR（オプション）
-```
-
-**タイプ例:** feat, fix, docs, style, refactor, test, chore
+Gitワークフローの詳細については [README.md](./README.md#git-ワークフロー) を参照してください。
 
 ## テスト
 
@@ -142,19 +137,45 @@ cd backend && composer test
 - **テストフレームワーク:** Vitest
 - **テストファイル配置:** `frontend/test/` ディレクトリ
 - **コンポーネントテスト:** `@vue/test-utils` を使用
+- **実行方法:**
+  - 手動実行: `cd frontend && npm run test`
+  - CI環境: GitHub Actionsでプッシュ時に自動実行
+  - プレプッシュフック: 変更がプッシュされる前に自動実行
 
 ### バックエンド
 
 - **テストフレームワーク:** PHPUnit
 - **テストファイル配置:** `backend/tests/` ディレクトリ
 - **データベーステスト:** SQLite メモリデータベースを使用
+- **実行方法:**
+  - 手動実行: `cd backend && php artisan test`
+  - CI環境: GitHub Actionsでプッシュ時に自動実行
+  - プレプッシュフック: 変更がプッシュされる前に自動実行
 
 ## CI/CD
 
 GitHub Actions を使用して以下の CI/CD を実施しています：
 
-- プッシュ・プルリクエスト時の自動テスト
-- コードスタイルの自動チェック
+### CI (`.github/workflows/ci.yml`)
+
+以下のイベントで実行されます：
+- `main`および`develop`ブランチへのプッシュ
+- プルリクエストの作成と更新
+
+実行内容：
+- コードスタイルチェック（ESLint, PHP_CodeSniffer）
+- 静的解析（PHPStan/Larastan）
+- テスト実行（バックエンド、フロントエンド）
 - 依存パッケージの脆弱性チェック
 
-詳細は [.github/workflows/ci.yml](./.github/workflows/ci.yml) を参照してください。 
+### CD (`.github/workflows/deploy-ecs-production.yml`)
+
+- **トリガー:** `main`ブランチへのプッシュ
+- **実行内容:**
+  1. コードベースのチェックアウト
+  2. テスト実行（バックエンド、フロントエンド）
+  3. DockerイメージのビルドとECRへのプッシュ
+  4. ECSタスク定義の更新
+  5. ECSサービスの更新（ゼロダウンタイムデプロイ）
+
+**AWSデプロイの詳細は**、`.aws/README.md`ファイルを参照してください。
