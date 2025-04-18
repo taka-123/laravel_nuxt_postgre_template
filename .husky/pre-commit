@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# フロントエンドのlint-staged実行
 npx lint-staged
+
+# バックエンドのlint-stagedを実行（変更されたPHPファイルのみをチェック）
+cd backend && npx lint-staged

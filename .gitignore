@@ -1,10 +1,5 @@
 # General
 .DS_Store
-.fleet
-.idea
-.nova
-.vscode
-.zed
 Thumbs.db
 *.log
 logs
@@ -41,12 +36,7 @@ dist
 /backend/.env.production
 /backend/.phpactor.json
 /backend/.phpunit.result.cache
-/backend/Homestead.json
-/backend/Homestead.yaml
 /backend/auth.json
-
-# Husky
-.husky/_
 
 # Test coverage
 coverage

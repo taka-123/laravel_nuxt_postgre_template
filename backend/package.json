@@ -17,6 +17,7 @@
         "eslint-plugin-nuxt": "^4.0.0",
         "eslint-plugin-vue": "^10.0.0",
         "laravel-vite-plugin": "^1.2.0",
+        "lint-staged": "^15.5.1",
         "tailwindcss": "^4.0.0",
         "vite": "^6.0.11"
     },
@@ -24,5 +25,15 @@
         "@zxing/browser": "^0.1.5",
         "@zxing/library": "^0.21.3",
         "jsbarcode": "^3.11.6"
-    }
+    },
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "このディレクトリには書籍管理システムのバックエンド（Laravel 12.x）が含まれています。",
+    "main": "vite.config.js",
+    "directories": {
+        "test": "tests"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
 }

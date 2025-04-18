@@ -11,6 +11,26 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理シス�
 - Git がインストールされていること
 - Composer がインストールされていること（オプション、Docker 内で実行も可）
 
+### 推奨エディタとプラグイン
+
+本プロジェクトは Visual Studio Code（VSCode）または互換エディタ（Cursor, Windsurf など）での開発を推奨しています。プロジェクトには `.vscode` ディレクトリが含まれており、推奨設定と拡張機能が定義されています。
+
+#### 必須拡張機能
+
+プロジェクトディレクトリを VSCode で開くと、推奨拡張機能のインストールが提案されます。以下の拡張機能は開発効率と品質を向上させるために重要です：
+
+- **ESLint** - JavaScript/TypeScript コードの静的解析
+- **Prettier** - コードフォーマッター
+- **Volar** - Vue 3 のシンタックスハイライトと補完
+- **PHP CS Fixer** - PHP コードの自動整形
+- **PHP Intelephense** - PHP の高度な補完と検証
+- **Laravel Extra Intellisense** - Laravel フレームワーク用の補完機能
+- **EditorConfig** - エディタの共通設定
+- **YAML** - YAML ファイルの編集サポート
+- **Docker** - Docker 関連ファイルの編集サポート
+
+VSCode を使用していない場合は、同等の機能を持つエディタプラグインをインストールしてください。
+
 ### ポート設定
 
 | サービス               | ポート |
@@ -103,6 +123,7 @@ npm run dev
 
 - **PHP_CodeSniffer (PSR-12)** - コーディング規約チェック
 - **PHPStan/Larastan** - 静的解析
+- **PHP-CS-Fixer** - コードスタイル自動修正
 
 コマンドラインで実行：
 
@@ -110,6 +131,7 @@ npm run dev
 cd backend
 composer lint    # PHPCSによるコード規約チェック
 composer analyze # PHPStanによる静的解析
+./vendor/bin/php-cs-fixer fix # コードスタイル自動修正
 ```
 
 #### フロントエンド
@@ -125,7 +147,27 @@ npm run lint     # リントチェック
 npm run lint:fix # リントとフォーマット修正
 ```
 
-**自動フォーマット**: VSCode (または互換エディタ) を使用している場合、ファイル保存時に自動フォーマットが適用されます。
+#### 開発プロセスの自動化
+
+本プロジェクトでは、コード品質を維持するために以下の自動化が設定されています：
+
+- **Git Hooks（Husky）** - コミット前にコード品質チェックを自動実行
+- **lint-staged** - 変更されたファイルのみをリントして効率化
+
+コミット前には以下が自動実行されます：
+
+1. フロントエンド: 変更された JavaScript/TypeScript ファイルの ESLint と Prettier チェック
+2. バックエンド: 変更された PHP ファイルの PHP-CS-Fixer と PHPCS チェック
+
+**自動フォーマット**: VSCode (または互換エディタ) を使用している場合、ファイル保存時に自動フォーマットが適用されます。プロジェクトには`.vscode/settings.json`があらかじめ設定されており、保存時に以下のファイル形式が自動的にフォーマットされます：
+
+- JavaScript/TypeScript/Vue (Prettier)
+- PHP (PHP CS Fixer)
+- HTML/CSS/SCSS (Prettier)
+- JSON/YAML (Prettier/YAML)
+- Markdown (Prettier)
+- Dockerfile (Docker)
+- シェルスクリプト/dotenv (Shell Format)
 
 ### テスト実行
 
@@ -145,30 +187,33 @@ npm run test  # すべてのテストを実行
 
 ## Git ワークフロー
 
-本プロジェクトでは以下のようなシンプルなGitワークフローを採用しています：
+本プロジェクトでは以下のようなシンプルな Git ワークフローを採用しています：
 
 ### ブランチ戦略
 
 - **`main`**: 本番環境用のブランチ。常に安定した状態を維持する。
-- **`develop`**: （オプション）開発環境用のブランチ。ECS検証環境がある場合に使用。
+- **`develop`**: （オプション）開発環境用のブランチ。ECS 検証環境がある場合に使用。
 
 ### 開発プロセス
 
 1. **機能開発・バグ修正**:
+
    - 新機能開発は `feature/機能名` ブランチ（例：`feature/barcode-generator`）
    - バグ修正は `fix/修正内容` ブランチ（例：`fix/login-error`）
    - 基本的に`main`から分岐し、プルリクエスト後に`main`へマージ
 
 2. **コミットメッセージ規約**:
+
    ```
    タイプ: 簡潔な説明
-   
+
    詳細な説明（オプション）
-   
+
    関連する問題やPR（オプション）
    ```
 
-   **タイプ例:** 
+   **タイプ例:**
+
    - `feat`: 新機能
    - `fix`: バグ修正
    - `docs`: ドキュメント変更

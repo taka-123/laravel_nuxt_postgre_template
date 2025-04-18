@@ -15,6 +15,12 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
+  "lint-staged": {
+    "*.{js,ts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
   "dependencies": {
     "@mdi/font": "^7.3.67",
     "@zxing/browser": "^0.1.4",
