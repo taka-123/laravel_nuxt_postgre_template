@@ -4,27 +4,48 @@
 
 ## 目次
 
-- [アーキテクチャ概要](#アーキテクチャ概要)
-- [デプロイフロー](#デプロイフロー)
-- [初期設定](#初期設定)
-  - [AWS 認証情報を GitHub シークレットとして設定](#aws認証情報をgithubシークレットとして設定)
-  - [AWS 環境のプロビジョニング](#aws環境のプロビジョニング)
-- [CloudFormation によるデプロイ](#cloudformationによるデプロイ)
-  - [デプロイ準備](#デプロイ準備)
-  - [スタックのデプロイ順序](#スタックのデプロイ順序)
-  - [スタックのデプロイコマンド](#スタックのデプロイコマンド)
-  - [スタックの更新と削除](#スタックの更新と削除)
-- [IAM 権限設定](#iam権限設定)
-  - [デプロイ用 IAM ユーザー/ロールの設定](#デプロイ用iamユーザーロールの設定)
-  - [CloudFormation サービスロールの設定](#cloudformationサービスロールの設定)
-  - [ECS タスク実行ロールの設定](#ecsタスク実行ロールの設定)
-  - [CI/CD パイプライン用 IAM ユーザーの設定](#cicdパイプライン用iamユーザーの設定)
-  - [IAM 管理のベストプラクティス](#iam管理のベストプラクティス)
-- [環境変数の設定](#環境変数の設定)
-  - [バックエンドタスク](#バックエンドタスク)
-  - [フロントエンドタスク](#フロントエンドタスク)
-- [トラブルシューティング](#トラブルシューティング)
-- [サポートとリソース](#サポートとリソース)
+- [AWS ECS デプロイ設定](#aws-ecs-デプロイ設定)
+  - [目次](#目次)
+  - [アーキテクチャ概要](#アーキテクチャ概要)
+    - [システム構成図](#システム構成図)
+  - [必要な AWS リソース](#必要な-aws-リソース)
+    - [ECR リポジトリ](#ecr-リポジトリ)
+    - [ECS リソース](#ecs-リソース)
+    - [その他のリソース](#その他のリソース)
+  - [デプロイフロー](#デプロイフロー)
+  - [初期設定](#初期設定)
+    - [AWS 認証情報を GitHub シークレットとして設定](#aws-認証情報を-github-シークレットとして設定)
+      - [AWS 認証方法](#aws-認証方法)
+      - [その他の設定値](#その他の設定値)
+  - [IAM 運用方針](#iam-運用方針)
+    - [インフラデプロイ用ロール](#インフラデプロイ用ロール)
+    - [アプリケーション固有の IAM リソース](#アプリケーション固有の-iam-リソース)
+    - [CI/CD パイプライン用認証](#cicd-パイプライン用認証)
+    - [IAM セキュリティのベストプラクティス](#iam-セキュリティのベストプラクティス)
+  - [CloudFormation によるデプロイ](#cloudformation-によるデプロイ)
+    - [デプロイ準備](#デプロイ準備)
+    - [スタックのデプロイ順序](#スタックのデプロイ順序)
+    - [スタックのデプロイコマンド](#スタックのデプロイコマンド)
+      - [VPC スタックのデプロイ](#vpc-スタックのデプロイ)
+      - [ECR スタックのデプロイ](#ecr-スタックのデプロイ)
+      - [RDS スタックのデプロイ](#rds-スタックのデプロイ)
+      - [ALB スタックのデプロイ](#alb-スタックのデプロイ)
+      - [ECS スタックのデプロイ](#ecs-スタックのデプロイ)
+    - [スタックの更新と削除](#スタックの更新と削除)
+  - [CloudFormation によって作成されるリソース](#cloudformation-によって作成されるリソース)
+    - [VPC スタック (`book-management-vpc`)](#vpc-スタック-book-management-vpc)
+    - [ECR スタック (`book-management-ecr`)](#ecr-スタック-book-management-ecr)
+    - [RDS スタック (`book-management-rds`)](#rds-スタック-book-management-rds)
+    - [S3 スタック (`book-management-s3`)](#s3-スタック-book-management-s3)
+    - [ALB スタック (`book-management-alb`)](#alb-スタック-book-management-alb)
+    - [ECS スタック (`book-management-ecs`)](#ecs-スタック-book-management-ecs)
+    - [監視リソース](#監視リソース)
+  - [環境変数の設定](#環境変数の設定)
+    - [バックエンドタスク](#バックエンドタスク)
+    - [フロントエンドタスク](#フロントエンドタスク)
+  - [トラブルシューティング](#トラブルシューティング)
+    - [よくある問題と解決策](#よくある問題と解決策)
+    - [サポートリソース](#サポートリソース)
 
 ## アーキテクチャ概要
 
@@ -41,11 +62,51 @@
 
 ### システム構成図
 
-```
-Internet --> ALB --> ECS Fargate (Frontend) --> ECS Fargate (Backend) --> RDS
-                                             |
-                                             v
-                                             S3 (Static Files)
+```mermaid
+graph TD
+    %% 高コントラストの配色を使用
+    classDef publicZone fill:#FFA07A,stroke:#FF4500,color:#000,stroke-width:2px;
+    classDef privateZone fill:#90EE90,stroke:#228B22,color:#000,stroke-width:2px;
+    classDef monitoring fill:#ADD8E6,stroke:#4682B4,color:#000,stroke-width:2px;
+
+    %% 縦方向の流れを強調したレイアウト
+    Internet[インターネット]
+    Internet --> ALB[アプリケーション ロードバランサー]
+
+    subgraph PublicSubnets[パブリックサブネット]
+        direction TB
+        ALB
+        NAT[NATゲートウェイ]
+    end
+
+    ALB --> Frontend
+    ALB --> Backend
+
+    subgraph PrivateSubnets[プライベートサブネット]
+        direction TB
+        Frontend[ECS Fargate フロントエンド サービス]
+        Backend[ECS Fargate バックエンド サービス]
+
+        Frontend --> Backend
+        Backend --> RDS[(RDS PostgreSQL)]
+        Frontend --> S3[(S3 バケット 静的アセット)]
+    end
+
+    PrivateSubnets --> NAT
+    NAT --> Internet
+
+    subgraph Monitoring[監視]
+        direction TB
+        CW[CloudWatch ログ・アラーム]
+    end
+
+    Backend --> CW
+    Frontend --> CW
+
+    %% クラス適用
+    class PublicSubnets,ALB,NAT publicZone;
+    class PrivateSubnets,Frontend,Backend,RDS,S3 privateZone;
+    class Monitoring,CW monitoring;
 ```
 
 ## 必要な AWS リソース
@@ -95,397 +156,133 @@ CI/CD パイプラインで AWS リソースにアクセスするには、以下
 
 1. GitHub リポジトリの「Settings」→「Secrets and variables」→「Actions」に移動
 2. 「New repository secret」をクリックし、以下のシークレットを追加：
-   - `AWS_ACCESS_KEY_ID`: IAM スタックデプロイ後に作成された CI/CD ユーザーのアクセスキー ID
-   - `AWS_SECRET_ACCESS_KEY`: IAM スタックデプロイ時に表示された（または後で作成した）シークレットアクセスキー
-   - `AWS_REGION`: 使用する AWS リージョン（例：`ap-northeast-1`）
-   - `ECR_REPOSITORY_FRONTEND`: フロントエンド ECR リポジトリ名
-   - `ECR_REPOSITORY_BACKEND`: バックエンド ECR リポジトリ名
-   - `ECS_CLUSTER`: ECS クラスター名
-   - `ECS_SERVICE_FRONTEND`: フロントエンド ECS サービス名
-   - `ECS_SERVICE_BACKEND`: バックエンド ECS サービス名
+
+#### AWS 認証方法
+
+**IAM ロールを使用（OpenID Connect）**
+
+- `AWS_ROLE_TO_ASSUME`: GitHub Actions が引き受ける IAM ロールの ARN
+  - 例: `arn:aws:iam::<ACCOUNT_ID>:role/github-actions-role`
+- このオプションを使用する場合は、AWS 側で IAM OIDC Provider を設定する必要があります
+- 詳細は[GitHub Actions からの OIDC 認証](https://docs.github.com/ja/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services)を参照
+- セキュリティ上のメリットと長期的な認証情報管理の手間を省けるため、**強く推奨される方法**です
+
+**注意**: 長期的なアクセスキー（IAM ユーザー）は、セキュリティリスクが高いため非推奨です。必ず OIDC 認証を使用してください。
+
+#### その他の設定値
+
+- `AWS_REGION`: 使用する AWS リージョン（例：`ap-northeast-1`）
+- `ECR_REPOSITORY_FRONTEND`: フロントエンド ECR リポジトリ名
+- `ECR_REPOSITORY_BACKEND`: バックエンド ECR リポジトリ名
+- `ECS_CLUSTER`: ECS クラスター名
+- `ECS_SERVICE_FRONTEND`: フロントエンド ECS サービス名
+- `ECS_SERVICE_BACKEND`: バックエンド ECS サービス名
 
 これらの認証情報は、GitHub Actions ワークフローファイル内で環境変数として利用され、AWS リソースへのアクセスに使用されます。
 
-**重要**: IAM 認証情報（アクセスキーとシークレットキー）は機密情報です。GitHub シークレットとして安全に保存し、コードやコミットメッセージに記載しないでください。
+**重要**: IAM 認証情報は機密情報です。GitHub シークレットとして安全に保存し、コードやコミットメッセージに記載しないでください。セキュリティのベストプラクティスとして、IAM ロールベースの OIDC 認証を使用してください。
 
-#### IAM 認証情報のローテーション
+## IAM 運用方針
 
-セキュリティのベストプラクティスとして、定期的に（90 日ごとなど）IAM 認証情報をローテーションすることをお勧めします：
+本プロジェクトの AWS リソース管理においては、以下の IAM 運用方針を採用しています。
 
-1. AWS コンソールで CI/CD パイプライン用 IAM ユーザーの新しいアクセスキーを作成
-2. GitHub シークレットを新しい認証情報で更新
-3. デプロイが正常に機能することを確認
-4. 古いアクセスキーを無効化し、確認後に削除
+### インフラデプロイ用ロール
 
-### AWS 環境のプロビジョニング
+**インフラデプロイ（CloudFormation 等）には、組織共通の「infrastructure-deployer」ロール（または同等の権限を持つロール）を AssumeRole して使用することが必須です。**
 
-## CloudFormation によるデプロイ
-
-CloudFormation を使用して、インフラストラクチャをコードとして管理し、デプロイします。
-
-#### 準備
-
-1. AWS CLI をインストールし、設定する
-
-   ```bash
-   # AWS CLIのインストール（macOS）
-   brew install awscli
-
-   # AWS CLIの設定
-   aws configure
-   ```
-
-2. 必要なパラメータを準備する
-   - スタック名
-   - 環境名（dev, staging, prod）
-   - リージョン
-   - その他スタック固有のパラメータ
-
-#### デプロイ順序
-
-スタック間の依存関係があるため、以下の順序でデプロイする必要があります：
-
-1. IAM（最初に権限を設定）
-2. VPC（ネットワーク）
-3. ECR（コンテナレジストリ）
-4. RDS（データベース）
-5. S3（静的ファイル）
-6. ALB（ロードバランサー）
-7. ECS（コンテナサービス）
-
-#### IAM スタックのデプロイ
-
-IAM スタックには、他のリソースをデプロイするための権限が含まれるため、最初にデプロイします。
+- このロールは汎用的なインフラ構築用ロールであり、プロジェクト固有ではありません。
+- インフラデプロイ用ロールが未作成の場合は、管理者権限で作成してください。
+  - テンプレート例: `.aws/cloudformation/infrastructure-deployer-role.yaml`
+- 個人 IAM ユーザーから`AssumeRole`で一時的な認証情報を取得し、IaC 操作を行います。
+- 長期的なアクセスキーは使用せず、常に一時的な認証情報を使用してください。
 
 ```bash
-aws cloudformation deploy \
-  --template-file .aws/cloudformation/iam.yaml \
-  --stack-name book-management-iam \
-  --capabilities CAPABILITY_NAMED_IAM \
-  --parameter-overrides \
-    Environment=dev \
-    ProjectName=book-management
+# AssumeRoleで一時的な認証情報を取得する例
+aws sts assume-role \
+  --role-arn arn:aws:iam::<ACCOUNT_ID>:role/infrastructure-deployer \
+  --role-session-name <YOUR_NAME>-deployment-session
+
+# 取得した認証情報を環境変数にセット
+export AWS_ACCESS_KEY_ID=<取得した一時的なアクセスキー>
+export AWS_SECRET_ACCESS_KEY=<取得した一時的なシークレットキー>
+export AWS_SESSION_TOKEN=<取得したセッショントークン>
+
+# これ以降のAWS CLIコマンドは、一時的な認証情報を使用して実行される
 ```
 
-`CAPABILITY_NAMED_IAM`フラグは、IAM リソースを作成する権限を CloudFormation に付与するために必要です。
+### アプリケーション固有の IAM リソース
 
-デプロイ後、以下の IAM リソースが作成されます：
+本プロジェクトでは、以下のアプリケーション固有の IAM リソースを使用します。これらのリソースは CloudFormation テンプレートで定義されており、`infrastructure-deployer`ロールを使用してデプロイします。
 
-- CloudFormation サービスロール
-- ECS タスク実行ロール
-- CI/CD パイプライン用 IAM ユーザー（アクセスキーとシークレットキーを取得）
+- **ECS タスク実行ロール**
 
-アクセスキーとシークレットキーは、出力タブで確認できます：
+  - 名前: `book-management-ecs-task-execution-role`
+  - 用途: ECS タスクが ECR からのイメージプルや CloudWatch へのログ出力を行うために使用
+  - ポリシー: `AmazonECSTaskExecutionRolePolicy` + SecretsManager と SSM へのアクセス権限
+
+- **バックエンドタスクロール**
+
+  - 名前: `book-management-backend-task-role`
+  - 用途: バックエンドアプリケーションが RDS, S3, SES などにアクセスするために使用
+  - ポリシー: アプリケーション固有の AWS リソースにアクセスする権限
+
+- **フロントエンドタスクロール**
+  - 名前: `book-management-frontend-task-role`
+  - 用途: フロントエンドアプリケーションが S3, CloudFront などにアクセスするために使用
+  - ポリシー: 限定的な S3 バケットへのアクセス権限
+
+### CI/CD パイプライン用認証
+
+CI/CD パイプライン（GitHub Actions）から AWS リソースへのアクセスには、GitHub Actions の OIDC 認証を使用します。
 
 ```bash
-aws cloudformation describe-stacks \
-  --stack-name book-management-iam \
-  --query "Stacks[0].Outputs"
+# OIDCプロバイダーの作成
+aws iam create-open-id-connect-provider \
+  --url https://token.actions.githubusercontent.com \
+  --client-id-list sts.amazonaws.com \
+  --thumbprint-list <GitHub Actions OIDCプロバイダーの証明書サムプリント>
+
+# GitHubリポジトリに制限されたIAMロールの作成
+aws iam create-role \
+  --role-name book-management-github-actions-role \
+  --assume-role-policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+          "StringEquals": {
+            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+          },
+          "StringLike": {
+            "token.actions.githubusercontent.com:sub": "repo:<GITHUB_ORGANIZATION>/<REPOSITORY_NAME>:*"
+          }
+        }
+      }
+    ]
+  }' \
+  --max-session-duration 3600 \
+  --description "Role for GitHub Actions to deploy book-management project"
+
+# ロールにポリシーを添付
+aws iam attach-role-policy \
+  --role-name book-management-github-actions-role \
+  --policy-arn arn:aws:iam::aws:policy/AmazonECR-FullAccess
+
+aws iam attach-role-policy \
+  --role-name book-management-github-actions-role \
+  --policy-arn arn:aws:iam::aws:policy/AmazonECS-FullAccess
 ```
 
-#### VPC スタックのデプロイ
+OIDC 認証を使用すると、以下のメリットがあります：
 
-```bash
-aws cloudformation deploy \
-  --template-file .aws/cloudformation/vpc.yaml \
-  --stack-name book-management-vpc \
-  --role-arn arn:aws:iam::<ACCOUNT_ID>:role/BookManagementCloudFormationServiceRole \
-  --parameter-overrides \
-    Environment=dev \
-    ProjectName=book-management \
-    VpcCidr=10.0.0.0/16 \
-    PublicSubnet1Cidr=10.0.1.0/24 \
-    PublicSubnet2Cidr=10.0.2.0/24 \
-    PrivateSubnet1Cidr=10.0.3.0/24 \
-    PrivateSubnet2Cidr=10.0.4.0/24
-```
-
-#### ECR スタックのデプロイ
-
-```bash
-aws cloudformation deploy \
-  --template-file .aws/cloudformation/ecr.yaml \
-  --stack-name book-management-ecr \
-  --role-arn arn:aws:iam::<ACCOUNT_ID>:role/BookManagementCloudFormationServiceRole \
-  --parameter-overrides \
-    Environment=dev \
-    ProjectName=book-management
-```
-
-#### RDS スタックのデプロイ
-
-```bash
-aws cloudformation deploy \
-  --template-file .aws/cloudformation/rds.yaml \
-  --stack-name book-management-rds \
-  --role-arn arn:aws:iam::<ACCOUNT_ID>:role/BookManagementCloudFormationServiceRole \
-  --parameter-overrides \
-    Environment=dev \
-    ProjectName=book-management \
-    VpcStackName=book-management-vpc \
-    DBInstanceClass=db.t3.micro \
-    DBName=bookmanagement \
-    DBUsername=admin \
-    DBPassword=<データベースパスワード>
-```
-
-#### ALB スタックのデプロイ
-
-```bash
-aws cloudformation deploy \
-  --template-file .aws/cloudformation/alb.yaml \
-  --stack-name book-management-alb \
-  --role-arn arn:aws:iam::<ACCOUNT_ID>:role/BookManagementCloudFormationServiceRole \
-  --parameter-overrides \
-    Environment=dev \
-    ProjectName=book-management \
-    VpcStackName=book-management-vpc \
-    CertificateArn=<SSL証明書のARN>
-```
-
-#### ECS スタックのデプロイ
-
-```bash
-aws cloudformation deploy \
-  --template-file .aws/cloudformation/ecs.yaml \
-  --stack-name book-management-ecs \
-  --role-arn arn:aws:iam::<ACCOUNT_ID>:role/BookManagementCloudFormationServiceRole \
-  --parameter-overrides \
-    Environment=dev \
-    ProjectName=book-management \
-    VpcStackName=book-management-vpc \
-    EcrStackName=book-management-ecr \
-    RdsStackName=book-management-rds \
-    AlbStackName=book-management-alb \
-    TaskExecutionRoleArn=arn:aws:iam::<ACCOUNT_ID>:role/BookManagementEcsTaskExecutionRole \
-    BackendTaskRoleArn=arn:aws:iam::<ACCOUNT_ID>:role/BookManagementBackendTaskRole \
-    FrontendTaskRoleArn=arn:aws:iam::<ACCOUNT_ID>:role/BookManagementFrontendTaskRole
-```
-
-#### スタックの更新
-
-既存のスタックを更新する場合は、同じデプロイコマンドを使用します。CloudFormation は変更のあるリソースのみを更新します。
-
-#### スタックの削除
-
-不要になったスタックを削除するには、以下のコマンドを使用します：
-
-```bash
-aws cloudformation delete-stack --stack-name <スタック名>
-```
-
-**注意**: スタックを削除すると、そのスタックで作成されたすべてのリソースも削除されます。本番環境では十分注意してください。
-
-また、依存関係があるため、削除は作成と逆の順序で行います：
-
-1. ECS
-2. ALB
-3. S3
-4. RDS
-5. ECR
-6. VPC
-7. IAM
-
-## IAM 権限設定
-
-本プロジェクトでは、最小権限の原則に従って IAM 権限を設定します。
-
-### 必要な IAM リソース
-
-1. **CloudFormation サービスロール**
-
-   - CloudFormation がユーザーに代わってリソースを作成・更新・削除するために使用します
-   - 必要なポリシー：各スタックが操作する AWS サービスに対する権限
-
-2. **ECS タスク実行ロール**
-
-   - ECR からのイメージプル、CloudWatch へのログ書き込みなどの ECS 基本操作用
-   - SecretsManager や SSM からの環境変数取得用
-
-3. **ECS タスクロール**
-
-   - バックエンドタスクロール：RDS、S3、SES、その他必要なサービスへのアクセス用
-   - フロントエンドタスクロール：S3、CloudFront、その他必要なサービスへのアクセス用
-
-4. **CI/CD パイプライン用 IAM ユーザー**
-   - GitHub Actions などのパイプラインがデプロイに使用する IAM ユーザー
-   - ECR へのイメージプッシュ、ECS サービスの更新権限
-
-### CloudFormation サービスロールの設定
-
-CloudFormation サービスロールは、CloudFormation スタックの作成・更新・削除時に使用されます。
-以下は、サービスロール用の信頼ポリシーとアクセス許可ポリシーの例です。
-
-#### 信頼ポリシー（Trust Policy）
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "cloudformation.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-#### アクセス許可ポリシー（Permissions Policy）
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:*",
-        "elasticloadbalancing:*",
-        "ecs:*",
-        "ecr:*",
-        "rds:*",
-        "logs:*",
-        "s3:*",
-        "secretsmanager:*",
-        "iam:GetRole",
-        "iam:PassRole",
-        "iam:CreateServiceLinkedRole"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-```
-
-**注意**: プロダクション環境では、上記のポリシーをさらに制限して、特定のリソースに対してのみ権限を付与することをおすすめします。
-
-### ECS タスク実行ロールの設定
-
-ECS タスク実行ロールは、ECS サービスが ECR からのイメージプルや CloudWatch へのログ書き込みなどの基本操作を行うために使用します。
-
-#### 信頼ポリシー
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ecs-tasks.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-#### アクセス許可ポリシー
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "secretsmanager:GetSecretValue",
-        "ssm:GetParameters",
-        "ssm:GetParameter"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-```
-
-### CI/CD パイプライン用 IAM 設定
-
-GitHub Actions などのパイプラインでは、AWS リソースにアクセスするための IAM ユーザーが必要です。
-このユーザーには、ECR へのイメージプッシュと ECS サービスの更新権限を与えます。
-
-#### アクセス許可ポリシー
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "ecr:InitiateLayerUpload",
-        "ecr:UploadLayerPart",
-        "ecr:CompleteLayerUpload",
-        "ecr:PutImage"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecs:DescribeTaskDefinition",
-        "ecs:RegisterTaskDefinition",
-        "ecs:UpdateService"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "iam:PassRole",
-      "Resource": [
-        "arn:aws:iam::*:role/BookManagementEcsTaskExecutionRole",
-        "arn:aws:iam::*:role/BookManagementBackendTaskRole",
-        "arn:aws:iam::*:role/BookManagementFrontendTaskRole"
-      ]
-    }
-  ]
-}
-```
-
-### IAM 認証情報のローテーション
-
-セキュリティ強化のため、IAM 認証情報は定期的にローテーションすることをおすすめします。特に CI/CD パイプライン用のアクセスキーは、3 ヶ月ごとなど定期的に更新すべきです。
-
-#### アクセスキーのローテーション手順
-
-1. AWS コンソールで新しいアクセスキーを作成します
-
-   ```bash
-   aws iam create-access-key --user-name BookManagementCICDUser
-   ```
-
-2. 新しいアクセスキーを GitHub シークレットに登録します
-
-   - GitHub リポジトリの Settings > Secrets > Actions に移動
-   - `AWS_ACCESS_KEY_ID` と `AWS_SECRET_ACCESS_KEY` の値を更新
-
-3. デプロイが正常に動作することを確認します
-
-   - テストデプロイを実行して問題ないことを確認
-
-4. 古いアクセスキーを無効化します
-
-   ```bash
-   aws iam update-access-key --access-key-id OLD_ACCESS_KEY_ID --status Inactive --user-name BookManagementCICDUser
-   ```
-
-5. 問題がないことを確認後、古いアクセスキーを削除します
-   ```bash
-   aws iam delete-access-key --access-key-id OLD_ACCESS_KEY_ID --user-name BookManagementCICDUser
-   ```
+- アクセスキーを管理する必要がない
+- 一時的な認証情報のみを使用するため、セキュリティリスクが低減
+- GitHub Actions のワークフローが特定のリポジトリ・ブランチに制限可能
 
 ### IAM セキュリティのベストプラクティス
 
@@ -519,8 +316,338 @@ GitHub Actions などのパイプラインでは、AWS リソースにアクセ�
    ```
 
 6. **権限昇格の制限**
+
    - 権限昇格パスを特定し、制限するポリシーを実装
    - サービスロールには特定のサービスのみが引き受け可能な信頼ポリシーを設定
+
+7. **CI/CD パイプラインでの OIDC 認証の使用**
+
+   - 長期的なアクセスキーの代わりに GitHub Actions の OpenID Connect (OIDC)を使用
+   - AWS に OIDC プロバイダーと IAM ロールを設定：
+
+   ```bash
+   # OIDCプロバイダーの作成
+   aws iam create-open-id-connect-provider \
+     --url https://token.actions.githubusercontent.com \
+     --client-id-list sts.amazonaws.com \
+     --thumbprint-list <GitHub Actions OIDCプロバイダーの証明書サムプリント>
+
+   # GitHubリポジトリに制限されたIAMロールの作成
+   aws iam create-role \
+     --role-name book-management-github-actions-role \
+     --assume-role-policy-document '{
+       "Version": "2012-10-17",
+       "Statement": [
+         {
+           "Effect": "Allow",
+           "Principal": {
+             "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
+           },
+           "Action": "sts:AssumeRoleWithWebIdentity",
+           "Condition": {
+             "StringEquals": {
+               "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+             },
+             "StringLike": {
+               "token.actions.githubusercontent.com:sub": "repo:<GITHUB_ORGANIZATION>/<REPOSITORY_NAME>:*"
+             }
+           }
+         }
+       ]
+     }'
+   ```
+
+## CloudFormation によるデプロイ
+
+CloudFormation を使用して、インフラストラクチャをコードとして管理し、デプロイします。
+
+### デプロイ準備
+
+1. AWS CLI をインストールし、設定する
+
+   ```bash
+   # AWS CLIのインストール（macOS）
+   brew install awscli
+
+   # AWS CLIの設定
+   aws configure
+   ```
+
+2. `infrastructure-deployer`ロール（または同等の権限を持つロール）を AssumeRole する
+
+   ```bash
+   # AssumeRoleで一時的な認証情報を取得
+   aws sts assume-role \
+     --role-arn arn:aws:iam::<ACCOUNT_ID>:role/infrastructure-deployer \
+     --role-session-name deployment-session
+
+   # 環境変数を設定（具体的な値は上記コマンドの出力から取得）
+   export AWS_ACCESS_KEY_ID=<Credentials.AccessKeyId>
+   export AWS_SECRET_ACCESS_KEY=<Credentials.SecretAccessKey>
+   export AWS_SESSION_TOKEN=<Credentials.SessionToken>
+   ```
+
+3. 必要なパラメータを準備する
+   - スタック名
+   - 環境名（dev, staging, prod）
+   - リージョン
+   - その他スタック固有のパラメータ
+
+### スタックのデプロイ順序
+
+スタック間の依存関係があるため、以下の順序でデプロイする必要があります：
+
+1. VPC（ネットワーク）
+2. ECR（コンテナレジストリ）
+3. RDS（データベース）
+4. S3（静的ファイル）
+5. ALB（ロードバランサー）
+6. ECS（コンテナサービス）
+
+### スタックのデプロイコマンド
+
+以下のコマンドは、すべて`infrastructure-deployer`ロール（または同等の権限を持つロール）を AssumeRole した状態で実行してください。
+
+#### VPC スタックのデプロイ
+
+```bash
+aws cloudformation deploy \
+  --template-file .aws/cloudformation/vpc.yaml \
+  --stack-name book-management-vpc \
+  --parameter-overrides \
+    Environment=dev \
+    ProjectName=book-management \
+    VpcCidr=10.0.0.0/16 \
+    PublicSubnet1Cidr=10.0.1.0/24 \
+    PublicSubnet2Cidr=10.0.2.0/24 \
+    PrivateSubnet1Cidr=10.0.3.0/24 \
+    PrivateSubnet2Cidr=10.0.4.0/24
+```
+
+#### ECR スタックのデプロイ
+
+```bash
+aws cloudformation deploy \
+  --template-file .aws/cloudformation/ecr.yaml \
+  --stack-name book-management-ecr \
+  --parameter-overrides \
+    Environment=dev \
+    ProjectName=book-management
+```
+
+#### RDS スタックのデプロイ
+
+```bash
+aws cloudformation deploy \
+  --template-file .aws/cloudformation/rds.yaml \
+  --stack-name book-management-rds \
+  --parameter-overrides \
+    Environment=dev \
+    ProjectName=book-management \
+    VpcStackName=book-management-vpc \
+    DBInstanceClass=db.t3.micro \
+    DBName=bookmanagement \
+    DBUsername=admin \
+    DBPassword=<データベースパスワード>
+```
+
+#### ALB スタックのデプロイ
+
+```bash
+aws cloudformation deploy \
+  --template-file .aws/cloudformation/alb.yaml \
+  --stack-name book-management-alb \
+  --parameter-overrides \
+    Environment=dev \
+    ProjectName=book-management \
+    VpcStackName=book-management-vpc \
+    CertificateArn=<SSL証明書のARN>
+```
+
+#### ECS スタックのデプロイ
+
+```bash
+aws cloudformation deploy \
+  --template-file .aws/cloudformation/ecs.yaml \
+  --stack-name book-management-ecs \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides \
+    Environment=dev \
+    ProjectName=book-management \
+    VpcStackName=book-management-vpc \
+    EcrStackName=book-management-ecr \
+    RdsStackName=book-management-rds \
+    AlbStackName=book-management-alb
+```
+
+`CAPABILITY_NAMED_IAM`フラグは、ECS スタックが`book-management-ecs-task-execution-role`、`book-management-backend-task-role`、`book-management-frontend-task-role`などの IAM リソースを作成するために必要です。
+
+### スタックの更新と削除
+
+既存のスタックを更新する場合は、同じデプロイコマンドを使用します。CloudFormation は変更のあるリソースのみを更新します。
+
+不要になったスタックを削除するには、以下のコマンドを使用します：
+
+```bash
+aws cloudformation delete-stack --stack-name <スタック名>
+```
+
+**注意**: スタックを削除すると、そのスタックで作成されたすべてのリソースも削除されます。本番環境では十分注意してください。
+
+また、依存関係があるため、削除は作成と逆の順序で行います：
+
+1. ECS
+2. ALB
+3. S3
+4. RDS
+5. ECR
+6. VPC
+7. IAM
+
+## CloudFormation によって作成されるリソース
+
+CloudFormation によるデプロイを完了すると、以下の AWS リソースが作成されます。各スタックごとに作成されるリソースの詳細を示します。
+
+### VPC スタック (`book-management-vpc`)
+
+- **VPC**
+
+  - CIDR: 10.0.0.0/16
+  - DNS サポート: 有効
+  - DNS ホスト名: 有効
+
+- **パブリックサブネット**
+
+  - 数: 2 つのアベイラビリティゾーンに分散
+  - CIDR: 10.0.1.0/24, 10.0.2.0/24
+  - 用途: ALB、NAT Gateway などのパブリックサービスをホスト
+
+- **プライベートサブネット**
+
+  - 数: 2 つのアベイラビリティゾーンに分散
+  - CIDR: 10.0.3.0/24, 10.0.4.0/24
+  - 用途: ECS タスク、RDS インスタンスなどのプライベートリソースをホスト
+
+- **インターネットゲートウェイ**
+
+  - 用途: VPC とインターネット間の通信を可能にする
+
+- **NAT ゲートウェイ**
+
+  - 数: 2 つのパブリックサブネットにそれぞれ配置
+  - 用途: プライベートサブネットからインターネットへの送信トラフィックを許可
+
+- **ルートテーブル**
+
+  - パブリックルートテーブル: インターネットゲートウェイ経由でのインターネットアクセス
+  - プライベートルートテーブル: NAT ゲートウェイ経由でのインターネットアクセス
+
+- **セキュリティグループ**
+  - ALB セキュリティグループ: HTTP/HTTPS トラフィックを許可
+  - ECS セキュリティグループ: ALB からのトラフィックのみを許可
+  - RDS セキュリティグループ: ECS からのトラフィックのみを許可
+
+### ECR スタック (`book-management-ecr`)
+
+- **ECR リポジトリ**
+  - `book-management-backend`: バックエンドアプリケーション用 Docker イメージリポジトリ
+  - `book-management-frontend`: フロントエンドアプリケーション用 Docker イメージリポジトリ
+  - ライフサイクルポリシー: 30 日以上経過した未使用イメージを自動削除
+
+### RDS スタック (`book-management-rds`)
+
+- **DB サブネットグループ**
+
+  - 用途: 複数のアベイラビリティゾーンにわたる RDS デプロイを可能にする
+  - サブネット: プライベートサブネット
+
+- **RDS PostgreSQL インスタンス**
+  - インスタンスクラス: `db.t3.micro`（開発環境）または `db.t3.small`（本番環境）
+  - ストレージ: 20GB（自動スケーリング有効）
+  - マルチ AZ: 開発環境では無効、本番環境では有効
+  - バックアップ保持期間: 7 日間
+  - メンテナンスウィンドウ: 週次で自動設定
+  - セキュリティ: プライベートサブネットに配置、ECS からのみアクセス可能
+
+### S3 スタック (`book-management-s3`)
+
+- **S3 バケット**
+  - `book-management-static-assets-<environment>`: 静的アセット（画像、CSS、JS）用
+  - バージョニング: 有効
+  - ライフサイクルポリシー: 古いバージョンを 30 日後に低頻度アクセス層へ移動、90 日後に削除
+  - 暗号化: S3 マネージドキー（SSE-S3）
+
+### ALB スタック (`book-management-alb`)
+
+- **アプリケーションロードバランサー**
+
+  - 名前: `book-management-alb-<environment>`
+  - タイプ: インターネット向け
+  - サブネット: パブリックサブネット
+  - セキュリティグループ: ALB セキュリティグループ
+
+- **ターゲットグループ**
+
+  - `book-management-frontend-tg`: フロントエンドサービス用、ポート 80
+  - `book-management-backend-tg`: バックエンドサービス用、ポート 8000
+  - ヘルスチェック: `/health` エンドポイントに 30 秒ごとにリクエスト
+
+- **リスナー**
+  - HTTP:80: HTTPS にリダイレクト
+  - HTTPS:443: パスベースルーティング
+    - `/api/*`: バックエンドターゲットグループへ
+    - `/*`: フロントエンドターゲットグループへ
+
+### ECS スタック (`book-management-ecs`)
+
+- **ECS クラスター**
+
+  - 名前: `book-management-cluster-<environment>`
+  - キャパシティプロバイダー: Fargate
+
+- **ECS サービス（バックエンド）**
+
+  - 名前: `book-management-backend-service`
+  - タスク数: 2（本番環境）
+  - プラットフォームバージョン: LATEST
+  - ネットワーク: プライベートサブネット、ECS セキュリティグループ
+  - ロードバランサー: ALB のバックエンドターゲットグループに接続
+  - 自動スケーリング: CPU 使用率 70%、メモリ使用率 70%でスケールアウト
+
+- **ECS サービス（フロントエンド）**
+
+  - 名前: `book-management-frontend-service`
+  - タスク数: 2（本番環境）
+  - プラットフォームバージョン: LATEST
+  - ネットワーク: プライベートサブネット、ECS セキュリティグループ
+  - ロードバランサー: ALB のフロントエンドターゲットグループに接続
+  - 自動スケーリング: CPU 使用率 70%でスケールアウト
+
+- **ECS タスク定義（バックエンド）**
+
+  - CPU: 0.5 vCPU
+  - メモリ: 1GB
+  - コンテナ: バックエンドアプリケーション
+  - 環境変数: DB 接続情報、API キーなど（SecretsManager から取得）
+
+- **ECS タスク定義（フロントエンド）**
+  - CPU: 0.25 vCPU
+  - メモリ: 0.5GB
+  - コンテナ: フロントエンドアプリケーション
+  - 環境変数: API_URL、NODE_ENV（パラメータストアから取得）
+
+### 監視リソース
+
+- **CloudWatch ロググループ**
+
+  - `/aws/ecs/book-management-backend`: バックエンドログ
+  - `/aws/ecs/book-management-frontend`: フロントエンドログ
+  - 保持期間: 30 日
+
+- **CloudWatch アラーム**
+  - CPU 使用率アラーム: 80%以上が 5 分間継続した場合に通知
+  - メモリ使用率アラーム: 80%以上が 5 分間継続した場合に通知
+  - ECS サービスの異常: ヘルスチェックに 2 回以上失敗した場合に通知
 
 ## 環境変数の設定
 

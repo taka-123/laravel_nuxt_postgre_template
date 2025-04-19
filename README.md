@@ -11,6 +11,71 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理シス�
 - [AWS デプロイ設定](./.aws/README.md) - AWS ECS デプロイの設定と手順
 - [開発環境ガイド](./DEVELOPMENT.md) - 開発環境のセットアップと規約
 
+### ドキュメント構成図
+
+```mermaid
+graph LR
+    %% 高コントラストの配色設定
+    classDef mainDoc fill:#FF9999,stroke:#CC0000,color:#000,stroke-width:2px;
+    classDef subDoc fill:#99CCFF,stroke:#0066CC,color:#000,stroke-width:1px;
+    classDef codeFile fill:#99FF99,stroke:#00CC66,color:#000,stroke-width:1px;
+    classDef configFile fill:#FFCC99,stroke:#FF9933,color:#000,stroke-width:1px;
+
+    %% メインドキュメント
+    MainDocs[メインドキュメント]
+    MainDocs --> Dev[DEVELOPMENT.md 開発環境ガイド]
+    MainDocs --> AWS[.aws/README.md AWSデプロイ設定]
+    MainDocs --> Frontend[frontend/README.md フロントエンド詳細]
+    MainDocs --> Backend[backend/README.md バックエンド詳細]
+
+    %% 開発環境系 - 上から下に展開
+    Dev --> DevDetails[開発環境詳細]
+    DevDetails --> CodeStd[コーディング規約]
+    DevDetails --> TestProc[テスト手順]
+    DevDetails --> GitFlow[Gitワークフロー]
+    DevDetails --> CI[CI/CD設定と手順]
+
+    %% CI/CD詳細
+    CI --> GitHub[GitHub Actions]
+    GitHub --> CI_YML[ci.yml テストと検証]
+    GitHub --> Deploy_YML[deploy-ecs-production.yml ECSデプロイ]
+
+    %% AWS系 - 上から下に展開
+    AWS --> AWSDetails[AWS詳細]
+    AWSDetails --> IAMDeploy[IAMロールと権限設定]
+    AWSDetails --> DeployProc[デプロイ手順]
+    AWSDetails --> CloudFormationDeploy[CloudFormationデプロイ]
+
+    %% AWS関連ファイル
+    AWS --> AWSFiles[AWS関連ファイル]
+    AWSFiles --> CFTemplate[.aws/cloudformation/*.yaml テンプレート]
+    AWSFiles --> TaskDef[.aws/task-definitions/*.json タスク定義]
+
+    %% フロントエンド系 - 上から下に展開
+    Frontend --> FrontendDetails[フロントエンド詳細]
+    FrontendDetails --> FrontDev[ローカル開発環境]
+    FrontendDetails --> FrontComp[コンポーネント構成]
+    FrontendDetails --> FrontDeps[依存パッケージ]
+
+    %% バックエンド系 - 上から下に展開
+    Backend --> BackendDetails[バックエンド詳細]
+    BackendDetails --> BackAPI[APIエンドポイント]
+    BackendDetails --> BackDev[ローカル開発環境]
+    BackendDetails --> BackDeps[依存パッケージ]
+
+    %% Docker設定 - 上から下に展開
+    MainDocs --> DockerConfig[Docker設定]
+    DockerConfig --> ComposeRoot[docker-compose.yml]
+    DockerConfig --> BackDocker[backend/Dockerfile.production]
+    DockerConfig --> FrontDocker[frontend/Dockerfile]
+
+    %% スタイル適用
+    class MainDocs,AWS,Backend,Frontend,Dev mainDoc;
+    class IAMDeploy,DeployProc,BackAPI,FrontComp,CodeStd,CI,DevDetails,AWSDetails,FrontendDetails,BackendDetails subDoc;
+    class CFTemplate,TaskDef,GitHub,BackDocker,FrontDocker codeFile;
+    class ComposeRoot,CI_YML,Deploy_YML configFile;
+```
+
 ## 開発環境のセットアップ
 
 ### 前提条件
@@ -256,39 +321,16 @@ npm run test  # すべてのテストを実行
 
 ## 本番環境へのデプロイ
 
-本番環境へのデプロイは、AWS の ECS を使用して自動化されています。
+本プロジェクトは AWS ECS を使用して本番環境にデプロイします。
 
-### ECS デプロイの前提条件
+デプロイの詳細な手順や AWS 環境の設定については、以下のドキュメントを参照してください：
 
-1. AWS ECS クラスター、サービス、およびタスク定義が作成されていること
-2. Amazon ECR リポジトリが作成されていること
-3. 必要な IAM ロールとポリシーが設定されていること
-4. GitHub Actions 用のシークレットが設定されていること
+- [AWS デプロイ設定](./.aws/README.md) - CloudFormation テンプレート、IAM 設定、デプロイコマンドなど
 
-### GitHub Secrets の設定
+### デプロイ概要
 
-以下のシークレット値を GitHub リポジトリの設定で追加してください：
+1. **CI/CD パイプライン**: GitHub Actions を使用して`main`ブランチへのプッシュ時に自動デプロイ
+2. **コンテナ化**: バックエンドとフロントエンドは別々の Docker コンテナとしてデプロイ
+3. **インフラストラクチャ**: CloudFormation を使用して AWS リソースをコードとして管理
 
-- `AWS_ACCESS_KEY_ID` - AWS アクセスキー ID
-- `AWS_SECRET_ACCESS_KEY` - AWS シークレットアクセスキー
-- `AWS_REGION` - AWS リージョン
-- `ECR_REPOSITORY_BACKEND` - バックエンド用 ECR リポジトリ名
-- `ECR_REPOSITORY_FRONTEND` - フロントエンド用 ECR リポジトリ名
-- `BACKEND_SERVICE_NAME` - バックエンド ECS サービス名
-- `FRONTEND_SERVICE_NAME` - フロントエンド ECS サービス名
-- `ECS_CLUSTER` - ECS クラスター名
-- `DB_HOST` - データベースホスト
-- `DB_DATABASE` - データベース名
-- `DB_USERNAME` - データベースユーザー
-- `PRODUCTION_API_URL` - 本番 API のパブリック URL
-- `PRODUCTION_INTERNAL_API_URL` - ECS 内部での API 通信用 URL
-
-### デプロイフロー
-
-1. `main`ブランチにプッシュまたはマージすると、GitHub Actions が起動します
-2. テストが実行され、問題がなければデプロイが開始されます
-3. Docker イメージがビルドされ、Amazon ECR にプッシュされます
-4. 新しい ECS タスク定義が作成され、サービスが更新されます
-5. アプリケーションが本番環境にデプロイされます
-
-詳細な ECS 設定については、`.aws/`ディレクトリのファイルを参照してください。
+詳細な AWS 環境設定、IAM 権限、デプロイコマンド、トラブルシューティング手順については[AWS デプロイ設定](./.aws/README.md)を参照してください。
