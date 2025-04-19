@@ -2,6 +2,15 @@
 
 Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理システムです。
 
+## プロジェクト構成
+
+プロジェクトの詳細情報は以下のドキュメントを参照してください：
+
+- [バックエンド README](./backend/README.md) - Laravel バックエンドの詳細情報
+- [フロントエンド README](./frontend/README.md) - Nuxt.js フロントエンドの詳細情報
+- [AWS デプロイ設定](./.aws/README.md) - AWS ECS デプロイの設定と手順
+- [開発環境ガイド](./DEVELOPMENT.md) - 開発環境のセットアップと規約
+
 ## 開発環境のセットアップ
 
 ### 前提条件
