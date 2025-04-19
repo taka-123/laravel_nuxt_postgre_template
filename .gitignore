@@ -50,3 +50,12 @@ coverage
 
 # PHPStan
 /backend/.phpstan-cache
+
+# AWS
+.aws-sam/
+samconfig.toml
+packaged.yaml
+.aws/cloudformation/*.packaged.yaml
+.aws/cloudformation/outputs/
+.aws/credentials
+.aws/config

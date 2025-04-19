@@ -1,13 +1,14 @@
-# ベースイメージとして Node.js 22 を使用
-FROM node:22-alpine AS base
+# ==================
+# = ビルドステージ =
+# ==================
+FROM node:22-alpine AS builder
 
 # 作業ディレクトリを設定
 WORKDIR /app
 
+# パッケージマネージャーがyarnなのでyarnを使用
 # 依存関係をインストールするためのファイルをコピー
 COPY package.json yarn.lock* ./
-# If you have package-lock.json, copy that instead of yarn.lock
-# COPY package.json package-lock.json* ./
 
 # 依存関係をインストール
 RUN yarn install --frozen-lockfile
@@ -15,11 +16,48 @@ RUN yarn install --frozen-lockfile
 # アプリケーションコードをコピー
 COPY . .
 
+# 環境変数の設定（ビルド時に使用）
+ARG BROWSER_API_BASE_URL
+ENV BROWSER_API_BASE_URL=${BROWSER_API_BASE_URL:-http://localhost:8000/api}
+ARG SERVER_API_BASE_URL
+ENV SERVER_API_BASE_URL=${SERVER_API_BASE_URL:-http://backend:80/api}
+ARG NODE_ENV
+ENV NODE_ENV=${NODE_ENV:-production}
+
 # Nuxt アプリケーションをビルド
 RUN yarn build
 
-# 公開ポートを指定
-EXPOSE 3000
+# ===================
+# = 実行ステージ =
+# ===================
+FROM nginx:stable-alpine AS production
 
-# アプリケーションを実行（開発環境）
-CMD ["yarn", "dev"]
+# Nginxの設定
+COPY docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+# ビルドステージから静的ファイルをコピー
+COPY --from=builder /app/.output/public /usr/share/nginx/html
+
+# Nginxを非rootユーザーで実行するための設定
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+  chown -R nginx:nginx /var/cache/nginx && \
+  chown -R nginx:nginx /var/log/nginx && \
+  chown -R nginx:nginx /etc/nginx/conf.d && \
+  touch /var/run/nginx.pid && \
+  chown -R nginx:nginx /var/run/nginx.pid
+
+# セキュリティのためにrootユーザーではなくnginxユーザーで実行
+USER nginx
+
+# ヘルスチェック用のファイル
+RUN echo "OK" > /usr/share/nginx/html/health.txt
+
+# 公開ポートを指定
+EXPOSE 8080
+
+# コンテナのヘルスチェック設定
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q --spider http://localhost:8080/health.txt || exit 1
+
+# Nginxを起動
+CMD ["nginx", "-g", "daemon off;"]
