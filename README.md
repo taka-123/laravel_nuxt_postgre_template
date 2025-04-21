@@ -2,6 +2,45 @@
 
 Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理システムです。
 
+## 目次
+
+- [書籍管理システム](#書籍管理システム)
+  - [目次](#目次)
+  - [プロジェクト構成](#プロジェクト構成)
+  - [ドキュメント構成図](#ドキュメント構成図)
+  - [開発環境のセットアップ](#開発環境のセットアップ)
+    - [前提条件](#前提条件)
+    - [推奨エディタとプラグイン](#推奨エディタとプラグイン)
+      - [必須拡張機能](#必須拡張機能)
+    - [ポート設定](#ポート設定)
+  - [Docker 環境の起動方法](#docker-環境の起動方法)
+    - [重要: 同時に両方の環境を起動しないでください](#重要-同時に両方の環境を起動しないでください)
+    - [正しい起動方法](#正しい起動方法)
+    - [正しい停止方法](#正しい停止方法)
+  - [開発サーバーの起動](#開発サーバーの起動)
+    - [Docker を使用した起動（推奨）](#docker-を使用した起動推奨)
+    - [個別の起動方法](#個別の起動方法)
+      - [バックエンド（Laravel）の起動](#バックエンドlaravelの起動)
+      - [フロントエンド（Nuxt.js）の起動](#フロントエンドnuxtjsの起動)
+  - [コード品質管理とテスト](#コード品質管理とテスト)
+    - [Linter と Formatter](#linter-と-formatter)
+      - [バックエンド](#バックエンド)
+      - [フロントエンド](#フロントエンド)
+      - [開発プロセスの自動化](#開発プロセスの自動化)
+    - [テスト実行](#テスト実行)
+      - [バックエンド](#バックエンド-1)
+      - [フロントエンド](#フロントエンド-1)
+  - [Git ワークフロー](#git-ワークフロー)
+    - [ブランチ戦略](#ブランチ戦略)
+    - [開発プロセス](#開発プロセス)
+  - [テストユーザー](#テストユーザー)
+  - [CI/CD 環境](#cicd-環境)
+    - [CI ワークフロー (`.github/workflows/ci.yml`)](#ci-ワークフロー-githubworkflowsciyml)
+    - [CD ワークフロー (`.github/workflows/deploy-ecs-production.yml`)](#cd-ワークフロー-githubworkflowsdeploy-ecs-productionyml)
+  - [開発者向けドキュメント](#開発者向けドキュメント)
+  - [本番環境へのデプロイ](#本番環境へのデプロイ)
+    - [デプロイ概要](#デプロイ概要)
+
 ## プロジェクト構成
 
 プロジェクトの詳細情報は以下のドキュメントを参照してください：
@@ -11,69 +50,44 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理シス�
 - [AWS デプロイ設定](./.aws/README.md) - AWS ECS デプロイの設定と手順
 - [開発環境ガイド](./DEVELOPMENT.md) - 開発環境のセットアップと規約
 
-### ドキュメント構成図
+## ドキュメント構成図
 
 ```mermaid
 graph LR
-    %% 高コントラストの配色設定
-    classDef mainDoc fill:#FF9999,stroke:#CC0000,color:#000,stroke-width:2px;
-    classDef subDoc fill:#99CCFF,stroke:#0066CC,color:#000,stroke-width:1px;
-    classDef codeFile fill:#99FF99,stroke:#00CC66,color:#000,stroke-width:1px;
-    classDef configFile fill:#FFCC99,stroke:#FF9933,color:#000,stroke-width:1px;
-
-    %% メインドキュメント
-    MainDocs[メインドキュメント]
-    MainDocs --> Dev[DEVELOPMENT.md 開発環境ガイド]
-    MainDocs --> AWS[.aws/README.md AWSデプロイ設定]
-    MainDocs --> Frontend[frontend/README.md フロントエンド詳細]
-    MainDocs --> Backend[backend/README.md バックエンド詳細]
-
-    %% 開発環境系 - 上から下に展開
-    Dev --> DevDetails[開発環境詳細]
-    DevDetails --> CodeStd[コーディング規約]
-    DevDetails --> TestProc[テスト手順]
-    DevDetails --> GitFlow[Gitワークフロー]
-    DevDetails --> CI[CI/CD設定と手順]
-
-    %% CI/CD詳細
-    CI --> GitHub[GitHub Actions]
-    GitHub --> CI_YML[ci.yml テストと検証]
-    GitHub --> Deploy_YML[deploy-ecs-production.yml ECSデプロイ]
-
-    %% AWS系 - 上から下に展開
-    AWS --> AWSDetails[AWS詳細]
-    AWSDetails --> IAMDeploy[IAMロールと権限設定]
-    AWSDetails --> DeployProc[デプロイ手順]
-    AWSDetails --> CloudFormationDeploy[CloudFormationデプロイ]
-
-    %% AWS関連ファイル
-    AWS --> AWSFiles[AWS関連ファイル]
-    AWSFiles --> CFTemplate[.aws/cloudformation/*.yaml テンプレート]
-    AWSFiles --> TaskDef[.aws/task-definitions/*.json タスク定義]
-
-    %% フロントエンド系 - 上から下に展開
-    Frontend --> FrontendDetails[フロントエンド詳細]
-    FrontendDetails --> FrontDev[ローカル開発環境]
-    FrontendDetails --> FrontComp[コンポーネント構成]
-    FrontendDetails --> FrontDeps[依存パッケージ]
-
-    %% バックエンド系 - 上から下に展開
-    Backend --> BackendDetails[バックエンド詳細]
-    BackendDetails --> BackAPI[APIエンドポイント]
-    BackendDetails --> BackDev[ローカル開発環境]
-    BackendDetails --> BackDeps[依存パッケージ]
-
-    %% Docker設定 - 上から下に展開
-    MainDocs --> DockerConfig[Docker設定]
-    DockerConfig --> ComposeRoot[docker-compose.yml]
-    DockerConfig --> BackDocker[backend/Dockerfile.production]
-    DockerConfig --> FrontDocker[frontend/Dockerfile]
-
-    %% スタイル適用
-    class MainDocs,AWS,Backend,Frontend,Dev mainDoc;
-    class IAMDeploy,DeployProc,BackAPI,FrontComp,CodeStd,CI,DevDetails,AWSDetails,FrontendDetails,BackendDetails subDoc;
-    class CFTemplate,TaskDef,GitHub,BackDocker,FrontDocker codeFile;
-    class ComposeRoot,CI_YML,Deploy_YML configFile;
+    %% スタイル定義
+    classDef main fill:#e8f4fa,stroke:#5da2d5,color:#333
+    classDef sub fill:#fff1e6,stroke:#ff9f7f,color:#333
+    classDef code fill:#f0f0f0,stroke:#aaa,color:#333
+    
+    %% メイン文書
+    README[README.md]:::main
+    
+    %% アプリケーション
+    subgraph APP[アプリケーション]
+        BACKEND[backend/README.md]:::sub
+        FRONTEND[frontend/README.md]:::sub
+    end
+    
+    %% インフラとデプロイ
+    subgraph INFRA[インフラ/デプロイ]
+        AWS[.aws/README.md]:::sub
+        AWS --> CLOUDFORMATION[CloudFormation]:::code
+        AWS --> TASKDEF[ECSタスク定義]:::code
+    end
+    
+    %% 開発環境
+    subgraph DEV[開発プロセス]
+        DEVGUIDE[DEVELOPMENT.md]:::sub
+        DOCKER[docker-compose.yml]:::code
+        CICD[GitHub Actions]:::code
+    end
+    
+    %% 関連性
+    README --> APP
+    README --> INFRA
+    README --> DEV
+    DEVGUIDE --> CICD
+    CICD -.参照.-> AWS
 ```
 
 ## 開発環境のセットアップ
@@ -102,6 +116,12 @@ graph LR
 - **EditorConfig** - エディタの共通設定
 - **YAML** - YAML ファイルの編集サポート
 - **Docker** - Docker 関連ファイルの編集サポート
+- **Markdown All in One** - Markdown 編集の総合支援（目次生成、ショートカット等）
+- **Markdown Mermaid** - Markdown プレビューでの Mermaid 図表示サポート
+- **shell-format** - シェルスクリプトのフォーマット
+- **GitLens** - コード行の Git 履歴（誰がいつ変更したか）を表示
+- **indent-rainbow** - インデントの深さを色付けして可視化
+- **Code Spell Checker** - コード内のスペルミスをチェック
 
 VSCode を使用していない場合は、同等の機能を持つエディタプラグインをインストールしてください。
 
@@ -305,13 +325,46 @@ npm run test  # すべてのテストを実行
 
 プロジェクトには以下の CI/CD 設定が含まれています：
 
-- **CI** (`.github/workflows/ci.yml`): コードプッシュ時に自動的に Lint とテストを実行
-- **プロダクションデプロイ** (`.github/workflows/deploy-ecs-production.yml`): `main`ブランチへのプッシュ時に AWS ECS へ自動デプロイ
+### CI ワークフロー (`.github/workflows/ci.yml`)
 
-### テスト自動化
+継続的インテグレーション（CI）は以下のイベントで自動的に実行されます：
 
-- プルリクエスト時: 自動的に CI ワークフローが実行され、コード品質とテストをチェック
-- プロダクションデプロイ前: テストが自動的に実行され、成功した場合のみデプロイが行われる
+- `main`および`develop`ブランチへのプッシュ
+- すべてのプルリクエストの作成と更新
+
+実行される主なプロセス：
+
+1. **コード品質チェック**：
+   - フロントエンド: ESLint, Prettier
+   - バックエンド: PHP_CodeSniffer, PHPStan/Larastan
+2. **自動テスト**：
+   - フロントエンド: Vitest
+   - バックエンド: PHPUnit
+3. **依存パッケージの脆弱性スキャン**：
+   - npm audit (フロントエンド)
+   - composer audit (バックエンド)
+
+### CD ワークフロー (`.github/workflows/deploy-ecs-production.yml`)
+
+継続的デプロイ（CD）は以下のイベントで自動的に実行されます：
+
+- `main`ブランチへのプッシュ
+- バージョンタグ（`v*`形式）の作成
+
+実行される主なプロセス：
+
+1. **CI プロセス全体**（上記のすべてのステップ）
+2. **Docker イメージのビルド**：
+   - フロントエンド用イメージ
+   - バックエンド用イメージ 
+3. **イメージのセキュリティスキャン**（Trivy）
+4. **Amazon ECR へのイメージのプッシュ** 
+5. **ECS タスク定義の更新**
+6. **ECS サービスの更新**（ゼロダウンタイムデプロイ）
+7. **CloudFront キャッシュの無効化**（オプション）
+8. **Slack 通知**（成功/失敗）
+
+AWS へのデプロイは IAM ロールベースの OIDC 認証を使用しており、セキュアで長期的なアクセスキーの管理が不要です。詳細な設定は[AWS デプロイ設定](./.aws/README.md)を参照してください。
 
 ## 開発者向けドキュメント
 
@@ -334,3 +387,7 @@ npm run test  # すべてのテストを実行
 3. **インフラストラクチャ**: CloudFormation を使用して AWS リソースをコードとして管理
 
 詳細な AWS 環境設定、IAM 権限、デプロイコマンド、トラブルシューティング手順については[AWS デプロイ設定](./.aws/README.md)を参照してください。
+
+---
+
+各ドキュメントファイルは相互に参照し合い、整合性のある情報を提供しています。特に `.aws/README.md` は AWS リソースと CI/CD 設定の詳細を、`DEVELOPMENT.md` は開発環境とワークフローの標準を定義しています。バックエンドとフロントエンドの各 README は、それぞれのコンポーネント固有の情報を提供しています。

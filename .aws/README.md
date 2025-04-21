@@ -4,48 +4,17 @@
 
 ## 目次
 
-- [AWS ECS デプロイ設定](#aws-ecs-デプロイ設定)
-  - [目次](#目次)
-  - [アーキテクチャ概要](#アーキテクチャ概要)
-    - [システム構成図](#システム構成図)
-  - [必要な AWS リソース](#必要な-aws-リソース)
-    - [ECR リポジトリ](#ecr-リポジトリ)
-    - [ECS リソース](#ecs-リソース)
-    - [その他のリソース](#その他のリソース)
-  - [デプロイフロー](#デプロイフロー)
-  - [初期設定](#初期設定)
-    - [AWS 認証情報を GitHub シークレットとして設定](#aws-認証情報を-github-シークレットとして設定)
-      - [AWS 認証方法](#aws-認証方法)
-      - [その他の設定値](#その他の設定値)
-  - [IAM 運用方針](#iam-運用方針)
-    - [インフラデプロイ用ロール](#インフラデプロイ用ロール)
-    - [アプリケーション固有の IAM リソース](#アプリケーション固有の-iam-リソース)
-    - [CI/CD パイプライン用認証](#cicd-パイプライン用認証)
-    - [IAM セキュリティのベストプラクティス](#iam-セキュリティのベストプラクティス)
-  - [CloudFormation によるデプロイ](#cloudformation-によるデプロイ)
-    - [デプロイ準備](#デプロイ準備)
-    - [スタックのデプロイ順序](#スタックのデプロイ順序)
-    - [スタックのデプロイコマンド](#スタックのデプロイコマンド)
-      - [VPC スタックのデプロイ](#vpc-スタックのデプロイ)
-      - [ECR スタックのデプロイ](#ecr-スタックのデプロイ)
-      - [RDS スタックのデプロイ](#rds-スタックのデプロイ)
-      - [ALB スタックのデプロイ](#alb-スタックのデプロイ)
-      - [ECS スタックのデプロイ](#ecs-スタックのデプロイ)
-    - [スタックの更新と削除](#スタックの更新と削除)
-  - [CloudFormation によって作成されるリソース](#cloudformation-によって作成されるリソース)
-    - [VPC スタック (`book-management-vpc`)](#vpc-スタック-book-management-vpc)
-    - [ECR スタック (`book-management-ecr`)](#ecr-スタック-book-management-ecr)
-    - [RDS スタック (`book-management-rds`)](#rds-スタック-book-management-rds)
-    - [S3 スタック (`book-management-s3`)](#s3-スタック-book-management-s3)
-    - [ALB スタック (`book-management-alb`)](#alb-スタック-book-management-alb)
-    - [ECS スタック (`book-management-ecs`)](#ecs-スタック-book-management-ecs)
-    - [監視リソース](#監視リソース)
-  - [環境変数の設定](#環境変数の設定)
-    - [バックエンドタスク](#バックエンドタスク)
-    - [フロントエンドタスク](#フロントエンドタスク)
-  - [トラブルシューティング](#トラブルシューティング)
-    - [よくある問題と解決策](#よくある問題と解決策)
-    - [サポートリソース](#サポートリソース)
+- [アーキテクチャ概要](#アーキテクチャ概要)
+- [システムアーキテクチャ図](#システムアーキテクチャ図)
+- [AWS 環境構成図](#aws環境構成図)
+- [必要な AWS リソース](#必要な-aws-リソース)
+- [デプロイフロー](#デプロイフロー)
+- [初期設定](#初期設定)
+- [IAM 運用方針](#iam-運用方針)
+- [CloudFormation によるデプロイ](#cloudformation-によるデプロイ)
+- [CloudFormation によって作成されるリソース](#cloudformation-によって作成されるリソース)
+- [環境変数の設定](#環境変数の設定)
+- [トラブルシューティング](#トラブルシューティング)
 
 ## アーキテクチャ概要
 
@@ -60,54 +29,97 @@
 - **CloudWatch**: ログとメトリクスの収集
 - **IAM**: 権限管理
 
-### システム構成図
+## システムアーキテクチャ図
 
 ```mermaid
-graph TD
-    %% 高コントラストの配色を使用
-    classDef publicZone fill:#FFA07A,stroke:#FF4500,color:#000,stroke-width:2px;
-    classDef privateZone fill:#90EE90,stroke:#228B22,color:#000,stroke-width:2px;
-    classDef monitoring fill:#ADD8E6,stroke:#4682B4,color:#000,stroke-width:2px;
+graph LR
+    %% クラス定義
+    classDef vpc fill:#e1f5fe,stroke:#4fc3f7,color:#333
+    classDef public fill:#bbdefb,stroke:#64b5f6,color:#333
+    classDef private fill:#dcedc8,stroke:#aed581,color:#333
+    classDef database fill:#f0f4c3,stroke:#dce775,color:#333
+    classDef logs fill:#ffecb3,stroke:#ffd54f,color:#333
 
-    %% 縦方向の流れを強調したレイアウト
-    Internet[インターネット]
-    Internet --> ALB[アプリケーション ロードバランサー]
+    %% ノード定義
+    Internet((インターネット))
+    CW[CloudWatch]:::logs
 
-    subgraph PublicSubnets[パブリックサブネット]
-        direction TB
-        ALB
-        NAT[NATゲートウェイ]
+    %% VPCとサブネット
+    subgraph VPC["VPC"]
+        %% パブリックレイヤー
+        subgraph Public["パブリックレイヤー"]
+            ALB[ALB]:::public
+        end
+
+        %% プライベートレイヤー（アプリケーション）
+        subgraph Private["プライベートレイヤー"]
+            FrontendService[フロントエンド<br>ECSサービス]:::private
+            BackendService[バックエンド<br>ECSサービス]:::private
+        end
+
+        %% データベースレイヤー
+        subgraph Database["データベースレイヤー"]
+            RDS[(RDS<br>MySQL)]:::database
+        end
     end
 
-    ALB --> Frontend
-    ALB --> Backend
+    %% 接続関係の定義
+    Internet --- ALB
+    ALB --> FrontendService
+    FrontendService --> BackendService
+    BackendService --> RDS
 
-    subgraph PrivateSubnets[プライベートサブネット]
-        direction TB
-        Frontend[ECS Fargate フロントエンド サービス]
-        Backend[ECS Fargate バックエンド サービス]
-
-        Frontend --> Backend
-        Backend --> RDS[(RDS PostgreSQL)]
-        Frontend --> S3[(S3 バケット 静的アセット)]
-    end
-
-    PrivateSubnets --> NAT
-    NAT --> Internet
-
-    subgraph Monitoring[監視]
-        direction TB
-        CW[CloudWatch ログ・アラーム]
-    end
-
-    Backend --> CW
-    Frontend --> CW
-
-    %% クラス適用
-    class PublicSubnets,ALB,NAT publicZone;
-    class PrivateSubnets,Frontend,Backend,RDS,S3 privateZone;
-    class Monitoring,CW monitoring;
+    %% ログ収集
+    FrontendService --> CW
+    BackendService --> CW
+    RDS --> CW
+    ALB --> CW
 ```
+
+この図は、AWS 内のシステムコンポーネントがどのように接続されているかを示しています。インターネットからのトラフィックはロードバランサー（ALB）を通じて、フロントエンドとバックエンドの ECS サービスに到達し、データは RDS に格納されます。すべてのコンポーネントはログを CloudWatch に送信しています。
+
+## AWS 環境構成図
+
+```mermaid
+graph LR
+    %% クラス定義
+    classDef iam fill:#ffcdd2,stroke:#e57373,color:#333
+    classDef infra fill:#bbdefb,stroke:#64b5f6,color:#333
+    classDef cicd fill:#c8e6c9,stroke:#81c784,color:#333
+
+    %% デプロイフロー
+    GitHubActions[GitHub Actions]:::cicd --> Pipeline[CI/CDパイプライン]:::cicd
+    Pipeline --> ECR[ECRリポジトリ]:::infra
+    Pipeline --> ECS[ECSクラスター]:::infra
+
+    %% IAMリソース
+    GitHubActions -.認証.-> IAM_OIDC[OIDCプロバイダー]:::iam
+    IAM_OIDC --> GHRole[GitHub Actionsロール]:::iam
+
+    %% インフラ構築
+    Dev[開発者]:::cicd --> AssumeRole[AssumeRole]:::iam
+    AssumeRole --> DeployRole[infrastructure-deployer]:::iam
+    DeployRole --> CloudFormation[CloudFormation]:::infra
+
+    %% スタック関係
+    CloudFormation --> VPC[VPCスタック]:::infra
+    CloudFormation --> IAM[IAMスタック]:::iam
+    CloudFormation --> RDS[RDSスタック]:::infra
+    CloudFormation --> ECS
+
+    %% IAMロール
+    IAM --> TaskRole[ECSタスクロール]:::iam
+    IAM --> ExecRole[ECS実行ロール]:::iam
+
+    %% ECSリソース
+    ECS --> Backend[バックエンドサービス]:::infra
+    ECS --> Frontend[フロントエンドサービス]:::infra
+    Backend --> TaskRole
+    Frontend --> TaskRole
+    Backend & Frontend --> ExecRole
+```
+
+上記の図は、AWS 環境の構成全体とデプロイフローを表しています。「開発者」が`infrastructure-deployer`ロールを使用して CloudFormation でインフラをデプロイし、その後 CI/CD パイプラインが各サービスのデプロイを行う流れを示しています。このリソース間の関係性の理解は、AWS リソース管理において重要です。
 
 ## 必要な AWS リソース
 

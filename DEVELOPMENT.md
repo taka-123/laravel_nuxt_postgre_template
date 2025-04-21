@@ -187,41 +187,25 @@ GitHub Actions を使用して以下の CI/CD を実施しています：
 ### CI/CD とインフラのドキュメント関係
 
 ```mermaid
-graph TD
-    %% 高コントラストの配色設定
-    classDef cicd fill:#FF9999,stroke:#CC0000,color:#000,stroke-width:2px;
-    classDef aws fill:#99CCFF,stroke:#0066CC,color:#000,stroke-width:1px;
-    classDef infra fill:#99FF99,stroke:#00CC66,color:#000,stroke-width:1px;
+graph LR
+    %% シンプルな配色設定
+    classDef cicd fill:#ffcdd2,stroke:#e57373,color:#000
+    classDef aws fill:#bbdefb,stroke:#64b5f6,color:#000
+    classDef infra fill:#c8e6c9,stroke:#81c784,color:#000
 
-    CICD[GitHub Actions CI/CD]
-
-    %% CI/CDパイプラインを縦に配置
-    CICD --> Tests[テスト実行]
-    Tests --> Build[Dockerイメージ ビルド]
-    Build --> Push[ECRプッシュ]
-    Push --> Deploy[ECSデプロイ]
-
-    Deploy --> ECS
-
-    %% AWSリソースを縦に配置
-    subgraph "AWS設定ドキュメント (.aws/README.md)"
-        direction TB
-        CloudFormation[CloudFormation テンプレート]
-        IAM[IAM権限設定]
-        CloudFormation --> IAM
-
-        ECR[ECRリポジトリ]
-        CloudFormation --> ECR
-
-        ECS[ECSクラスター]
-        CloudFormation --> ECS
+    CICD[GitHub Actions]:::cicd
+    
+    subgraph Pipeline["CI/CDパイプライン"]
+        Tests[テスト] --> Build[ビルド] --> Push[ECRプッシュ] --> Deploy[デプロイ]
     end
-
-    %% 認証の関係
+    
+    subgraph AWS["AWS設定"]
+        IAM[IAM権限]:::aws --- CloudFormation[CloudFormation]:::aws
+        ECR[ECRリポジトリ]:::infra --- ECS[ECSクラスター]:::infra
+    end
+    
+    CICD --> Pipeline
+    Deploy --> ECS
     CICD -.認証.-> IAM
-
-    %% スタイル適用
-    class CICD,Tests,Build,Push,Deploy cicd;
-    class IAM,CloudFormation aws;
-    class ECR,ECS infra;
+    Push --> ECR
 ```
