@@ -73,5 +73,6 @@
     "**/vendor": true,
     "**/dist": true,
     "**/.nuxt": true
-  }
+  },
+  "phpstan.enabled": false
 }
