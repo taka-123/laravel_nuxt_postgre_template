@@ -212,7 +212,8 @@ CI/CD パイプラインで AWS リソースにアクセスするには、以下
 # AssumeRoleで一時的な認証情報を取得する例
 aws sts assume-role \
   --role-arn arn:aws:iam::<ACCOUNT_ID>:role/infrastructure-deployer \
-  --role-session-name <YOUR_NAME>-deployment-session
+  --role-session-name <YOUR_NAME>-deployment-session \
+  --duration-seconds 3600
 
 # 取得した認証情報を環境変数にセット
 export AWS_ACCESS_KEY_ID=<取得した一時的なアクセスキー>
@@ -221,6 +222,25 @@ export AWS_SESSION_TOKEN=<取得したセッショントークン>
 
 # これ以降のAWS CLIコマンドは、一時的な認証情報を使用して実行される
 ```
+
+### 便利な一括設定方法（推奨）
+
+以下のワンライナーコマンドを使用すると、一度に環境変数をセットできます：
+
+```bash
+eval $(aws sts assume-role \
+  --role-arn "arn:aws:iam::<ACCOUNT_ID>:role/infrastructure-deployer" \
+  --role-session-name "DeploySession" \
+  --duration-seconds 3600 \
+  --query 'Credentials.[
+    "export AWS_ACCESS_KEY_ID=\"" + AccessKeyId + "\"",
+    "export AWS_SECRET_ACCESS_KEY=\"" + SecretAccessKey + "\"",
+    "export AWS_SESSION_TOKEN=\"" + SessionToken + "\""
+  ]' \
+  --output text)
+```
+
+**注意**: 認証情報の有効期限（上記の例では 1 時間=3600 秒）が切れた場合は、再度コマンドを実行して新しい認証情報を取得する必要があります。
 
 ### アプリケーション固有の IAM リソース
 
@@ -249,34 +269,61 @@ CI/CD パイプライン（GitHub Actions）から AWS リソースへのアク�
 
 ```bash
 # OIDCプロバイダーの作成
+
+# 証明書サムプリントの取得
+# 以下のコマンドで最新のサムプリントを取得できます
+THUMBPRINT=$(openssl s_client -servername token.actions.githubusercontent.com -showcerts -connect token.actions.githubusercontent.com:443 </dev/null 2>/dev/null | openssl x509 -fingerprint -sha1 -noout | sed 's/://g' | awk -F= '{print tolower($2)}')
+echo $THUMBPRINT
+
+# または、以下の値を使用することも可能です（定期的に更新されるため、最新の値を確認してください）
+# THUMBPRINT="6938fd4d98bab03faadb97b34396831e3780aea1"
+
+# OIDCプロバイダーの作成
 aws iam create-open-id-connect-provider \
   --url https://token.actions.githubusercontent.com \
   --client-id-list sts.amazonaws.com \
-  --thumbprint-list <GitHub Actions OIDCプロバイダーの証明書サムプリント>
+  --thumbprint-list $THUMBPRINT
+
+# GitHubリポジトリに制限されたIAMロールの作成
+
+# 必要な変数を設定
+# AWSアカウントIDを取得
+ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+echo "AWSアカウントID: $ACCOUNT_ID"
+
+# GitHubの情報を設定
+# 例: https://github.com/your-username/book-management の場合
+GITHUB_ORG="your-username"  # GitHubのユーザー名または組織名
+REPO_NAME="book-management"  # リポジトリ名
+
+# ポリシードキュメントを作成
+cat > github-actions-role-policy.json << EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::${ACCOUNT_ID}:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:${GITHUB_ORG}/${REPO_NAME}:*"
+        }
+      }
+    }
+  ]
+}
+EOF
 
 # GitHubリポジトリに制限されたIAMロールの作成
 aws iam create-role \
   --role-name book-management-github-actions-role \
-  --assume-role-policy-document '{
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
-        },
-        "Action": "sts:AssumeRoleWithWebIdentity",
-        "Condition": {
-          "StringEquals": {
-            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-          },
-          "StringLike": {
-            "token.actions.githubusercontent.com:sub": "repo:<GITHUB_ORGANIZATION>/<REPOSITORY_NAME>:*"
-          }
-        }
-      }
-    ]
-  }' \
+  --assume-role-policy-document file://github-actions-role-policy.json \
   --max-session-duration 3600 \
   --description "Role for GitHub Actions to deploy book-management project"
 
