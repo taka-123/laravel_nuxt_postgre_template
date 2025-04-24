@@ -178,6 +178,7 @@ CI/CD パイプラインで AWS リソースにアクセスするには、以下
 - このオプションを使用する場合は、AWS 側で IAM OIDC Provider を設定する必要があります
 - 詳細は[GitHub Actions からの OIDC 認証](https://docs.github.com/ja/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services)を参照
 - セキュリティ上のメリットと長期的な認証情報管理の手間を省けるため、**強く推奨される方法**です
+- CI/CD用ロールが未作成の場合は、テンプレート例（`.aws/cloudformation/github-actions-role.yaml`）を参考に作成してください
 
 **注意**: 長期的なアクセスキー（IAM ユーザー）は、セキュリティリスクが高いため非推奨です。必ず OIDC 認証を使用してください。
 
@@ -207,6 +208,16 @@ CI/CD パイプラインで AWS リソースにアクセスするには、以下
   - テンプレート例: `.aws/cloudformation/infrastructure-deployer-role.yaml`
 - 個人 IAM ユーザーから`AssumeRole`で一時的な認証情報を取得し、IaC 操作を行います。
 - 長期的なアクセスキーは使用せず、常に一時的な認証情報を使用してください。
+
+### CI/CD用ロール
+
+**GitHub ActionsからのAWSリソースアクセスには、組織共通の「github-actions-role」（または同等の権限を持つロール）を使用することを推奨します。**
+
+- このロールはGitHub ActionsからのAWS操作用の汎用的なロールであり、複数プロジェクトで共有できます。
+- CI/CD用ロールが未作成の場合は、以下のテンプレートを参考に作成してください。
+  - テンプレート例: `.aws/cloudformation/github-actions-role.yaml`
+- このロールはGitHub OIDC（OpenID Connect）を使用して認証を行い、長期的な認証情報を使用しません。
+- GitHub Actionsワークフローでは、`AWS_ROLE_TO_ASSUME`環境変数にこのロールのARNを設定します。
 
 ```bash
 # AssumeRoleで一時的な認証情報を取得する例
