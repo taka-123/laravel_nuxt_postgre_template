@@ -1,17 +1,20 @@
 # ==================
 # = ビルドステージ =
 # ==================
-FROM node:22-alpine AS builder
+ARG NODE_VERSION=22
+
+# ビルダーイメージ (開発依存関係を含む)
+FROM node:${NODE_VERSION} AS builder
 
 # 作業ディレクトリを設定
 WORKDIR /app
 
 # パッケージマネージャーがyarnなのでyarnを使用
-# 依存関係をインストールするためのファイルをコピー
-COPY package.json yarn.lock* ./
+# package.json のみを先にコピー（.dockerignore により yarn.lock は除外される）
+COPY package.json ./
 
-# 依存関係をインストール
-RUN yarn install --frozen-lockfile
+# 依存関係をインストール (yarn.lock がなければ生成される)
+RUN yarn install
 
 # アプリケーションコードをコピー
 COPY . .
@@ -23,6 +26,7 @@ ARG SERVER_API_BASE_URL
 ENV SERVER_API_BASE_URL=${SERVER_API_BASE_URL:-http://backend:80/api}
 ARG NODE_ENV
 ENV NODE_ENV=${NODE_ENV:-production}
+ENV HOST=0.0.0.0
 
 # Nuxt アプリケーションをビルド
 RUN yarn build

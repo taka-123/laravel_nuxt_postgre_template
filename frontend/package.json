@@ -27,13 +27,15 @@
     "@zxing/library": "^0.20.0",
     "axios": "^1.6.2",
     "jsbarcode": "^3.11.6",
-    "nuxt": "^3.8.1",
+    "nuxt": "3.16.1",
     "pinia": "^3.0.1",
     "sass": "^1.86.0",
     "vite-plugin-vuetify": "^2.1.0",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
-    "vuetify": "^3.4.3"
+    "vuetify": "^3.4.3",
+    "@nuxt/image": "^1.7.0",
+    "@pinia/nuxt": "^0.5.1"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
@@ -48,6 +50,7 @@
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-vue": "^9.18.1",
+    "esbuild": "0.25.2",
     "happy-dom": "^17.4.4",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.1",

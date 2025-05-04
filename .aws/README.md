@@ -278,7 +278,27 @@ aws sts assume-role \
 
 **注意: この手順は新しい環境を構築する場合に必要です。既存の環境を利用する場合は、この手順をスキップして [GitHub Actions 用 IAM ロールの作成](#github-actions-用-iam-ロールの作成) に進んでください。**
 
-以下のコマンドを使用して、各スタックをデプロイします（必要なパラメータは環境に応じて変更してください）：
+#### 自動デプロイスクリプトを使用する方法（推奨）
+
+提供されているシェルスクリプトを使用して、すべてのインフラを一度にデプロイできます：
+
+```bash
+# インフラ全体をデプロイ (Docker イメージのビルド＆プッシュも含む)
+./.aws/scripts/deploy-infrastructure.sh production
+
+# 必要に応じて引数を指定（環境、DBインスタンスクラス、DB名、DBユーザー名）
+# ./.aws/scripts/deploy-infrastructure.sh production db.t3.small book_management dbadmin
+
+# 削除する場合
+./.aws/scripts/delete-infrastructure.sh
+```
+
+スクリプトはデータベースに一時的なダミーパスワードを設定します。**デプロイ後、AWS コンソールから RDS データベースのパスワードを安全な値に変更してください。**
+また、ECS サービスで利用される JWTSecret や AppKey もスクリプト内でダミー値が設定されています。これらも必要に応じて `.env` ファイルなどで管理し、ECS タスク定義の環境変数から参照するように変更することを推奨します。
+
+#### 個別にデプロイする方法
+
+個別のスタックを手動でデプロイする場合は、以下のコマンドを使用します（必要なパラメータは環境に応じて変更してください）：
 
 ```bash
 # VPC スタックのデプロイ
@@ -289,16 +309,24 @@ aws cloudformation deploy \
     Environment=production \
     VpcCidr=10.0.0.0/16
 
-# RDS スタックのデプロイ
+# VPCスタックの出力を取得
+VPC_ID=$(aws cloudformation describe-stacks --stack-name book-management-vpc --query "Stacks[0].Outputs[?OutputKey=='VPC'].OutputValue" --output text)
+PRIVATE_SUBNET_1=$(aws cloudformation describe-stacks --stack-name book-management-vpc --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet1'].OutputValue" --output text)
+PRIVATE_SUBNET_2=$(aws cloudformation describe-stacks --stack-name book-management-vpc --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet2'].OutputValue" --output text)
+
+# RDS スタックのデプロイ（ダミーパスワードを使用）
 aws cloudformation deploy \
   --template-file .aws/cloudformation/rds.yaml \
   --stack-name book-management-rds \
   --parameter-overrides \
     Environment=production \
-    VpcStackName=book-management-vpc \
+    VPCId=$VPC_ID \
+    DBSubnet1=$PRIVATE_SUBNET_1 \
+    DBSubnet2=$PRIVATE_SUBNET_2 \
     DBInstanceClass=db.t3.small \
     DBName=book_management \
-    DBUsername=dbadmin
+    DBUsername=dbadmin \
+    DBPassword=TemporaryPassword123
 
 # ECR スタックのデプロイ
 aws cloudformation deploy \
@@ -307,8 +335,43 @@ aws cloudformation deploy \
   --parameter-overrides \
     Environment=production
 
-# 他のスタックも同様にデプロイ...
+# ALB スタックのデプロイ
+aws cloudformation deploy \
+  --template-file .aws/cloudformation/alb.yaml \
+  --stack-name book-management-alb \
+  --parameter-overrides \
+    Environment=production
+
+# ECS スタックのデプロイ
+aws cloudformation deploy \
+  --template-file .aws/cloudformation/ecs.yaml \
+  --stack-name book-management-ecs \
+  --parameter-overrides \
+    Environment=production
+
+# IAM スタックのデプロイ
+aws cloudformation deploy \
+  --template-file .aws/cloudformation/iam.yaml \
+  --stack-name book-management-iam \
+  --parameter-overrides \
+    Environment=production \
+  --capabilities CAPABILITY_NAMED_IAM
 ```
+
+### デプロイ後のデータベースパスワード変更手順
+
+デプロイ完了後、以下の手順で RDS データベースのパスワードを安全な値に変更してください：
+
+1. AWS コンソールにログイン
+2. RDS ダッシュボードに移動
+3. データベースインスタンス「book-management-production-db」を選択
+4. 「アクション」→「変更」を選択
+5. 「マスターパスワード」セクションで新しいパスワードを設定
+6. 「すぐに適用」を選択して変更を適用
+
+**注意**: 安全なパスワードは、大文字、小文字、数字を含み、12 文字以上の長さを持つようにしてください。パスワードは安全な方法で保存し、必要なチームメンバーのみと共有してください。
+
+### スタック情報の取得
 
 デプロイ後、以下のコマンドでスタックの出力値を確認し、GitHub Actions の設定で使用する値を取得します：
 
@@ -505,15 +568,22 @@ aws cloudformation describe-stacks \
   { "name": "APP_ENV", "value": "production" },
   { "name": "APP_DEBUG", "value": "false" },
   { "name": "DB_CONNECTION", "value": "pgsql" },
-  { "name": "DB_HOST", "value": "YOUR_RDS_ENDPOINT" },
+  { "name": "DB_HOST", "value": "${DBHost}" },
   { "name": "DB_PORT", "value": "5432" },
   { "name": "DB_DATABASE", "value": "book_management" },
-  { "name": "DB_USERNAME", "value": "username" },
-  { "name": "CACHE_DRIVER", "value": "redis" },
-  { "name": "SESSION_DRIVER", "value": "redis" },
-  { "name": "REDIS_HOST", "value": "YOUR_REDIS_ENDPOINT" }
+  { "name": "DB_USERNAME", "value": "${DBUsername}" },
+  { "name": "DB_PASSWORD", "value": "${DBPassword}" },
+  { "name": "CACHE_DRIVER", "value": "file" },
+  { "name": "SESSION_DRIVER", "value": "file" },
+  { "name": "APP_KEY", "value": "${AppKey}" },
+  { "name": "JWT_SECRET", "value": "${JWTSecret}" }
 ]
 ```
+
+**注意**: 
+1. 上記の`${...}`形式の変数は、CloudFormationテンプレート内で置換されます
+2. パスワードなどの機密情報は、AWS Secrets Manager を使用して管理することを推奨します
+3. 実際のデプロイでは、デプロイ後にAWSコンソールからRDSのパスワードを変更してください
 
 **注意**: パスワードなどの機密情報は、AWS Secrets Manager を使用して管理することを推奨します。
 
@@ -523,10 +593,16 @@ aws cloudformation describe-stacks \
 
 ```json
 "environment": [
-  { "name": "API_URL", "value": "https://api.yourdomain.com" },
-  { "name": "NODE_ENV", "value": "production" }
+  { "name": "API_URL", "value": "http://${ALB_DNS}/api" },
+  { "name": "NODE_ENV", "value": "production" },
+  { "name": "BROWSER_API_BASE_URL", "value": "http://${ALB_DNS}/api" },
+  { "name": "SERVER_API_BASE_URL", "value": "http://backend:80/api" }
 ]
 ```
+
+**注意**: 
+1. 上記の`${ALB_DNS}`は、CloudFormationテンプレート内で置換されます
+2. 本番環境では、適切なドメイン名とHTTPS設定を行うことを推奨します
 
 ## トラブルシューティング
 
@@ -534,26 +610,69 @@ aws cloudformation describe-stacks \
 
 1. **デプロイ失敗**
 
-   - CloudWatch ログを確認して、エラーの詳細を確認してください
-   - GitHub Actions のログも確認してください
+   - **ECRリポジトリURIの取得問題**: スクリプト内で`BackendRepositoryURI`と`FrontendRepositoryURI`の大文字小文字が正しいか確認
+   - **ECSタスク定義のエラー**: `failed to normalize image reference ":latest"`エラーが出る場合は、ECR URIが正しく渡されていない可能性
+   - **スタック状態の問題**: `CREATE_IN_PROGRESS`状態のスタックがある場合は完了を待つ
+   - CloudWatch ログを確認して、エラーの詳細を確認
+   - ECSサービスのイベントタブで失敗理由を確認
 
-2. **コンテナの起動失敗**
+2. **コンテナのビルドや起動失敗**
 
-   - ヘルスチェックの設定を確認してください
-   - 必要な環境変数が正しく設定されているか確認してください
+   - **Dockerビルドの問題**: `Illegal instruction`エラーが出る場合は、`--platform linux/amd64`指定を削除
+   - **Node.jsバージョンの不一致**: Node.jsバージョンが22に更新されているか確認
+   - ヘルスチェックの設定を確認
+   - 必要な環境変数が正しく設定されているか確認
 
-3. **データベース接続エラー**
+3. **RDS関連の問題**
 
-   - セキュリティグループの設定を確認してください
-   - データベースの認証情報が正しいか確認してください
+   - **削除保護が有効**: スタック削除時に`Cannot delete protected DB Instance`エラーが出る場合は、AWSコンソールから削除保護を無効化
+   - セキュリティグループの設定を確認
+   - データベースの認証情報が正しいか確認
 
-4. **ロードバランサーのエラー**
-   - ターゲットグループの設定を確認してください
-   - ヘルスチェックのパスが正しいか確認してください
+4. **ECR関連の問題**
+   - **リポジトリ削除失敗**: `repository contains images`エラーが出る場合は、イメージを先に削除するか`--force`オプションを使用
+   - ECRログインが成功しているか確認
+
+5. **ロードバランサーのエラー**
+   - ターゲットグループの設定を確認
+   - ヘルスチェックのパスが正しいか確認
+
+### デプロイスクリプトの注意点
+
+`.aws/scripts/deploy-infrastructure.sh` スクリプトについて、以下の点に注意してください：
+
+1. **ECRリポジトリURIの取得**
+   - 正しいOutputKey名を使用する必要があります（`BackendRepositoryURI`/`FrontendRepositoryURI`）
+   - 取得したURIが空でないか確認することが重要です
+
+2. **Dockerビルドの設定**
+   - Node.jsバージョンは22を使用してください
+   - プラットフォーム指定（`--platform linux/amd64`）は不要で、ネイティブビルドを使用します
+
+3. **スタック状態の確認**
+   - スタックがすでに`CREATE_IN_PROGRESS`状態の場合は完了を待つ必要があります
+   - `ROLLBACK_COMPLETE`状態のスタックは削除して再作成する必要があります
+
+4. **データベースパスワードの取り扱い**
+   - デプロイ時にはダミーパスワード（`TemporaryPassword123`）を使用します
+   - デプロイ後、AWSコンソールから安全なパスワードに変更してください
+
+### スクリプトの実行時間
+
+各スタックのデプロイにかかる時間の目安：
+
+- **VPC/ECR/IAMスタック**: 3～5分
+- **RDSスタック**: 10～15分（初回作成時）
+- **ALBスタック**: 5～10分
+- **ECSスタック**: 5～10分
+- **全体の初回フルデプロイ**: 20～40分
+
+スタックの削除にも同程度の時間がかかる場合があります。
 
 ### サポートリソース
 
 - [AWS ECS ドキュメント](https://docs.aws.amazon.com/ecs/)
 - [AWS ECR ドキュメント](https://docs.aws.amazon.com/ecr/)
 - [AWS CloudFormation ドキュメント](https://docs.aws.amazon.com/cloudformation/)
+- [AWS CloudWatch Logs ドキュメント](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/)
 - [GitHub Actions ドキュメント](https://docs.github.com/actions)

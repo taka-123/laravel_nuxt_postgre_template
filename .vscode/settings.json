@@ -136,5 +136,7 @@
     "!Split sequence",
     "!Sub",
     "!Sub sequence"
-  ]
+  ],
+  "yaml.validate": false,
+  "json.validate.enable": false
 }
