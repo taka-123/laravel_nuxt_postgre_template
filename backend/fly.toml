@@ -1,0 +1,45 @@
+# fly.toml app configuration file generated for book-management-backend on 2025-05-06T12:07:48+09:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'book-management-backend'
+primary_region = 'nrt'
+kill_signal = 'SIGINT'
+kill_timeout = '5s'
+
+[build]
+  dockerfile = 'Dockerfile.fly'
+
+[env]
+  APP_ENV = 'production'
+  BROADCAST_DRIVER = 'log'
+  CACHE_DRIVER = 'file'
+  DB_CONNECTION = 'pgsql'
+  LOG_CHANNEL = 'stderr'
+  LOG_LEVEL = 'info'
+  LOG_STDERR_FORMATTER = 'Monolog\Formatter\JsonFormatter'
+  QUEUE_CONNECTION = 'database'
+  SESSION_DRIVER = 'cookie'
+
+[[mounts]]
+  source = 'book_management_storage'
+  destination = '/var/www/html/storage'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+  [http_service.concurrency]
+    type = 'connections'
+    hard_limit = 25
+    soft_limit = 20
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 512
