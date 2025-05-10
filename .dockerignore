@@ -1,0 +1,47 @@
+# Git files
+.git
+.gitignore
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+
+# Node modules (general, backend, frontend)
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Yarn lock file (frontend)
+frontend/yarn.lock
+
+# Backend vendor directory
+backend/vendor/
+
+# Backend storage files (Laravel)
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/framework/cache/data/*
+backend/storage/logs/*.log
+!backend/storage/logs/.gitignore
+
+# Nuxt build artifacts
+frontend/.nuxt/
+frontend/.output/
+frontend/dist/
+
+# Environment files (keep example)
+.env*
+!.env.example
+
+# AWS/Docker build related (optional, might be needed)
+# .aws/
+# docker/

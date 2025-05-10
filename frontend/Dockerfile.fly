@@ -1,0 +1,65 @@
+# ==================
+# = ビルドステージ =
+# ==================
+ARG NODE_VERSION=22
+
+# ビルダーイメージ (開発依存関係を含む)
+FROM node:${NODE_VERSION} AS builder
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# パッケージマネージャーがyarnなのでyarnを使用
+# package.json のみを先にコピー
+COPY package.json ./
+
+# 依存関係をインストール
+RUN yarn install
+
+# アプリケーションコードをコピー
+COPY . .
+
+# 環境変数の設定（ビルド時に使用）
+ARG BROWSER_API_BASE_URL
+ENV BROWSER_API_BASE_URL=${BROWSER_API_BASE_URL:-https://book-management-backend.fly.dev/api}
+ARG SERVER_API_BASE_URL
+ENV SERVER_API_BASE_URL=${SERVER_API_BASE_URL:-https://book-management-backend.fly.dev/api}
+ARG NODE_ENV
+ENV NODE_ENV=${NODE_ENV:-production}
+ENV HOST=0.0.0.0
+
+# Nuxt アプリケーションをビルド
+RUN yarn build
+
+# ===================
+# = 実行ステージ =
+# ===================
+FROM node:${NODE_VERSION}-alpine AS production
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# ビルドステージから必要なファイルをコピー
+COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/package.json ./package.json
+
+# 本番環境用の依存関係のみをインストール
+RUN yarn install --production
+
+# 環境変数の設定
+ENV HOST=0.0.0.0
+ENV PORT=3000
+ENV NODE_ENV=production
+
+# ヘルスチェック用のファイル
+RUN mkdir -p /app/.output/public && echo "OK" > /app/.output/public/health.txt
+
+# 公開ポートを指定
+EXPOSE 3000
+
+# コンテナのヘルスチェック設定
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q --spider http://localhost:3000/health.txt || exit 1
+
+# アプリケーションを起動
+CMD ["node", ".output/server/index.mjs"]

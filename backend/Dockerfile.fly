@@ -1,0 +1,93 @@
+# =====================
+# = ビルドステージ =
+# =====================
+FROM composer:2 AS composer
+
+# 作業ディレクトリの設定
+WORKDIR /app
+
+# Composerのキャッシュディレクトリ
+VOLUME /tmp/composer-cache
+ENV COMPOSER_CACHE_DIR=/tmp/composer-cache
+
+# 依存関係ファイルのコピー
+COPY composer.json composer.lock ./
+
+# 依存関係のインストール（開発環境の依存関係は除外）
+RUN composer install --prefer-dist --no-dev --no-scripts --no-autoloader
+
+# アプリケーションコードをコピー
+COPY . .
+
+# オートローダーを最適化して、composer scriptを実行
+RUN composer dump-autoload --optimize
+
+# =====================
+# = 実行ステージ =
+# =====================
+FROM php:8.3-fpm-alpine
+
+# 必要なPHP拡張機能と依存関係をインストール
+RUN apk add --no-cache \
+    postgresql-dev \
+    libpng-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    curl \
+    oniguruma-dev \
+    libxml2-dev \
+    && docker-php-ext-install \
+    pdo \
+    pdo_pgsql \
+    mbstring \
+    zip \
+    bcmath \
+    gd \
+    xml \
+    opcache \
+    && docker-php-ext-enable opcache
+
+# Nginxのインストール
+RUN apk add --no-cache nginx
+
+# PHP-FPM設定のコピー
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
+
+# Nginx設定のコピー - すでにポート8080が設定されている
+COPY docker/nginx/nginx.conf /etc/nginx/http.d/default.conf
+
+# 起動スクリプトのコピー
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Fly.io用の起動スクリプト
+COPY .fly/entrypoint-fly.sh /entrypoint-fly.sh
+RUN chmod +x /entrypoint-fly.sh
+
+# コードをビルドステージからコピー
+COPY --from=composer /app /var/www/html
+WORKDIR /var/www/html
+
+# ストレージディレクトリの権限設定
+RUN mkdir -p storage/framework/{sessions,views,cache} \
+    && mkdir -p storage/logs \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# Nginxのログディレクトリを作成
+RUN mkdir -p /var/log/nginx \
+    && touch /var/log/nginx/access.log \
+    && touch /var/log/nginx/error.log \
+    && chown -R www-data:www-data /var/log/nginx
+
+# ポート8080を公開（Fly.ioの要件）
+EXPOSE 8080
+
+# ヘルスチェック設定
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# entrypointスクリプトを実行（PHP-FPMとNginxを起動）
+ENTRYPOINT ["/entrypoint-fly.sh"]
