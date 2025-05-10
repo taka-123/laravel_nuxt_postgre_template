@@ -134,9 +134,12 @@ if [ "$APP_ENV" = "production" ]; then
     }
 
     # マイグレーション実行（--force は本番環境でのマイグレーション実行を強制）
-    echo "Running database migrations..."
-    php artisan migrate --force || {
-        echo "Warning: Migration failed. But we already created the cache table directly."
+    echo "Running database migrations with fresh..."
+    php artisan migrate:fresh --force || {
+        echo "Warning: Fresh migration failed. Trying regular migration..."
+        php artisan migrate --force || {
+            echo "Warning: Migration failed. But we already created the cache table directly."
+        }
     }
 
     # 最後にキャッシュを再生成（マイグレーション後）

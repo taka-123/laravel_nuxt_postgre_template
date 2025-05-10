@@ -10,9 +10,10 @@
   - 最終デプロイ: 2025-05-07
 
 - **データベース**: ✅ 正常に稼働中
-  - タイプ: Unmanaged PostgreSQL
-  - 接続先: book-management-db.flycast:5432
+  - タイプ: Managed PostgreSQL (MPG)
+  - 接続先: book-management-db-mpg.flycast:5432
   - ステータス: 稼働中
+  - 最終更新: 2025-05-11
 
 - **フロントエンド**: ✅ 正常にデプロイ済み
   - URL: https://book-management-frontend.fly.dev
@@ -31,6 +32,11 @@
    - 問題: `relation 'cache' does not exist` エラーが発生
    - 解決策: entrypoint-fly.shスクリプトでマイグレーション前にキャッシュテーブルを直接作成
    - 結果: キャッシュテーブルが正常に作成され、アプリケーションが動作するようになりました
+
+3. **Managed PostgreSQL (MPG)への移行**:
+   - 問題: Unmanaged PostgreSQLは今後廃止予定で、より信頼性の高いMPGへの移行が必要でした
+   - 解決策: MPGインスタンスを作成し、接続情報を更新、マイグレーションを実行
+   - 結果: アプリケーションが新しいMPGインスタンスで正常に動作するようになりました
 
 ## CI/CDの状況
 
@@ -64,14 +70,9 @@
 
 ### 中期的なタスク
 
-1. **Managed PostgreSQL (MPG)への移行**:
-   - MPGインスタンスの作成:
-     ```bash
-     fly mpg create --name book-management-db-mpg --region nrt
-     ```
-   - データの移行
-   - 接続情報の更新
-   - 旧データベースの廃止
+1. **旧Unmanaged PostgreSQLインスタンスの廃止**:
+   - 不要になった旧データベースインスタンスの削除
+   - リソースの最適化
 
 2. **CI/CDパイプラインの構築**:
    - GitHub Actionsを利用した自動デプロイフローの構築
@@ -150,4 +151,4 @@ jobs:
 
 ---
 
-*このドキュメントは 2025-05-08 に作成されました。状況の変化により内容が古くなる可能性があるため、定期的な更新を推奨します。*
+*このドキュメントは 2025-05-08 に作成され、2025-05-11 に最終更新されました。状況の変化により内容が古くなる可能性があるため、定期的な更新を推奨します。*
