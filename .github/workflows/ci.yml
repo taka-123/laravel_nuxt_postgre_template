@@ -69,7 +69,7 @@ jobs:
       - name: Static Analysis
         run: |
           cd backend
-          composer analyze || true
+          composer analyze
 
   frontend-build:
     runs-on: ubuntu-latest
@@ -91,7 +91,12 @@ jobs:
       - name: Lint
         run: |
           cd frontend
-          yarn lint || true
+          yarn lint
+
+      - name: Run Unit Tests
+        run: |
+          cd frontend
+          yarn test
 
       - name: Build Check
         run: |
@@ -120,4 +125,4 @@ jobs:
       - name: Run Security Check
         run: |
           cd backend
-          composer audit || true
+          composer audit

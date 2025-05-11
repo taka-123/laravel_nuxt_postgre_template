@@ -30,14 +30,15 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理シス�
     - [テスト実行](#テスト実行)
       - [バックエンド](#バックエンド-1)
       - [フロントエンド](#フロントエンド-1)
+    - [テスト駆動開発のプロセス](#テスト駆動開発のプロセス)
   - [Git ワークフロー](#git-ワークフロー)
     - [ブランチ戦略](#ブランチ戦略)
     - [開発プロセス](#開発プロセス)
+    - [ブランチ保護設定](#ブランチ保護設定)
   - [テストユーザー](#テストユーザー)
   - [CI/CD 環境](#cicd-環境)
     - [CI ワークフロー](#ci-ワークフロー)
     - [CD ワークフロー](#cd-ワークフロー)
-    - [デプロイフロー](#デプロイフロー)
     - [必要な環境変数](#必要な環境変数)
   - [本番環境（Fly.io）](#本番環境flyio)
     - [デプロイ済み環境](#デプロイ済み環境)
@@ -259,15 +260,40 @@ npm run lint:fix # リントとフォーマット修正
 
 ```bash
 cd backend
-php artisan test  # すべてのテストを実行
+php artisan test                 # すべてのテストを実行
+php artisan test --filter=UserTest  # 特定のテストクラスのみ実行
 ```
 
 #### フロントエンド
 
 ```bash
 cd frontend
-npm run test  # すべてのテストを実行
+npm run test           # すべてのテストを実行
+npm run test:watch     # ファイル変更を監視して自動テスト実行
+npm run test:coverage  # テストカバレッジレポートを生成
 ```
+
+### テスト駆動開発のプロセス
+
+本プロジェクトでは、以下のテストプロセスを推奨しています：
+
+1. **機能開発前にテストを作成**（TDDアプローチ）
+   - 新機能の要件をテストとして記述
+   - 期待される動作を明確にしてから実装を開始
+
+2. **実装中にテストを実行**
+   - `npm run test:watch` や `php artisan test --filter=` を使用して必要なテストのみを実行
+   - 実装が進むにつれてテストが通るように調整
+
+3. **プルリクエスト作成前の確認**
+   - すべてのテストが通ることを確認
+   - カバレッジレポートを確認し、必要に応じてテストを追加
+
+4. **CI パイプラインによる自動チェック**
+   - プルリクエスト時に自動的にすべてのテストが実行される
+   - テストが失敗するとマージがブロックされる
+
+このプロセスにより、コードの品質と信頼性を維持しながら、開発速度を落とさないバランスの取れたテスト環境を実現しています。
 
 ## Git ワークフロー
 
@@ -305,6 +331,29 @@ npm run test  # すべてのテストを実行
    - `refactor`: リファクタリング
    - `test`: テスト関連の変更
    - `chore`: その他の変更
+
+### ブランチ保護設定
+
+コードの品質を確保するため、GitHub上で以下のブランチ保護設定を行っています：
+
+1. **GitHubリポジトリの設定方法**:
+   - リポジトリの「Settings」→「Branches」→「Branch protection rules」→「Add rule」
+   - 「Branch name pattern」に `main` を指定
+
+2. **有効化すべき保護設定**:
+   - ✅ Require a pull request before merging
+   - ✅ Require status checks to pass before merging
+     - 「Status checks that are required」で以下を選択:
+       - backend-tests
+       - frontend-build
+       - security-check
+   - ✅ Require branches to be up to date before merging
+
+これにより、以下の保護が有効になります：
+
+- テストが失敗したプルリクエストはマージできない
+- 直接`main`ブランチへのプッシュが禁止される
+- プルリクエストが最新の`main`ブランチの変更を取り込んでいることが必要
 
 ## テストユーザー
 
