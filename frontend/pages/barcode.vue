@@ -214,7 +214,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library'
+import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library/esm/index'
 import { useApi } from '~/composables/useApi'
 
 // API設定
