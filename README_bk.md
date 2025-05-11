@@ -7,7 +7,7 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理シス�
 - [書籍管理システム](#書籍管理システム)
   - [目次](#目次)
   - [プロジェクト構成](#プロジェクト構成)
-  - [システム構成](#システム構成)
+  - [ドキュメント構成図](#ドキュメント構成図)
   - [開発環境のセットアップ](#開発環境のセットアップ)
     - [前提条件](#前提条件)
     - [推奨エディタとプラグイン](#推奨エディタとプラグイン)
@@ -35,50 +35,60 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理シス�
     - [開発プロセス](#開発プロセス)
   - [テストユーザー](#テストユーザー)
   - [CI/CD 環境](#cicd-環境)
-    - [CI ワークフロー](#ci-ワークフロー)
-    - [CD ワークフロー](#cd-ワークフロー)
-    - [デプロイフロー](#デプロイフロー)
-    - [必要な環境変数](#必要な環境変数)
-  - [本番環境（Fly.io）](#本番環境flyio)
-    - [デプロイ済み環境](#デプロイ済み環境)
-    - [デプロイ状況の確認](#デプロイ状況の確認)
-    - [手動デプロイ方法](#手動デプロイ方法)
+    - [CI ワークフロー (`.github/workflows/ci.yml`)](#ci-ワークフロー-githubworkflowsciyml)
+    - [CD ワークフロー (`.github/workflows/deploy-ecs-production.yml`)](#cd-ワークフロー-githubworkflowsdeploy-ecs-productionyml)
   - [開発者向けドキュメント](#開発者向けドキュメント)
+  - [本番環境へのデプロイ](#本番環境へのデプロイ)
+    - [デプロイ概要](#デプロイ概要)
 
 ## プロジェクト構成
 
+プロジェクトの詳細情報は以下のドキュメントを参照してください：
+
+- [バックエンド README](./backend/README.md) - Laravel バックエンドの詳細情報
+- [フロントエンド README](./frontend/README.md) - Nuxt.js フロントエンドの詳細情報
+- [AWS デプロイ設定](./.aws/README.md) - AWS ECS デプロイの設定と手順
+- [開発環境ガイド](./DEVELOPMENT.md) - 開発環境のセットアップと規約
+
+## ドキュメント構成図
+
+```mermaid
+graph LR
+    %% スタイル定義
+    classDef main fill:#e8f4fa,stroke:#5da2d5,color:#333
+    classDef sub fill:#fff1e6,stroke:#ff9f7f,color:#333
+    classDef code fill:#f0f0f0,stroke:#aaa,color:#333
+    
+    %% メイン文書
+    README[README.md]:::main
+    
+    %% アプリケーション
+    subgraph APP[アプリケーション]
+        BACKEND[backend/README.md]:::sub
+        FRONTEND[frontend/README.md]:::sub
+    end
+    
+    %% インフラとデプロイ
+    subgraph INFRA[インフラ/デプロイ]
+        AWS[.aws/README.md]:::sub
+        AWS --> CLOUDFORMATION[CloudFormation]:::code
+        AWS --> TASKDEF[ECSタスク定義]:::code
+    end
+    
+    %% 開発環境
+    subgraph DEV[開発プロセス]
+        DEVGUIDE[DEVELOPMENT.md]:::sub
+        DOCKER[docker-compose.yml]:::code
+        CICD[GitHub Actions]:::code
+    end
+    
+    %% 関連性
+    README --> APP
+    README --> INFRA
+    README --> DEV
+    DEVGUIDE --> CICD
+    CICD -.参照.-> AWS
 ```
-.
-├── README.md             # このファイル（プロジェクト全体の概要）
-├── docs/                 # プロジェクトドキュメント
-│   └── deployment-status.md  # デプロイ状況レポート
-├── backend/              # Laravel バックエンド
-│   ├── README.md         # バックエンド固有の情報
-│   └── .fly/             # Fly.io デプロイ設定
-├── frontend/             # Nuxt.js フロントエンド
-│   └── README.md         # フロントエンド固有の情報
-└── .github/              # GitHub関連設定
-    └── workflows/        # GitHub Actions ワークフロー
-        └── deploy.yml    # 自動デプロイ設定
-```
-
-## システム構成
-
-本システムは以下のコンポーネントで構成されています：
-
-- **フロントエンド**: Nuxt.js 3.16 + Vuetify 3.x
-
-  - SPA (Single Page Application) として実装
-  - Fly.io にデプロイ: https://book-management-frontend.fly.dev
-
-- **バックエンド**: Laravel 12.x (PHP 8.3)
-
-  - RESTful API として実装
-  - Fly.io にデプロイ: https://book-management-backend.fly.dev
-
-- **データベース**: PostgreSQL 16.x
-  - Fly.io Managed PostgreSQL (MPG) を使用
-  - 高可用性と自動バックアップを実現
 
 ## 開発環境のセットアップ
 
@@ -276,7 +286,7 @@ npm run test  # すべてのテストを実行
 ### ブランチ戦略
 
 - **`main`**: 本番環境用のブランチ。常に安定した状態を維持する。
-- **`develop`**: （オプション）開発環境用のブランチ。検証環境がある場合に使用。
+- **`develop`**: （オプション）開発環境用のブランチ。ECS 検証環境がある場合に使用。
 
 ### 開発プロセス
 
@@ -334,76 +344,50 @@ npm run test  # すべてのテストを実行
    - npm audit (フロントエンド)
    - composer audit (バックエンド)
 
-### CD ワークフロー (`.github/workflows/deploy.yml`)
+### CD ワークフロー (`.github/workflows/deploy-ecs-production.yml`)
 
 継続的デプロイ（CD）は以下のイベントで自動的に実行されます：
 
 - `main`ブランチへのプッシュ
-- GitHub Actionsの「Actions」タブからの手動実行
+- バージョンタグ（`v*`形式）の作成
 
 実行される主なプロセス：
 
-1. **コードのチェックアウト**
-2. **Fly.io CLI のセットアップ**
-3. **バックエンドのデプロイ** (`flyctl deploy --remote-only`)
-4. **フロントエンドのデプロイ** (`flyctl deploy --remote-only`)
+1. **CI プロセス全体**（上記のすべてのステップ）
+2. **Docker イメージのビルド**：
+   - フロントエンド用イメージ
+   - バックエンド用イメージ 
+3. **イメージのセキュリティスキャン**（Trivy）
+4. **Amazon ECR へのイメージのプッシュ** 
+5. **ECS タスク定義の更新**
+6. **ECS サービスの更新**（ゼロダウンタイムデプロイ）
+7. **CloudFront キャッシュの無効化**（オプション）
+8. **Slack 通知**（成功/失敗）
 
-### 必要な環境変数
-
-GitHub リポジトリの Secrets に以下の値を設定する必要があります：
-
-- `FLY_API_TOKEN`: Fly.io の API トークン
-
-## 本番環境（Fly.io）
-
-本プロジェクトは Fly.io にデプロイされています：
-
-### デプロイ済み環境
-
-- **バックエンド API**: https://book-management-backend.fly.dev
-- **フロントエンド**: https://book-management-frontend.fly.dev
-- **データベース**: Fly.io Managed PostgreSQL (MPG)
-
-### デプロイ状況の確認
-
-デプロイの現在の状態や履歴は以下の方法で確認できます：
-
-1. **ドキュメントによる確認**:
-
-   - [デプロイ状況レポート](./docs/deployment-status.md) に最新の状態が記録されています
-
-2. **Fly.io ダッシュボードによる確認**:
-
-   ```bash
-   fly status -a book-management-backend
-   fly status -a book-management-frontend
-   ```
-
-3. **ログの確認**:
-   ```bash
-   fly logs -a book-management-backend
-   fly logs -a book-management-frontend
-   ```
-
-### 手動デプロイ方法
-
-必要に応じて、以下のコマンドで手動デプロイも可能です：
-
-```bash
-# バックエンドのデプロイ
-cd backend && fly deploy
-
-# フロントエンドのデプロイ
-cd frontend && fly deploy
-```
+AWS へのデプロイは IAM ロールベースの OIDC 認証を使用しており、セキュアで長期的なアクセスキーの管理が不要です。詳細な設定は[AWS デプロイ設定](./.aws/README.md)を参照してください。
 
 ## 開発者向けドキュメント
 
-開発を進める際は、以下のドキュメントを参照してください：
+開発を始める前に、以下のドキュメントを確認してください：
 
-- [デプロイ状況レポート](./docs/deployment-status.md) - 現在のデプロイ状況、解決済みの問題、今後のタスク
-- バックエンドとフロントエンドの各 README - コンポーネント固有の情報
+- [開発環境ガイド](./DEVELOPMENT.md) - コーディング規約、品質管理ツール、Git ワークフロー
+
+## 本番環境へのデプロイ
+
+本プロジェクトは AWS ECS を使用して本番環境にデプロイします。
+
+デプロイの詳細な手順や AWS 環境の設定については、以下のドキュメントを参照してください：
+
+- [AWS デプロイ設定](./.aws/README.md) - CloudFormation テンプレート、IAM 設定、デプロイコマンドなど
+
+### デプロイ概要
+
+1. **CI/CD パイプライン**: GitHub Actions を使用して`main`ブランチへのプッシュ時に自動デプロイ
+2. **コンテナ化**: バックエンドとフロントエンドは別々の Docker コンテナとしてデプロイ
+3. **インフラストラクチャ**: CloudFormation を使用して AWS リソースをコードとして管理
+
+詳細な AWS 環境設定、IAM 権限、デプロイコマンド、トラブルシューティング手順については[AWS デプロイ設定](./.aws/README.md)を参照してください。
 
 ---
 
-本プロジェクトは継続的に改善されています。問題や提案がある場合は、GitHub Issues に登録するか、プルリクエストを作成してください。
+各ドキュメントファイルは相互に参照し合い、整合性のある情報を提供しています。特に `.aws/README.md` は AWS リソースと CI/CD 設定の詳細を、`DEVELOPMENT.md` は開発環境とワークフローの標準を定義しています。バックエンドとフロントエンドの各 README は、それぞれのコンポーネント固有の情報を提供しています。
