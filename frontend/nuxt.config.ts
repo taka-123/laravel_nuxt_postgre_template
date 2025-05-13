@@ -8,7 +8,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/image',
     '@pinia/nuxt',
-    '@nuxt/test-utils/module', // テスト環境の統合
+    // テスト環境の統合（本番ビルド時は除外）
+    ...(process.env.NODE_ENV !== 'production' ? ['@nuxt/test-utils/module'] : []),
     (_options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig', (config) => {
         // @ts-expect-error

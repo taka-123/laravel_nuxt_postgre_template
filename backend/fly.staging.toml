@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for book-management-backend on 2025-05-06T12:07:48+09:00
+# fly.toml app configuration file for staging environment
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'book-management-backend'
+app = 'book-management-backend-staging'
 primary_region = 'nrt'
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
@@ -12,16 +12,17 @@ kill_timeout = '5s'
   dockerfile = 'Dockerfile.fly'
 
 [env]
-  APP_ENV = 'production'
+  APP_ENV = 'staging'
   BROADCAST_DRIVER = 'log'
   CACHE_DRIVER = 'file'
   DB_CONNECTION = "pgsql"
-  DB_HOST = "book-management-db-mpg.flycast"
+  # データベース接続設定
+  DB_HOST = "book-management-db-staging.flycast"
   DB_PORT = "5432"
-  DB_DATABASE = "book_management_backend"
-  DB_USERNAME = "book_management_backend_user"
+  DB_DATABASE = "book_management_backend_staging"
+  # 環境変数DATABASE_URLの設定を優先して使用するようにする
   LOG_CHANNEL = 'stderr'
-  LOG_LEVEL = 'info'
+  LOG_LEVEL = 'debug'
   LOG_STDERR_FORMATTER = 'Monolog\Formatter\JsonFormatter'
   QUEUE_CONNECTION = 'database'
   SESSION_DRIVER = 'cookie'
@@ -32,7 +33,7 @@ kill_timeout = '5s'
   PHP_UPLOAD_TMP_DIR = "/tmp"
 
 [[mounts]]
-  source = 'book_management_storage'
+  source = 'book_management_storage_stg'
   destination = '/var/www/html/storage'
 
 [http_service]

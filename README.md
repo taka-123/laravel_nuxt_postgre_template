@@ -4,189 +4,103 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用した書籍管理シス�
 
 ## 目次
 
-- [書籍管理システム](#書籍管理システム)
-  - [目次](#目次)
-  - [プロジェクト構成](#プロジェクト構成)
-  - [システム構成](#システム構成)
-  - [開発環境のセットアップ](#開発環境のセットアップ)
-    - [前提条件](#前提条件)
-    - [推奨エディタとプラグイン](#推奨エディタとプラグイン)
-      - [必須拡張機能](#必須拡張機能)
-    - [ポート設定](#ポート設定)
-  - [Docker 環境の起動方法](#docker-環境の起動方法)
-    - [重要: 同時に両方の環境を起動しないでください](#重要-同時に両方の環境を起動しないでください)
-    - [正しい起動方法](#正しい起動方法)
-    - [正しい停止方法](#正しい停止方法)
-  - [開発サーバーの起動](#開発サーバーの起動)
-    - [Docker を使用した起動（推奨）](#docker-を使用した起動推奨)
-    - [個別の起動方法](#個別の起動方法)
-      - [バックエンド（Laravel）の起動](#バックエンドlaravelの起動)
-      - [フロントエンド（Nuxt.js）の起動](#フロントエンドnuxtjsの起動)
-  - [コード品質管理とテスト](#コード品質管理とテスト)
-    - [Linter と Formatter](#linter-と-formatter)
-      - [バックエンド](#バックエンド)
-      - [フロントエンド](#フロントエンド)
-      - [開発プロセスの自動化](#開発プロセスの自動化)
-    - [テスト実行](#テスト実行)
-      - [バックエンド](#バックエンド-1)
-      - [フロントエンド](#フロントエンド-1)
-    - [テスト駆動開発のプロセス](#テスト駆動開発のプロセス)
-  - [Git ワークフロー](#git-ワークフロー)
-    - [ブランチ戦略](#ブランチ戦略)
-    - [開発プロセス](#開発プロセス)
-    - [ブランチ保護設定](#ブランチ保護設定)
-  - [テストユーザー](#テストユーザー)
-  - [CI/CD 環境](#cicd-環境)
-    - [CI ワークフロー](#ci-ワークフロー)
-    - [CD ワークフロー](#cd-ワークフロー)
-    - [必要な環境変数](#必要な環境変数)
-  - [本番環境（Fly.io）](#本番環境flyio)
-    - [デプロイ済み環境](#デプロイ済み環境)
-    - [デプロイ状況の確認](#デプロイ状況の確認)
-    - [手動デプロイ方法](#手動デプロイ方法)
-  - [開発者向けドキュメント](#開発者向けドキュメント)
+- [プロジェクト構成](#プロジェクト構成)
+- [開発環境のセットアップ](#開発環境のセットアップ)
+- [開発サーバーの起動](#開発サーバーの起動)
+- [マイグレーションとシーディング](#マイグレーションとシーディング)
+- [コード品質管理とテスト](#コード品質管理とテスト)
+- [デプロイフロー](#デプロイフロー)
+- [環境構成](#環境構成fly-io)
+- [トラブルシューティング](#トラブルシューティング)
 
 ## プロジェクト構成
 
 ```
-.
-├── README.md             # このファイル（プロジェクト全体の概要）
-├── docs/                 # プロジェクトドキュメント
-│   └── deployment-status.md  # デプロイ状況レポート
-├── backend/              # Laravel バックエンド
-│   ├── README.md         # バックエンド固有の情報
-│   └── .fly/             # Fly.io デプロイ設定
-├── frontend/             # Nuxt.js フロントエンド
-│   └── README.md         # フロントエンド固有の情報
-└── .github/              # GitHub関連設定
-    └── workflows/        # GitHub Actions ワークフロー
-        └── deploy.yml    # 自動デプロイ設定
+/
+├── backend/          # Laravel アプリケーション
+├── frontend/         # Nuxt.js アプリケーション
+├── docker/           # Docker 関連ファイル
+├── docs/             # プロジェクトドキュメント
+├── .github/          # GitHub Actions ワークフロー
+├── .aws/             # AWS インフラストラクチャスクリプト
+└── setup.sh          # 初期セットアップスクリプト
 ```
-
-## システム構成
-
-本システムは以下のコンポーネントで構成されています：
-
-- **フロントエンド**: Nuxt.js 3.16 + Vuetify 3.x
-
-  - SPA (Single Page Application) として実装
-  - Fly.io にデプロイ: https://book-management-frontend.fly.dev
-
-- **バックエンド**: Laravel 12.x (PHP 8.3)
-
-  - RESTful API として実装
-  - Fly.io にデプロイ: https://book-management-backend.fly.dev
-
-- **データベース**: PostgreSQL 16.x
-  - Fly.io Managed PostgreSQL (MPG) を使用
-  - 高可用性と自動バックアップを実現
 
 ## 開発環境のセットアップ
 
 ### 前提条件
 
-- Docker Desktop がインストールされていること
-- Node.js 18.0 以上がインストールされていること
-- Git がインストールされていること
-- Composer がインストールされていること（オプション、Docker 内で実行も可）
+- Docker と Docker Compose がインストールされていること
+- Node.js 20.x 以上
+- PHP 8.3 以上（ローカルで直接実行する場合）
 
-### 推奨エディタとプラグイン
+### 自動セットアップ（推奨）
 
-本プロジェクトは Visual Studio Code（VSCode）または互換エディタ（Cursor, Windsurf など）での開発を推奨しています。プロジェクトには `.vscode` ディレクトリが含まれており、推奨設定と拡張機能が定義されています。
-
-#### 必須拡張機能
-
-プロジェクトディレクトリを VSCode で開くと、推奨拡張機能のインストールが提案されます。以下の拡張機能は開発効率と品質を向上させるために重要です：
-
-- **ESLint** - JavaScript/TypeScript コードの静的解析
-- **Prettier** - コードフォーマッター
-- **Volar** - Vue 3 のシンタックスハイライトと補完
-- **PHP CS Fixer** - PHP コードの自動整形
-- **PHP Intelephense** - PHP の高度な補完と検証
-- **Laravel Extra Intellisense** - Laravel フレームワーク用の補完機能
-- **EditorConfig** - エディタの共通設定
-- **YAML** - YAML ファイルの編集サポート
-- **Docker** - Docker 関連ファイルの編集サポート
-- **Markdown All in One** - Markdown 編集の総合支援（目次生成、ショートカット等）
-- **Markdown Mermaid** - Markdown プレビューでの Mermaid 図表示サポート
-- **shell-format** - シェルスクリプトのフォーマット
-- **GitLens** - コード行の Git 履歴（誰がいつ変更したか）を表示
-- **indent-rainbow** - インデントの深さを色付けして可視化
-- **Code Spell Checker** - コード内のスペルミスをチェック
-
-VSCode を使用していない場合は、同等の機能を持つエディタプラグインをインストールしてください。
-
-### ポート設定
-
-| サービス               | ポート |
-| ---------------------- | ------ |
-| Laravel バックエンド   | 8000   |
-| Nuxt.js フロントエンド | 3000   |
-| PostgreSQL             | 5432   |
-| pgAdmin                | 5050   |
-
-## Docker 環境の起動方法
-
-本プロジェクトでは 2 つの Docker Compose 設定があります：
-
-1. **プロジェクトルートの`docker-compose.yml`**：
-
-   - フロントエンド、バックエンド、データベースを一括で起動
-   - 開発環境全体の構築に使用
-
-2. **`backend/docker-compose.yml`**：
-   - バックエンドのみ（Laravel + PostgreSQL）を起動
-   - バックエンド単体の開発に使用
-
-### 重要: 同時に両方の環境を起動しないでください
-
-これらの設定には同じポートを使用するサービスが含まれるため、**どちらか一方のみを起動**してください。
-両方を同時に起動するとポート競合が発生します。
-
-### 正しい起動方法
+プロジェクトルートディレクトリで以下のコマンドを実行するだけで環境構築が完了します：
 
 ```bash
-# 全体環境を起動する場合
-docker compose up -d
-
-# または、バックエンドのみを起動する場合
-cd backend
-docker compose up -d
+./setup.sh
 ```
 
-### 正しい停止方法
+このスクリプトは以下の処理を自動的に行います：
+- 必要な環境変数ファイルの作成
+- Docker コンテナのビルドと起動
+- 依存パッケージのインストール
+- データベースのマイグレーションとシーディング
+
+### 手動セットアップ
+
+1. 環境変数ファイルを作成
 
 ```bash
-# 起動したのと同じディレクトリで停止する
-docker compose down
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
 
-既存の環境をすべて停止するには：
+2. Docker 環境を起動
 
 ```bash
-# 既存のコンテナをすべて確認
-docker ps -a
+docker-compose up -d
+```
 
-# 特定のコンテナを停止・削除
-docker stop [コンテナID] && docker rm [コンテナID]
+3. バックエンドの依存パッケージをインストール
+
+```bash
+docker-compose exec backend composer install
+```
+
+4. フロントエンドの依存パッケージをインストール
+
+```bash
+docker-compose exec frontend npm install
 ```
 
 ## 開発サーバーの起動
 
 ### Docker を使用した起動（推奨）
 
-1. Docker Desktop を起動します
-2. 以下のコマンドを実行します：
+Docker 環境を起動すると、自動的に開発サーバーも起動します：
 
 ```bash
-docker compose up -d --build
+# プロジェクトルートディレクトリで実行
+docker-compose up -d
 ```
+
+以下の URL でアクセスできます：
+
+- バックエンド API: http://localhost:8000
+- フロントエンド: http://localhost:3000
+- pgAdmin（DB 管理）: http://localhost:5050（ユーザー名: admin@example.com、パスワード: admin）
 
 ### 個別の起動方法
 
 #### バックエンド（Laravel）の起動
 
 ```bash
+# Docker 内で実行する場合
+docker-compose exec backend php artisan serve --host=0.0.0.0
+
+# ローカルで直接実行する場合
 cd backend
 php artisan serve
 ```
@@ -194,8 +108,44 @@ php artisan serve
 #### フロントエンド（Nuxt.js）の起動
 
 ```bash
+# Docker 内で実行する場合
+docker-compose exec frontend npm run dev
+
+# ローカルで直接実行する場合
 cd frontend
 npm run dev
+```
+
+## マイグレーションとシーディング
+
+### Docker 環境でのマイグレーション実行
+
+```bash
+# マイグレーションの実行
+docker-compose exec backend php artisan migrate
+
+# シーディングの実行
+docker-compose exec backend php artisan db:seed
+
+# マイグレーションとシーディングを一度に実行
+docker-compose exec backend php artisan migrate:fresh --seed
+```
+
+### ステージング環境でのマイグレーション実行
+
+```bash
+# ステージング環境へのマイグレーション
+fly ssh console -a book-management-backend-staging -C "php artisan migrate"
+
+# ステージング環境へのシーディング
+fly ssh console -a book-management-backend-staging -C "php artisan db:seed"
+```
+
+### 本番環境でのマイグレーション実行
+
+```bash
+# 本番環境へのマイグレーション（注意: 慎重に実行してください）
+fly ssh console -a book-management-backend -C "php artisan migrate"
 ```
 
 ## コード品質管理とテスト
@@ -403,47 +353,104 @@ GitHub リポジトリの Secrets に以下の値を設定する必要があり�
 
 - `FLY_API_TOKEN`: Fly.io の API トークン
 
-## 本番環境（Fly.io）
-
-本プロジェクトは Fly.io にデプロイされています：
+## 環境構成（Fly.io）
 
 ### デプロイ済み環境
 
-- **バックエンド API**: https://book-management-backend.fly.dev
-- **フロントエンド**: https://book-management-frontend.fly.dev
-- **データベース**: Fly.io Managed PostgreSQL (MPG)
+現在、以下の環境が Fly.io にデプロイされています：
+
+| アプリケーション名                   | 種類               | メモリサイズ | URL                                              |
+| ---------------------------------- | ------------------ | ---------- | ------------------------------------------------ |
+| book-management-frontend           | フロントエンド         | 256MB       | https://book-management-frontend.fly.dev         |
+| book-management-backend            | バックエンド           | 512MB       | https://book-management-backend.fly.dev          |
+| book-management-db-mpg             | データベース           | 256MB       | 内部アクセスのみ                                 |
+| book-management-frontend-staging   | ステージングフロントエンド | 256MB       | https://book-management-frontend-staging.fly.dev |
+| book-management-backend-staging    | ステージングバックエンド   | 512MB       | https://book-management-backend-staging.fly.dev  |
+| book-management-db-staging         | ステージングデータベース   | 256MB       | 内部アクセスのみ                                 |
+
+**注意**: バックエンドアプリケーションはマイグレーション実行時に 512MB のメモリが必要です。フロントエンドは 256MB で充分です。
+
+### コスト最適化設定
+
+すべてのアプリケーションはコスト削減のために以下の設定がされています：
+
+- `auto_stop_machines = true` - アクセスがないと自動的に停止
+- `auto_start_machines = true` - アクセスがあると自動的に起動
+- `min_machines_running = 0` - 常時稼働するマシンの最小数ゼロ
+
+これにより、使用していない時間の課金を最小限に抑えられます。
 
 ### デプロイ状況の確認
 
-デプロイの現在の状態や履歴は以下の方法で確認できます：
+各環境の状況は以下のコマンドで確認できます：
 
-1. **ドキュメントによる確認**:
+1. **アプリケーション一覧の確認**:
+   ```bash
+   fly apps list
+   ```
 
-   - [デプロイ状況レポート](./docs/deployment-status.md) に最新の状態が記録されています
-
-2. **Fly.io ダッシュボードによる確認**:
-
+2. **特定アプリケーションの状況確認**:
    ```bash
    fly status -a book-management-backend
-   fly status -a book-management-frontend
    ```
 
 3. **ログの確認**:
    ```bash
    fly logs -a book-management-backend
-   fly logs -a book-management-frontend
-   ```
-
-### 手動デプロイ方法
-
-必要に応じて、以下のコマンドで手動デプロイも可能です：
-
-```bash
-# バックエンドのデプロイ
-cd backend && fly deploy
+{{ ... }}
 
 # フロントエンドのデプロイ
 cd frontend && fly deploy
+```
+
+## デプロイフロー
+
+プロジェクトは GitHub Actions を使用した CI/CD パイプラインで自動デプロイされます：
+
+1. `main` ブランチへのマージでステージング環境に自動デプロイ
+2. ステージング環境でのテストが成功すると本番環境に自動デプロイ
+
+## トラブルシューティング
+
+### 共有メモリ不足エラー
+
+マイグレーション実行時に以下のエラーが発生する場合：
+
+```
+Could not create shared memory segment: No space left on device
+```
+
+**解決方法**:
+1. バックエンドアプリケーションのメモリを 512MB に増やす
+2. `php.ini` の共有メモリ設定を確認する
+
+### データベース接続エラー
+
+データベース接続に関するエラーが発生した場合：
+
+**確認事項**:
+1. 環境変数の設定が正しいか確認
+   ```bash
+   fly ssh console -a book-management-backend -C "printenv | grep DB_"
+   ```
+
+2. データベースサーバーが起動しているか確認
+   ```bash
+   fly status -a book-management-db-mpg
+   ```
+
+3. データベース接続をテスト
+   ```bash
+   fly ssh console -a book-management-backend -C "php artisan db:monitor"
+   ```
+
+### アプリケーションが起動しない場合
+
+アプリケーションが起動しない場合は、手動で起動してみてください：
+
+```bash
+fly machine start -a book-management-backend
+fly machine start -a book-management-frontend
 ```
 
 ## 開発者向けドキュメント
@@ -451,7 +458,6 @@ cd frontend && fly deploy
 開発を進める際は、以下のドキュメントを参照してください：
 
 - [デプロイ状況レポート](./docs/deployment-status.md) - 現在のデプロイ状況、解決済みの問題、今後のタスク
-- バックエンドとフロントエンドの各 README - コンポーネント固有の情報
 
 ---
 

@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for book-management-frontend on 2025-05-06T14:42:03+09:00
+# fly.toml app configuration file for staging environment
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'book-management-frontend'
+app = 'book-management-frontend-staging'
 primary_region = 'nrt'
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
@@ -14,6 +14,8 @@ kill_timeout = '5s'
 [env]
   NODE_ENV = 'production'
   PORT = '3000'
+  API_BASE_URL = 'https://book-management-backend-staging.fly.dev'
+  API_BROWSER_URL = 'https://book-management-backend-staging.fly.dev'
 
 [http_service]
   internal_port = 3000
