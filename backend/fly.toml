@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'laravel-nuxt-template-backend'
+app = 'laravel-nuxt-template-backend-unique'
 primary_region = 'nrt'
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
@@ -16,7 +16,7 @@ kill_timeout = '5s'
   BROADCAST_DRIVER = 'log'
   CACHE_DRIVER = 'file'
   DB_CONNECTION = "pgsql"
-  DB_HOST = "laravel-nuxt-template-db-mpg.flycast"
+  DB_HOST = "laravel-nuxt-template-db-unique.flycast"
   DB_PORT = "5432"
   DB_DATABASE = "laravel_nuxt_template"
   DB_USERNAME = "laravel_nuxt_template_user"

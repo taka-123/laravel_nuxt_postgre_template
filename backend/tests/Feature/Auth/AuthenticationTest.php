@@ -31,8 +31,8 @@ class AuthenticationTest extends TestCase
                     'id',
                     'name',
                     'email',
-                    'created_at',
-                    'updated_at',
+                    'created',
+                    'updated',
                 ],
             ]);
 
@@ -106,8 +106,8 @@ class AuthenticationTest extends TestCase
                     'id',
                     'name',
                     'email',
-                    'created_at',
-                    'updated_at',
+                    'created',
+                    'updated',
                 ],
             ]);
     }
