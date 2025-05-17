@@ -43,7 +43,14 @@ export default defineNuxtConfig({
   },
   css: ['vuetify/lib/styles/main.sass', '@mdi/font/css/materialdesignicons.min.css'],
   typescript: {
-    strict: true,
+    strict: false,
+    typeCheck: false,
+    shim: false
+  },
+  vite: {
+    optimizeDeps: {
+      exclude: ['vue-demi']
+    }
   },
   runtimeConfig: {
     public: {
