@@ -5,22 +5,22 @@ on:
     branches:
       - main
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   id-token: write # OIDC認証のため必要
-  contents: read  # リポジトリの内容を読み取るため必要
+  contents: read # リポジトリの内容を読み取るため必要
   packages: write # ECRへのアクセスのため必要
 
 env:
-  AWS_REGION: ap-northeast-1  # AWSリージョン
-  PROJECT_NAME: book-management
+  AWS_REGION: ap-northeast-1 # AWSリージョン
+  PROJECT_NAME: laravel-nuxt-template
   ENVIRONMENT: production
-  ECR_REPOSITORY_BACKEND: ${{ vars.ECR_REPOSITORY_BACKEND || 'book-management-production-backend' }}
-  ECR_REPOSITORY_FRONTEND: ${{ vars.ECR_REPOSITORY_FRONTEND || 'book-management-production-frontend' }}
-  ECS_CLUSTER: ${{ vars.ECS_CLUSTER || 'book-management-production' }}
-  ECS_SERVICE_BACKEND: ${{ vars.ECS_SERVICE_BACKEND || 'book-management-production-backend' }}
-  ECS_SERVICE_FRONTEND: ${{ vars.ECS_SERVICE_FRONTEND || 'book-management-production-frontend' }}
+  ECR_REPOSITORY_BACKEND: ${{ vars.ECR_REPOSITORY_BACKEND || 'laravel-nuxt-template-production-backend' }}
+  ECR_REPOSITORY_FRONTEND: ${{ vars.ECR_REPOSITORY_FRONTEND || 'laravel-nuxt-template-production-frontend' }}
+  ECS_CLUSTER: ${{ vars.ECS_CLUSTER || 'laravel-nuxt-template-production' }}
+  ECS_SERVICE_BACKEND: ${{ vars.ECS_SERVICE_BACKEND || 'laravel-nuxt-template-production-backend' }}
+  ECS_SERVICE_FRONTEND: ${{ vars.ECS_SERVICE_FRONTEND || 'laravel-nuxt-template-production-frontend' }}
   TASK_DEFINITION_BACKEND: .aws/ecs/backend-task-definition.json
   TASK_DEFINITION_FRONTEND: .aws/ecs/frontend-task-definition.json
   BACKEND_CONTAINER_NAME: backend
@@ -77,7 +77,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: "8.3"
           extensions: mbstring, pgsql, pdo_pgsql, bcmath, exif, gd
           coverage: none
 
@@ -136,8 +136,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'yarn'
+          node-version: "20"
+          cache: "yarn"
           cache-dependency-path: frontend/yarn.lock
 
       - name: Install dependencies
@@ -179,12 +179,12 @@ jobs:
       - name: Run dependency checks
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '1'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
           ignore-unfixed: true
 
   # バックエンドのコンテナビルドとECRプッシュ

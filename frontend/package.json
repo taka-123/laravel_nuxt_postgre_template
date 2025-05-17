@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "laravel-nuxt-template-frontend",
   "private": true,
   "type": "module",
   "scripts": {
@@ -60,7 +60,7 @@
     "vitest": "^0.33.0"
   },
   "version": "1.0.0",
-  "description": "Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.",
+  "description": "Laravel + Nuxt + PostgreSQL テンプレートのフロントエンド部分",
   "main": ".eslintrc.js",
   "keywords": [],
   "author": "",

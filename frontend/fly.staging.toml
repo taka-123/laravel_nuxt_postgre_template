@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'book-management-frontend-staging'
+app = 'laravel-nuxt-template-frontend-staging'
 primary_region = 'nrt'
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
@@ -14,8 +14,8 @@ kill_timeout = '5s'
 [env]
   NODE_ENV = 'production'
   PORT = '3000'
-  API_BASE_URL = 'https://book-management-backend-staging.fly.dev'
-  API_BROWSER_URL = 'https://book-management-backend-staging.fly.dev'
+  API_BASE_URL = 'https://laravel-nuxt-template-backend-staging.fly.dev'
+  API_BROWSER_URL = 'https://laravel-nuxt-template-backend-staging.fly.dev'
 
 [http_service]
   internal_port = 3000

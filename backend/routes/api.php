@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\BookController;
+use App\Http\Controllers\API\PostController;
+use App\Http\Controllers\API\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,38 +20,30 @@ use App\Http\Controllers\API\BookController;
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
-
 ], function ($router) {
-
     Route::post('register', [AuthController::class, 'register'])->name('register');
     Route::post('login', [AuthController::class, 'login'])->name('login');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('refresh', [AuthController::class, 'refresh'])->name('refresh');
     Route::get('me', [AuthController::class, 'me'])->name('me');
-
 });
 
-// バーコードとISBN関連のルート（認証不要）
-Route::group(['prefix' => 'barcode'], function () {
-    Route::post('generate', [BookController::class, 'generateBarcode'])->name('barcode.generate');
-    Route::post('search', [BookController::class, 'findBookByBarcode'])->name('barcode.search');
-});
+// 公開投稿の取得（認証不要）
+Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/posts/{slug}', [PostController::class, 'show'])->name('posts.show');
 
-Route::group(['prefix' => 'isbn'], function () {
-    Route::post('fetch', [BookController::class, 'fetchBookInfoByIsbn'])->name('isbn.fetch');
-});
+// 投稿のコメント取得（認証不要）
+Route::get('/posts/{postId}/comments', [CommentController::class, 'index'])->name('comments.index');
 
-// テスト用：認証不要の書籍一覧エンドポイント
-Route::get('/public/books', [BookController::class, 'index'])->name('books.public.index');
+// 認証が必要な投稿関連のルート
+Route::group(['middleware' => 'auth:api'], function () {
+    // 投稿の作成・更新・削除
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');
+    Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
 
-// 新規書籍＋バーコード生成エンドポイント（認証不要）
-Route::post('/books/create-with-barcode', [BookController::class, 'createWithBarcode'])->name('books.create-with-barcode');
-
-// 書籍関連のルート（認証必要）
-Route::group(['middleware' => 'auth:api', 'prefix' => 'books'], function () {
-    Route::get('/', [BookController::class, 'index'])->name('books.index');
-    Route::post('/', [BookController::class, 'store'])->name('books.store');
-    Route::get('/{id}', [BookController::class, 'show'])->name('books.show');
-    Route::put('/{id}', [BookController::class, 'update'])->name('books.update');
-    Route::delete('/{id}', [BookController::class, 'destroy'])->name('books.destroy');
+    // コメントの作成・更新・削除
+    Route::post('/posts/{postId}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::put('/comments/{id}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });

@@ -4,7 +4,7 @@
 set -e
 
 # 環境変数の設定
-PROJECT_NAME=book-management
+PROJECT_NAME=laravel-nuxt-template
 ENVIRONMENT=${ENVIRONMENT:-production}
 
 # 関数定義
@@ -34,16 +34,16 @@ function stack_exists() {
 # RDSインスタンスの削除保護を無効化する関数
 function disable_rds_deletion_protection() {
   local db_instance_id="$1"
-  
+
   log_info "RDSインスタンス ${db_instance_id} の削除保護を無効化しています..."
   aws rds modify-db-instance \
     --db-instance-identifier "${db_instance_id}" \
     --no-deletion-protection \
     --apply-immediately >/dev/null 2>&1 || {
-      log_warn "RDSインスタンス ${db_instance_id} の削除保護の無効化に失敗しました。インスタンスが存在しないか、すでに無効化されている可能性があります。"
-      return 1
-    }
-  
+    log_warn "RDSインスタンス ${db_instance_id} の削除保護の無効化に失敗しました。インスタンスが存在しないか、すでに無効化されている可能性があります。"
+    return 1
+  }
+
   log_info "RDSインスタンス ${db_instance_id} の削除保護を無効化しました。"
   return 0
 }
@@ -51,15 +51,15 @@ function disable_rds_deletion_protection() {
 # ECRリポジトリのイメージを強制削除する関数
 function force_delete_ecr_repository() {
   local repo_name="$1"
-  
+
   log_info "ECRリポジトリ ${repo_name} を強制削除しています..."
   aws ecr delete-repository \
     --repository-name "${repo_name}" \
     --force >/dev/null 2>&1 || {
-      log_warn "ECRリポジトリ ${repo_name} の強制削除に失敗しました。リポジトリが存在しない可能性があります。"
-      return 1
-    }
-  
+    log_warn "ECRリポジトリ ${repo_name} の強制削除に失敗しました。リポジトリが存在しない可能性があります。"
+    return 1
+  }
+
   log_info "ECRリポジトリ ${repo_name} を強制削除しました。"
   return 0
 }
@@ -99,7 +99,7 @@ fi
 if stack_exists "$PROJECT_NAME-rds"; then
   # RDSインスタンスの削除保護を無効化
   disable_rds_deletion_protection "$PROJECT_NAME-$ENVIRONMENT-db"
-  
+
   log_info "RDSスタックを削除しています..."
   aws cloudformation delete-stack --stack-name "$PROJECT_NAME-rds" || log_warn "RDSスタックの削除開始に失敗しました。すでに削除中の可能性があります。"
   log_info "RDSスタックの削除を待機しています..."

@@ -36,7 +36,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile # frontend ディレクトリ内に Dockerfile を作成する必要があります
-    image: book-management-frontend
+    image: laravel-nuxt-template-frontend
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     volumes:
@@ -57,13 +57,13 @@ services:
   # PostgreSQL データベース
   pgsql:
     image: "postgres:16"
-    container_name: book-management-pgsql-main
+    container_name: laravel-nuxt-template-pgsql-main
     restart: unless-stopped
     ports:
       - "${FORWARD_DB_PORT:-5432}:5432"
     environment:
       PGPASSWORD: "${DB_PASSWORD:-password}"
-      POSTGRES_DB: "${DB_DATABASE:-book_management}"
+      POSTGRES_DB: "${DB_DATABASE:-laravel_nuxt_template}"
       POSTGRES_USER: "${DB_USERNAME:-sail}"
       POSTGRES_PASSWORD: "${DB_PASSWORD:-password}"
     volumes:
@@ -78,7 +78,7 @@ services:
           "pg_isready",
           "-q",
           "-d",
-          "${DB_DATABASE:-book_management}",
+          "${DB_DATABASE:-laravel_nuxt_template}",
           "-U",
           "${DB_USERNAME:-sail}",
         ]

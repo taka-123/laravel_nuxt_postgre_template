@@ -12,9 +12,9 @@ NC="\033[0m" # No Color
 
 # 環境変数の設定
 ENVIRONMENT=${1:-production}
-PROJECT_NAME=book-management
+PROJECT_NAME=laravel-nuxt-template
 DB_INSTANCE_CLASS=${2:-db.t3.small}
-DB_NAME=${3:-book_management}
+DB_NAME=${3:-laravel_nuxt_template}
 DB_USERNAME=${4:-dbadmin}
 
 # ダミーパスワードを使用
@@ -25,7 +25,7 @@ AWS_REGION=$(aws configure get region 2>/dev/null || echo "ap-northeast-1")
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 
 # スクリプトのディレクトリを取得
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 CLOUDFORMATION_DIR="$SCRIPT_DIR/../cloudformation"
 PARAMETERS_DIR="$SCRIPT_DIR/../parameters"
 
@@ -50,11 +50,11 @@ log_debug() {
 check_stack_status() {
   local stack_name="$1"
   local status
-  
+
   status=$(aws cloudformation describe-stacks --stack-name "$stack_name" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "DOES_NOT_EXIST")
-  
+
   log_debug "スタック $stack_name の現在の状態: $status"
-  
+
   if [ "$status" = "CREATE_IN_PROGRESS" ] || [ "$status" = "UPDATE_IN_PROGRESS" ]; then
     log_warn "スタック $stack_name は既に作成/更新中です。完了を待機します..."
     aws cloudformation wait stack-create-complete --stack-name "$stack_name" || aws cloudformation wait stack-update-complete --stack-name "$stack_name"
@@ -68,7 +68,7 @@ check_stack_status() {
     log_info "スタック $stack_name は存在しません。新規作成します。"
     return 0
   fi
-  
+
   return 0
 }
 
@@ -98,12 +98,12 @@ aws cloudformation deploy \
   --template-file "$CLOUDFORMATION_DIR/vpc.yaml" \
   --stack-name "$PROJECT_NAME-vpc" \
   --parameter-overrides \
-    ProjectName=$PROJECT_NAME \
-    Environment=$ENVIRONMENT \
+  ProjectName=$PROJECT_NAME \
+  Environment=$ENVIRONMENT \
   --no-fail-on-empty-changeset || {
-    log_error "VPCスタックのデプロイに失敗しました"
-    exit 1
-  }
+  log_error "VPCスタックのデプロイに失敗しました"
+  exit 1
+}
 
 # VPCスタックの出力を取得
 log_info "VPCスタックの出力を取得しています..."
@@ -123,7 +123,7 @@ log_debug "Public Subnet 2: $PUBLIC_SUBNET_2"
 
 # RDSパラメータファイルの作成
 echo "RDSパラメータファイルを作成しています..."
-cat > "$TEMP_PARAMS_FILE" << EOF
+cat >"$TEMP_PARAMS_FILE" <<EOF
 [
   {
     "ParameterKey": "ProjectName",
@@ -182,12 +182,12 @@ aws cloudformation deploy \
   --template-file "$CLOUDFORMATION_DIR/ecr.yaml" \
   --stack-name "$PROJECT_NAME-ecr" \
   --parameter-overrides \
-    ProjectName=$PROJECT_NAME \
-    Environment=$ENVIRONMENT \
+  ProjectName=$PROJECT_NAME \
+  Environment=$ENVIRONMENT \
   --no-fail-on-empty-changeset || {
-    log_error "ECRスタックのデプロイに失敗しました"
-    exit 1
-  }
+  log_error "ECRスタックのデプロイに失敗しました"
+  exit 1
+}
 
 # ECRリポジトリのURIを取得
 log_info "ECRリポジトリのURIを取得しています..."
@@ -220,12 +220,12 @@ log_debug "Backendビルド前: BACKEND_REPO=$BACKEND_REPO"
 
 # プラットフォーム指定を削除し、ネイティブビルドを試みる
 docker build --no-cache \
-    --build-arg NODE_VERSION=22 \
-    --build-arg POSTGRES_VERSION=16 \
-    --build-arg WWWUSER=1337 \
-    --build-arg WWWGROUP=1000 \
-    -t "$BACKEND_IMAGE_TAG" \
-    ../../backend || {
+  --build-arg NODE_VERSION=22 \
+  --build-arg POSTGRES_VERSION=16 \
+  --build-arg WWWUSER=1337 \
+  --build-arg WWWGROUP=1000 \
+  -t "$BACKEND_IMAGE_TAG" \
+  ../../backend || {
   log_error "Backendイメージのビルドに失敗しました"
   exit 1
 }
@@ -245,11 +245,11 @@ log_debug "Frontendビルド前: FRONTEND_REPO=$FRONTEND_REPO"
 
 # プラットフォーム指定を削除し、ネイティブビルドを試みる
 docker build --no-cache \
-    --build-arg NODE_VERSION=22 \
-    --build-arg WWWUSER=1337 \
-    --build-arg WWWGROUP=1000 \
-    -t "$FRONTEND_IMAGE_TAG" \
-    ../../frontend || {
+  --build-arg NODE_VERSION=22 \
+  --build-arg WWWUSER=1337 \
+  --build-arg WWWGROUP=1000 \
+  -t "$FRONTEND_IMAGE_TAG" \
+  ../../frontend || {
   log_error "Frontendイメージのビルドに失敗しました"
   exit 1
 }
@@ -274,19 +274,19 @@ aws cloudformation deploy \
   --template-file "$CLOUDFORMATION_DIR/rds.yaml" \
   --stack-name "$PROJECT_NAME-rds" \
   --parameter-overrides \
-    ProjectName=$PROJECT_NAME \
-    Environment=$ENVIRONMENT \
-    VPCId=$VPC_ID \
-    DBSubnet1=$PRIVATE_SUBNET_1 \
-    DBSubnet2=$PRIVATE_SUBNET_2 \
-    DBName=$DB_NAME \
-    DBUsername=$DB_USERNAME \
-    DBPassword=$DB_PASSWORD \
-    DBInstanceClass=$DB_INSTANCE_CLASS \
+  ProjectName=$PROJECT_NAME \
+  Environment=$ENVIRONMENT \
+  VPCId=$VPC_ID \
+  DBSubnet1=$PRIVATE_SUBNET_1 \
+  DBSubnet2=$PRIVATE_SUBNET_2 \
+  DBName=$DB_NAME \
+  DBUsername=$DB_USERNAME \
+  DBPassword=$DB_PASSWORD \
+  DBInstanceClass=$DB_INSTANCE_CLASS \
   --no-fail-on-empty-changeset || {
-    log_error "RDSスタックのデプロイに失敗しました"
-    exit 1
-  }
+  log_error "RDSスタックのデプロイに失敗しました"
+  exit 1
+}
 
 log_info "RDSスタックのデプロイが完了しました"
 
@@ -311,15 +311,15 @@ aws cloudformation deploy \
   --template-file "$CLOUDFORMATION_DIR/alb.yaml" \
   --stack-name "$PROJECT_NAME-alb" \
   --parameter-overrides \
-    ProjectName=$PROJECT_NAME \
-    Environment=$ENVIRONMENT \
-    VPCId=$VPC_ID \
-    PublicSubnet1=$PUBLIC_SUBNET_1 \
-    PublicSubnet2=$PUBLIC_SUBNET_2 \
+  ProjectName=$PROJECT_NAME \
+  Environment=$ENVIRONMENT \
+  VPCId=$VPC_ID \
+  PublicSubnet1=$PUBLIC_SUBNET_1 \
+  PublicSubnet2=$PUBLIC_SUBNET_2 \
   --no-fail-on-empty-changeset || {
-    log_error "ALBスタックのデプロイに失敗しました"
-    exit 1
-  }
+  log_error "ALBスタックのデプロイに失敗しました"
+  exit 1
+}
 
 # ALB 出力取得
 log_info "ALBの出力を取得しています..."
@@ -352,27 +352,27 @@ aws cloudformation deploy \
   --template-file "$CLOUDFORMATION_DIR/ecs.yaml" \
   --stack-name "$PROJECT_NAME-ecs" \
   --parameter-overrides \
-    ProjectName=$PROJECT_NAME \
-    Environment=$ENVIRONMENT \
-    PrivateSubnet1=$PRIVATE_SUBNET_1 \
-    PrivateSubnet2=$PRIVATE_SUBNET_2 \
-    ECSSecurityGroupId=$ECS_SG \
-    BackendTargetGroupArn=$TG_BE \
-    FrontendTargetGroupArn=$TG_FE \
-    BackendImageRepository=$BACKEND_REPO \
-    FrontendImageRepository=$FRONTEND_REPO \
-    DBHost=$DB_HOST \
-    DBUsername=$DB_USERNAME \
-    DBPassword=$DB_PASSWORD \
-    APIPublicURL="http://$ALB_DNS" \
-    APIInternalURL="http://$ALB_DNS" \
-    JWTSecret="DummySecret123456" \
-    AppKey="DummyAppKey123456" \
+  ProjectName=$PROJECT_NAME \
+  Environment=$ENVIRONMENT \
+  PrivateSubnet1=$PRIVATE_SUBNET_1 \
+  PrivateSubnet2=$PRIVATE_SUBNET_2 \
+  ECSSecurityGroupId=$ECS_SG \
+  BackendTargetGroupArn=$TG_BE \
+  FrontendTargetGroupArn=$TG_FE \
+  BackendImageRepository=$BACKEND_REPO \
+  FrontendImageRepository=$FRONTEND_REPO \
+  DBHost=$DB_HOST \
+  DBUsername=$DB_USERNAME \
+  DBPassword=$DB_PASSWORD \
+  APIPublicURL="http://$ALB_DNS" \
+  APIInternalURL="http://$ALB_DNS" \
+  JWTSecret="DummySecret123456" \
+  AppKey="DummyAppKey123456" \
   --capabilities CAPABILITY_NAMED_IAM \
   --no-fail-on-empty-changeset || {
-    log_error "ECSスタックのデプロイに失敗しました"
-    exit 1
-  }
+  log_error "ECSスタックのデプロイに失敗しました"
+  exit 1
+}
 
 log_info "ECSスタックのデプロイが完了しました"
 
@@ -386,13 +386,13 @@ aws cloudformation deploy \
   --template-file "$CLOUDFORMATION_DIR/iam.yaml" \
   --stack-name "$PROJECT_NAME-iam" \
   --parameter-overrides \
-    ProjectName=$PROJECT_NAME \
-    Environment=$ENVIRONMENT \
+  ProjectName=$PROJECT_NAME \
+  Environment=$ENVIRONMENT \
   --capabilities CAPABILITY_NAMED_IAM \
   --no-fail-on-empty-changeset || {
-    log_error "IAMスタックのデプロイに失敗しました"
-    exit 1
-  }
+  log_error "IAMスタックのデプロイに失敗しました"
+  exit 1
+}
 
 log_info "IAMスタックのデプロイが完了しました"
 

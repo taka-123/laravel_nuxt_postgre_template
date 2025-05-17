@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 書籍管理システム初期セットアップスクリプト
+# Laravel + Nuxt + PostgreSQL テンプレート初期セットアップスクリプト
 # 使用方法: ./setup.sh
 
 # 色の定義
@@ -34,13 +34,13 @@ info() {
 info "必要なソフトウェアの確認中..."
 
 # Dockerのチェック
-if ! command -v docker &> /dev/null; then
+if ! command -v docker &>/dev/null; then
   error "Docker がインストールされていません。https://docs.docker.com/get-docker/ からインストールしてください。"
 fi
 success "Docker が見つかりました"
 
 # Docker Composeのチェック
-if ! command -v docker-compose &> /dev/null; then
+if ! command -v docker-compose &>/dev/null; then
   error "Docker Compose がインストールされていません。https://docs.docker.com/compose/install/ からインストールしてください。"
 fi
 success "Docker Compose が見つかりました"

@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for book-management-backend on 2025-05-06T12:07:48+09:00
+# fly.toml app configuration file generated for laravel-nuxt-template-backend on 2025-05-17T10:40:00+09:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'book-management-backend'
+app = 'laravel-nuxt-template-backend'
 primary_region = 'nrt'
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
@@ -16,10 +16,10 @@ kill_timeout = '5s'
   BROADCAST_DRIVER = 'log'
   CACHE_DRIVER = 'file'
   DB_CONNECTION = "pgsql"
-  DB_HOST = "book-management-db-mpg.flycast"
+  DB_HOST = "laravel-nuxt-template-db-mpg.flycast"
   DB_PORT = "5432"
-  DB_DATABASE = "book_management_backend"
-  DB_USERNAME = "book_management_backend_user"
+  DB_DATABASE = "laravel_nuxt_template"
+  DB_USERNAME = "laravel_nuxt_template_user"
   LOG_CHANNEL = 'stderr'
   LOG_LEVEL = 'info'
   LOG_STDERR_FORMATTER = 'Monolog\Formatter\JsonFormatter'
@@ -32,7 +32,7 @@ kill_timeout = '5s'
   PHP_UPLOAD_TMP_DIR = "/tmp"
 
 [[mounts]]
-  source = 'book_management_storage'
+  source = 'laravel_nuxt_template_storage'
   destination = '/var/www/html/storage'
 
 [http_service]

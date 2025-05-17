@@ -13,7 +13,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: book_management_testing
+          POSTGRES_DB: laravel_nuxt_template_testing
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
@@ -29,7 +29,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: "8.3"
           extensions: mbstring, pgsql, pdo_pgsql, bcmath, exif, gd
 
       - name: Copy .env
@@ -39,7 +39,7 @@ jobs:
           sed -i 's/DB_HOST=pgsql/DB_HOST=localhost/g' .env.testing
           sed -i 's/DB_USERNAME=sail/DB_USERNAME=postgres/g' .env.testing
           sed -i 's/DB_PASSWORD=password/DB_PASSWORD=postgres/g' .env.testing
-          sed -i 's/DB_DATABASE=book_management/DB_DATABASE=book_management_testing/g' .env.testing
+          sed -i 's/DB_DATABASE=laravel_nuxt_template/DB_DATABASE=laravel_nuxt_template_testing/g' .env.testing
 
       - name: Install Dependencies
         run: |
@@ -79,9 +79,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
-          cache: 'yarn'
-          cache-dependency-path: 'frontend/yarn.lock'
+          node-version: "22"
+          cache: "yarn"
+          cache-dependency-path: "frontend/yarn.lock"
 
       - name: Install Dependencies
         run: |
@@ -103,8 +103,8 @@ jobs:
           cd frontend
           yarn build
         env:
-          BROWSER_API_BASE_URL: 'http://localhost:8000/api'
-          SERVER_API_BASE_URL: 'http://laravel.test/api'
+          BROWSER_API_BASE_URL: "http://localhost:8000/api"
+          SERVER_API_BASE_URL: "http://laravel.test/api"
 
   security-check:
     runs-on: ubuntu-latest
@@ -114,7 +114,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: "8.3"
           extensions: mbstring
 
       - name: Install Dependencies

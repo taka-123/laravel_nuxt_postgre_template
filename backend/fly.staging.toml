@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'book-management-backend-staging'
+app = 'laravel-nuxt-template-backend-staging'
 primary_region = 'nrt'
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
@@ -17,9 +17,9 @@ kill_timeout = '5s'
   CACHE_DRIVER = 'file'
   DB_CONNECTION = "pgsql"
   # データベース接続設定
-  DB_HOST = "book-management-db-staging.flycast"
+  DB_HOST = "laravel-nuxt-template-db-staging.flycast"
   DB_PORT = "5432"
-  DB_DATABASE = "book_management_backend_staging"
+  DB_DATABASE = "laravel_nuxt_template_staging"
   # 環境変数DATABASE_URLの設定を優先して使用するようにする
   LOG_CHANNEL = 'stderr'
   LOG_LEVEL = 'debug'
@@ -33,7 +33,7 @@ kill_timeout = '5s'
   PHP_UPLOAD_TMP_DIR = "/tmp"
 
 [[mounts]]
-  source = 'book_management_storage_stg'
+  source = 'laravel_nuxt_template_storage_stg'
   destination = '/var/www/html/storage'
 
 [http_service]
