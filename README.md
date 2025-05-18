@@ -350,19 +350,22 @@ npm run test
 
 ## デプロイ設定
 
-本テンプレートには、AWS ECS へのデプロイ設定が含まれています：
+本テンプレートには、Fly.io へのデプロイ設定が含まれています：
 
 1. **GitHub Actions**:
 
    - `.github/workflows/` ディレクトリに CI/CD パイプラインの設定
    - テスト、ビルド、デプロイの自動化
 
-2. **AWS 設定**:
-   - ECS（Elastic Container Service）を使用したコンテナデプロイ
-   - RDS（PostgreSQL）を使用したデータベース
-   - CloudFront を使用した CDN 配信
+2. **Fly.io 設定**:
+   - Fly.io プラットフォームを使用したコンテナデプロイ
+   - Fly Postgres を使用したデータベース
+   - グローバルエッジネットワークによる高速配信
 
-詳細な設定は `.aws/` ディレクトリのドキュメントを参照してください。
+詳細な設定は `.fly/README.md` を参照してください。
+
+3. **将来の拡張オプション**:
+   - 大規模なプロジェクトへの拡張時には AWS ECS/RDS/CloudFront などの利用も検討可能
 
 ## トラブルシューティング
 
