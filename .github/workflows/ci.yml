@@ -5,6 +5,16 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to run tests against"
+        required: true
+        default: "testing"
+        type: choice
+        options:
+          - testing
+          - staging
 
 jobs:
   backend-tests:
@@ -61,10 +71,17 @@ jobs:
           cd backend
           php artisan migrate --env=testing
 
-      - name: PHPUnit Tests
+      - name: PHPUnit Tests with Coverage
         run: |
           cd backend
-          php artisan test --env=testing
+          XDEBUG_MODE=coverage php artisan test --env=testing --coverage-clover coverage.xml
+
+      - name: Upload Backend Test Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: backend/coverage.xml
+          flags: backend
+          fail_ci_if_error: false
 
       - name: Static Analysis
         run: |
@@ -93,10 +110,17 @@ jobs:
           cd frontend
           yarn lint
 
-      - name: Run Unit Tests
+      - name: Run Unit Tests with Coverage
         run: |
           cd frontend
-          yarn test
+          yarn test:coverage
+
+      - name: Upload Frontend Test Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: frontend/coverage/coverage-final.json
+          flags: frontend
+          fail_ci_if_error: false
 
       - name: Build Check
         run: |
@@ -122,7 +146,32 @@ jobs:
           cd backend
           composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Run Security Check
+      - name: Run Backend Security Check
         run: |
           cd backend
           composer audit
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+          cache: "yarn"
+          cache-dependency-path: "frontend/yarn.lock"
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          yarn install --frozen-lockfile
+
+      - name: Run Frontend Security Check
+        run: |
+          cd frontend
+          yarn audit
+
+      - name: Run SAST Scan
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript, typescript, php
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
