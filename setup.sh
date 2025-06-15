@@ -159,11 +159,18 @@ if ! command -v docker &>/dev/null; then
 fi
 success "Docker が見つかりました"
 
-# Docker Composeのチェック
-if ! command -v docker-compose &>/dev/null; then
+# Docker Composeのチェック（V2対応）
+if ! command -v docker-compose &>/dev/null && ! docker compose version &>/dev/null; then
   error "Docker Compose がインストールされていません。https://docs.docker.com/compose/install/ からインストールしてください。"
 fi
-success "Docker Compose が見つかりました"
+
+# Docker Composeコマンドの決定
+if command -v docker-compose &>/dev/null; then
+  DOCKER_COMPOSE="docker-compose"
+else
+  DOCKER_COMPOSE="docker compose"
+fi
+success "Docker Compose が見つかりました ($DOCKER_COMPOSE)"
 
 # .envファイルの設定
 info "環境設定ファイルの準備中..."
@@ -197,32 +204,32 @@ fi
 
 # Dockerコンテナの起動
 info "Dockerコンテナを起動中..."
-docker-compose up -d || error "Dockerコンテナの起動に失敗しました"
+$DOCKER_COMPOSE up -d || error "Dockerコンテナの起動に失敗しました"
 success "Dockerコンテナを起動しました"
 
 # バックエンドの依存関係インストール
 info "バックエンドの依存関係をインストール中..."
-docker-compose exec backend composer install || warning "Composerインストールに問題が発生しました"
+$DOCKER_COMPOSE exec backend composer install || warning "Composerインストールに問題が発生しました"
 success "バックエンドの依存関係をインストールしました"
 
 # アプリケーションキーの生成
 info "Laravelアプリケーションキーを生成中..."
-docker-compose exec backend php artisan key:generate || warning "アプリケーションキーの生成に問題が発生しました"
+$DOCKER_COMPOSE exec backend php artisan key:generate || warning "アプリケーションキーの生成に問題が発生しました"
 success "アプリケーションキーを生成しました"
 
 # データベースマイグレーション
 info "データベースマイグレーションを実行中..."
-docker-compose exec backend php artisan migrate || warning "マイグレーションに問題が発生しました"
+$DOCKER_COMPOSE exec backend php artisan migrate || warning "マイグレーションに問題が発生しました"
 success "データベースマイグレーションを実行しました"
 
 # シードデータの投入
 info "初期データを投入中..."
-docker-compose exec backend php artisan db:seed || warning "シードデータの投入に問題が発生しました"
+$DOCKER_COMPOSE exec backend php artisan db:seed || warning "シードデータの投入に問題が発生しました"
 success "初期データを投入しました"
 
 # フロントエンドの依存関係インストール
 info "フロントエンドの依存関係をインストール中..."
-docker-compose exec frontend yarn install || warning "Yarnインストールに問題が発生しました"
+$DOCKER_COMPOSE exec frontend yarn install || warning "Yarnインストールに問題が発生しました"
 success "フロントエンドの依存関係をインストールしました"
 
 # セットアップ完了フラグの作成
@@ -249,8 +256,8 @@ echo "- メールアドレス: test@example.com"
 echo "- パスワード: password"
 echo ""
 echo "🔧 開発コマンド："
-echo "- バックエンドログ: docker-compose logs -f backend"
-echo "- フロントエンドログ: docker-compose logs -f frontend"
-echo "- 環境停止: docker-compose down"
+echo "- バックエンドログ: $DOCKER_COMPOSE logs -f backend"
+echo "- フロントエンドログ: $DOCKER_COMPOSE logs -f frontend"
+echo "- 環境停止: $DOCKER_COMPOSE down"
 echo ""
 echo "Happy coding! 🚀"
