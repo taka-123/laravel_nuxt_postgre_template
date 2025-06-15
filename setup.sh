@@ -172,6 +172,29 @@ else
 fi
 success "Docker Compose が見つかりました ($DOCKER_COMPOSE)"
 
+info "注意: WWWUSER/WWWGROUPをルート.envファイルに自動設定されます"
+
+# ルートディレクトリの.envファイル作成（Docker Compose用）
+if [ ! -f ".env" ]; then
+  info "ルート.envファイルを作成中..."
+  cat >.env <<EOF
+# Docker Compose用の環境変数
+WWWUSER=$(id -u)
+WWWGROUP=$(id -g)
+
+# アプリケーション設定
+APP_PORT=8000
+FRONTEND_PORT=3000
+FORWARD_DB_PORT=5432
+
+# データベース設定（docker-compose.yml用）
+DB_DATABASE=laravel_nuxt_template
+DB_USERNAME=sail
+DB_PASSWORD=password
+EOF
+  success "ルート.envファイルを作成しました"
+fi
+
 # .envファイルの設定
 info "環境設定ファイルの準備中..."
 
@@ -181,8 +204,13 @@ if [ ! -f "./backend/.env" ]; then
     cp ./backend/.env.example ./backend/.env
     # アプリケーション名の設定
     sed -i.bak "s/APP_NAME=.*/APP_NAME=\"${PROJECT_NAME}\"/" ./backend/.env
+    # WWWUSER/WWWGROUPの設定を追加
+    echo "" >>./backend/.env
+    echo "# Laravel Sail用のユーザー設定" >>./backend/.env
+    echo "WWWUSER=$(id -u)" >>./backend/.env
+    echo "WWWGROUP=$(id -g)" >>./backend/.env
     rm -f ./backend/.env.bak
-    success "バックエンド .env ファイルを作成しました"
+    success "バックエンド .env ファイルを作成しました（WWWUSER/WWWGROUP含む）"
   else
     warning "backend/.env.example が見つかりません。手動で .env ファイルを作成してください。"
   fi
@@ -256,8 +284,12 @@ echo "- メールアドレス: test@example.com"
 echo "- パスワード: password"
 echo ""
 echo "🔧 開発コマンド："
-echo "- バックエンドログ: $DOCKER_COMPOSE logs -f backend"
-echo "- フロントエンドログ: $DOCKER_COMPOSE logs -f frontend"
-echo "- 環境停止: $DOCKER_COMPOSE down"
+echo "- バックエンドログ: docker compose logs -f backend"
+echo "- フロントエンドログ: docker compose logs -f frontend"
+echo "- 環境停止: docker compose down"
+echo ""
+echo "💡 ヒント："
+echo "- WWWUSER/WWWGROUPは backend/.env に自動設定済み"
+echo "- 環境変数の警告は表示されません"
 echo ""
 echo "Happy coding! 🚀"
