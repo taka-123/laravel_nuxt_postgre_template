@@ -1,36 +1,33 @@
-# Laravel + Nuxt + PostgreSQL テンプレート
+# [PROJECT_NAME] Laravel + Nuxt + PostgreSQL テンプレート
 
-Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用したモダンなウェブアプリケーションテンプレートです。認証機能、CRUD 操作、テスト環境、CI/CD 設定など、プロジェクト開始に必要な基盤が整っています。
+Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用したモダンなウェブアプリケーションテンプレートです。
 
-## 目次
+> **テンプレートから作成されたプロジェクトの場合**: `[PROJECT_NAME]`部分がプロジェクト名に置き換わり、テンプレート固有の説明が削除されます。
 
-- [Laravel + Nuxt + PostgreSQL テンプレート](#laravel--nuxt--postgresql-テンプレート)
-  - [目次](#目次)
-  - [テンプレートの特徴](#テンプレートの特徴)
-  - [プロジェクト構成](#プロジェクト構成)
-  - [開発環境のセットアップ](#開発環境のセットアップ)
-    - [前提条件](#前提条件)
-    - [推奨エディタとプラグイン](#推奨エディタとプラグイン)
-      - [必須拡張機能](#必須拡張機能)
-    - [ポート設定](#ポート設定)
-  - [Docker 環境の起動方法](#docker-環境の起動方法)
-    - [重要: 同時に両方の環境を起動しないでください](#重要-同時に両方の環境を起動しないでください)
-    - [正しい起動方法](#正しい起動方法)
-    - [正しい停止方法](#正しい停止方法)
-  - [開発サーバーの起動](#開発サーバーの起動)
-    - [Docker を使用した起動（推奨）](#docker-を使用した起動推奨)
-    - [個別の起動方法](#個別の起動方法)
-  - [TypeScript 設定](#typescript-設定)
-    - [フロントエンド TypeScript 設定](#フロントエンド-typescript-設定)
-    - [VSCode 設定](#vscode-設定)
-  - [コード品質管理とテスト](#コード品質管理とテスト)
-    - [Linter と Formatter](#linter-と-formatter)
-    - [テスト実行](#テスト実行)
-  - [API 連携サンプル](#api-連携サンプル)
-    - [認証フロー](#認証フロー)
-    - [CRUD 操作サンプル](#crud-操作サンプル)
-  - [デプロイ設定](#デプロイ設定)
-  - [トラブルシューティング](#トラブルシューティング)
+## 🚀 クイックスタート
+
+### テンプレートから新プロジェクトを作成（推奨）
+
+```bash
+# 1. GitHubで「Use this template」をクリック、または：
+gh repo create my-new-project --template your-org/laravel-nuxt-template --private
+
+# 2. クローンしてセットアップ（1コマンドで完了）
+git clone https://github.com/your-org/my-new-project.git
+cd my-new-project
+./setup.sh my-new-project
+```
+
+### 直接クローンする場合
+
+```bash
+git clone https://github.com/your-org/laravel-nuxt-template.git my-project
+cd my-project
+./setup.sh my-project
+```
+
+**初回実行時**: テンプレートのカスタマイズ + 開発環境セットアップを自動実行  
+**2 回目以降**: 開発環境セットアップのみ実行
 
 ## テンプレートの特徴
 
@@ -42,7 +39,7 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用したモダンなウェ�
 - **テスト環境**: PHPUnit と Vitest を使用したテスト環境
 - **Docker 対応**: Docker Compose を使用した開発環境
 - **CI/CD**: GitHub Actions を使用した自動テストとデプロイ
-- **デプロイ設定**: AWS ECS へのデプロイ設定済み
+- **デプロイ設定**: Fly.io へのデプロイ設定済み
 - **セキュリティ**: 安全なパスワードハッシュと CSRF 保護
 
 ## プロジェクト構成
@@ -66,9 +63,27 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用したモダンなウェ�
 - Composer 2.x
 - Git
 
+### 開発環境の起動
+
+```bash
+# バックエンドの起動
+cd backend
+./vendor/bin/sail up -d
+
+# フロントエンドの起動（別ターミナル）
+cd frontend
+docker-compose up -d
+```
+
+アプリケーションにアクセス：
+
+- **フロントエンド**: http://localhost:3000
+- **バックエンド API**: http://localhost:8000
+- **pgAdmin**: http://localhost:5050
+
 ### 推奨エディタとプラグイン
 
-Visual Studio Code を推奨エディタとして使用します。以下の拡張機能をインストールすることで、開発効率が向上します。
+Visual Studio Code を推奨エディタとして使用します。
 
 #### 必須拡張機能
 
@@ -93,8 +108,6 @@ Visual Studio Code を推奨エディタとして使用します。以下の拡�
 - DotENV
 - PostgreSQL
 
-フロントエンドディレクトリには、推奨拡張機能を自動的に提案する `.vscode/extensions.json` が含まれています。
-
 ### ポート設定
 
 | サービス                 | ポート |
@@ -104,74 +117,44 @@ Visual Studio Code を推奨エディタとして使用します。以下の拡�
 | PostgreSQL               | 5432   |
 | pgAdmin                  | 5050   |
 
-## Docker 環境の起動方法
+## 開発ガイド
 
-### 重要: 同時に両方の環境を起動しないでください
-
-バックエンドとフロントエンドの Docker 環境は、同時に起動すると競合する可能性があります。
-
-### 正しい起動方法
-
-**バックエンド環境の起動**:
+### バックエンド（Laravel）
 
 ```bash
 cd backend
-./vendor/bin/sail up -d
+
+# マイグレーション実行
+php artisan migrate
+
+# シーダー実行
+php artisan db:seed
+
+# テスト実行
+php artisan test
+
+# コード品質チェック
+./vendor/bin/phpcs
+./vendor/bin/pint
 ```
 
-**フロントエンド環境の起動**:
+### フロントエンド（Nuxt）
 
 ```bash
 cd frontend
-docker-compose up -d
-```
 
-### 正しい停止方法
-
-**バックエンド環境の停止**:
-
-```bash
-cd backend
-./vendor/bin/sail down
-```
-
-**フロントエンド環境の停止**:
-
-```bash
-cd frontend
-docker-compose down
-```
-
-## 開発サーバーの起動
-
-### Docker を使用した起動（推奨）
-
-```bash
-# バックエンドの起動
-cd backend
-./vendor/bin/sail up -d
-
-# フロントエンドの起動
-cd frontend
-docker-compose up -d
-```
-
-### 個別の起動方法
-
-**バックエンド（Laravel）**:
-
-```bash
-cd backend
-composer install
-php artisan serve
-```
-
-**フロントエンド（Nuxt.js）**:
-
-```bash
-cd frontend
-npm install
+# 開発サーバー起動
 npm run dev
+
+# ビルド
+npm run build
+
+# テスト実行
+npm run test
+
+# コード品質チェック
+npm run lint
+npm run format
 ```
 
 ## TypeScript 設定
@@ -207,197 +190,90 @@ npm run dev
 3. **ESLint 設定**
    - TypeScript と Vue 3 の連携に最適化されたルール設定
 
-### VSCode 設定
-
-`.vscode/settings.json`には、TypeScript と Vue の連携に関する最適な設定が含まれています：
-
-```json
-{
-  "typescript.validate.enable": false,
-  "javascript.validate.enable": false,
-  "volar.takeOverMode.enabled": false
-}
-```
-
-これらの設定により、言語サービスのクラッシュを防止し、スムーズな開発体験を提供します。
-
-## コード品質管理とテスト
-
-### Linter と Formatter
-
-**バックエンド**:
-
-- PHP_CodeSniffer: PSR-12 準拠のコーディング規約チェック
-- Laravel Pint: コードフォーマッター
-
-```bash
-cd backend
-./vendor/bin/phpcs
-./vendor/bin/pint
-```
-
-**フロントエンド**:
-
-- ESLint: コード品質チェック
-- Prettier: コードフォーマッター
-
-```bash
-cd frontend
-npm run lint
-npm run format
-```
-
-### テスト実行
-
-**バックエンド**:
-
-```bash
-cd backend
-./vendor/bin/sail test
-```
-
-**フロントエンド**:
-
-```bash
-cd frontend
-npm run test
-```
-
 ## API 連携サンプル
 
 ### 認証フロー
 
-本テンプレートには、JWT を使用した認証フローのサンプルが含まれています：
+JWT を使用した認証フローのサンプルが含まれています：
 
-1. **ログイン処理**:
-
-   ```typescript
-   // frontend/composables/useAuth.ts
-   const login = async (email: string, password: string) => {
-     try {
-       const response = await $fetch("/api/login", {
-         method: "POST",
-         body: { email, password },
-       });
-       // トークンの保存とユーザー情報の取得
-     } catch (error) {
-       // エラー処理
-     }
-   };
-   ```
-
-2. **認証状態の管理**:
-   ```typescript
-   // frontend/stores/auth.ts
-   export const useAuthStore = defineStore("auth", {
-     state: () => ({
-       user: null,
-       token: null,
-       isAuthenticated: false,
-     }),
-     actions: {
-       // 認証アクション
-     },
-   });
-   ```
+```typescript
+// frontend/composables/useAuth.ts
+const login = async (email: string, password: string) => {
+  try {
+    const response = await $fetch("/api/login", {
+      method: "POST",
+      body: { email, password },
+    });
+    // トークンの保存とユーザー情報の取得
+  } catch (error) {
+    // エラー処理
+  }
+};
+```
 
 ### CRUD 操作サンプル
 
 投稿（Posts）とコメント（Comments）の基本的な CRUD 操作サンプル：
 
-1. **データ取得**:
+```typescript
+// 投稿一覧の取得
+const fetchPosts = async () => {
+  const { data } = await useFetch("/api/posts");
+  return data.value;
+};
 
-   ```typescript
-   // 投稿一覧の取得
-   const fetchPosts = async () => {
-     const { data } = await useFetch("/api/posts");
-     return data.value;
-   };
-   ```
-
-2. **データ作成**:
-
-   ```typescript
-   // 新規投稿の作成
-   const createPost = async (postData) => {
-     const { data } = await useFetch("/api/posts", {
-       method: "POST",
-       body: postData,
-     });
-     return data.value;
-   };
-   ```
-
-3. **データ更新と削除**:
-
-   ```typescript
-   // 投稿の更新
-   const updatePost = async (id, postData) => {
-     const { data } = await useFetch(`/api/posts/${id}`, {
-       method: "PUT",
-       body: postData,
-     });
-     return data.value;
-   };
-
-   // 投稿の削除
-   const deletePost = async (id) => {
-     await useFetch(`/api/posts/${id}`, {
-       method: "DELETE",
-     });
-   };
-   ```
+// 新規投稿の作成
+const createPost = async (postData) => {
+  const { data } = await useFetch("/api/posts", {
+    method: "POST",
+    body: postData,
+  });
+  return data.value;
+};
+```
 
 ## デプロイ設定
 
+### Fly.io へのデプロイ
+
 本テンプレートには、Fly.io へのデプロイ設定が含まれています：
 
-1. **GitHub Actions**:
+1. **GitHub Actions**: `.github/workflows/` ディレクトリに CI/CD パイプラインの設定
+2. **Fly.io 設定**: コンテナデプロイと Fly Postgres の利用
 
-   - `.github/workflows/` ディレクトリに CI/CD パイプラインの設定
-   - テスト、ビルド、デプロイの自動化
+### 将来の拡張オプション
 
-2. **Fly.io 設定**:
-   - Fly.io プラットフォームを使用したコンテナデプロイ
-   - Fly Postgres を使用したデータベース
-   - グローバルエッジネットワークによる高速配信
-
-詳細な設定は `.fly/README.md` を参照してください。
-
-3. **将来の拡張オプション**:
-   - 大規模なプロジェクトへの拡張時には AWS ECS/RDS/CloudFront などの利用も検討可能
+大規模なプロジェクトへの拡張時には AWS ECS/RDS/CloudFront などの利用も検討可能です。
 
 ## トラブルシューティング
 
-**TypeScript 言語サービスのクラッシュ**:
+### TypeScript 言語サービスのクラッシュ
 
-VSCode で TypeScript 言語サービスがクラッシュする場合は、以下の対処法を試してください：
+VSCode で問題が発生した場合：
 
 1. VSCode を再起動する
 2. コマンドパレット（Cmd+Shift+P）から「TypeScript: Restart TS Server」を実行する
 3. `.vscode/settings.json` の設定を確認する
 
-**Docker 環境の問題**:
+### Docker 環境の問題
 
 Docker 環境で問題が発生した場合：
 
-1. コンテナとボリュームを完全に削除してリセット
+```bash
+# コンテナとボリュームを完全に削除してリセット
+docker-compose down -v
 
-   ```bash
-   docker-compose down -v
-   ```
+# イメージを再ビルド
+docker-compose build --no-cache
 
-2. イメージを再ビルド
+# 再起動
+docker-compose up -d
+```
 
-   ```bash
-   docker-compose build --no-cache
-   ```
+## 貢献
 
-3. 再起動
-   ```bash
-   docker-compose up -d
-   ```
+プロジェクトへの貢献を歓迎します。Pull Request や Issue の報告をお待ちしています。
 
-**その他の問題**:
+## ライセンス
 
-問題が解決しない場合は、GitHub Issues に報告するか、プロジェクトのメンテナーにお問い合わせください。
+MIT License
