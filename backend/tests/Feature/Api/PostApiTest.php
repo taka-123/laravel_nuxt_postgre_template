@@ -91,7 +91,7 @@ class PostApiTest extends TestCase
         ];
 
         // 認証済みユーザーとしてAPI呼び出し
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($user, 'api')
             ->postJson('/api/posts', $postData);
 
         // レスポンスの検証
@@ -132,7 +132,7 @@ class PostApiTest extends TestCase
         ];
 
         // 認証済みユーザーとしてAPI呼び出し
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($user, 'api')
             ->putJson("/api/posts/{$post->id}", $updateData);
 
         // レスポンスの検証
@@ -165,7 +165,7 @@ class PostApiTest extends TestCase
         ]);
 
         // 認証済みユーザーとしてAPI呼び出し
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($user, 'api')
             ->deleteJson("/api/posts/{$post->id}");
 
         // レスポンスの検証
@@ -198,7 +198,7 @@ class PostApiTest extends TestCase
         ];
 
         // user2として投稿を更新しようとする
-        $response = $this->actingAs($user2)
+        $response = $this->actingAs($user2, 'api')
             ->putJson("/api/posts/{$post->id}", $updateData);
 
         // 403 Forbiddenが返されることを確認
