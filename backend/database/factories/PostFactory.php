@@ -36,6 +36,8 @@ class PostFactory extends Factory
             'featured_image' => null,
             'status' => 'published',
             'published_at' => fake()->dateTimeBetween('-1 month', 'now'),
+            'created' => now(),
+            'updated' => now(),
         ];
     }
 

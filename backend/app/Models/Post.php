@@ -31,6 +31,12 @@ class Post extends Model
         'featured_image',
         'status',
         'published_at',
+        'created',
+        'created_user',
+        'updated',
+        'updated_user',
+        'deleted',
+        'deleted_user',
     ];
 
     /**

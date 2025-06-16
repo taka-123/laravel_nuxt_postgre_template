@@ -82,8 +82,8 @@ class CommentController extends Controller
     {
         $comment = Comment::whereNull('deleted')->findOrFail($id);
         
-        // コメント投稿者本人または管理者のみ更新可能
-        if (Auth::id() !== $comment->user_id && !Auth::user()->is_admin) {
+        // コメント投稿者本人のみ更新可能
+        if (Auth::id() !== $comment->user_id) {
             return response()->json(['error' => '権限がありません'], 403);
         }
 
@@ -114,8 +114,8 @@ class CommentController extends Controller
     {
         $comment = Comment::whereNull('deleted')->findOrFail($id);
         
-        // コメント投稿者本人または管理者のみ削除可能
-        if (Auth::id() !== $comment->user_id && !Auth::user()->is_admin) {
+        // コメント投稿者本人のみ削除可能
+        if (Auth::id() !== $comment->user_id) {
             return response()->json(['error' => '権限がありません'], 403);
         }
 

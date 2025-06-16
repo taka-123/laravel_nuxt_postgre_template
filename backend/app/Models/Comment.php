@@ -27,6 +27,12 @@ class Comment extends Model
         'user_id',
         'content',
         'is_approved',
+        'created',
+        'created_user',
+        'updated',
+        'updated_user',
+        'deleted',
+        'deleted_user',
     ];
 
     /**

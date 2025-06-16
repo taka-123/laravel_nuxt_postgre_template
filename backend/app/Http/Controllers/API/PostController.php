@@ -125,8 +125,8 @@ class PostController extends Controller
     {
         $post = Post::whereNull('deleted')->findOrFail($id);
 
-        // 投稿者本人または管理者のみ更新可能
-        if (Auth::id() !== $post->user_id && !Auth::user()->is_admin) {
+        // 投稿者本人のみ更新可能
+        if (Auth::id() !== $post->user_id) {
             return response()->json(['error' => '権限がありません'], 403);
         }
 
@@ -168,8 +168,8 @@ class PostController extends Controller
     {
         $post = Post::whereNull('deleted')->findOrFail($id);
 
-        // 投稿者本人または管理者のみ削除可能
-        if (Auth::id() !== $post->user_id && !Auth::user()->is_admin) {
+        // 投稿者本人のみ削除可能
+        if (Auth::id() !== $post->user_id) {
             return response()->json(['error' => '権限がありません'], 403);
         }
 

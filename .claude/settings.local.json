@@ -10,7 +10,9 @@
       "Bash(gh run view:*)",
       "Bash(mv:*)",
       "Bash(php artisan make:factory:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git push:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
