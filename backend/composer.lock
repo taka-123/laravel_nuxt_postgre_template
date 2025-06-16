@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "962fad8c65f1c83d4de3f43ce9725f56",
+    "content-hash": "dad71e567442747ce8f3c2aa0a94b1c0",
     "packages": [
         {
             "name": "brick/math",
@@ -1590,16 +1590,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.6.1",
+            "version": "2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "d990688c91cedfb69753ffc2512727ec646df2ad"
+                "reference": "6fbb36d44824ed4091adbcf4c7d4a3923cdb3405"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/d990688c91cedfb69753ffc2512727ec646df2ad",
-                "reference": "d990688c91cedfb69753ffc2512727ec646df2ad",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/6fbb36d44824ed4091adbcf4c7d4a3923cdb3405",
+                "reference": "6fbb36d44824ed4091adbcf4c7d4a3923cdb3405",
                 "shasum": ""
             },
             "require": {
@@ -1636,7 +1636,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.7-dev"
+                    "dev-main": "2.8-dev"
                 }
             },
             "autoload": {
@@ -1693,7 +1693,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-29T14:10:59+00:00"
+            "time": "2025-05-05T12:20:28+00:00"
         },
         {
             "name": "league/config",
@@ -8028,16 +8028,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.11",
+            "version": "2.1.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "8ca5f79a8f63c49b2359065832a654e1ec70ac30"
+                "reference": "89b5ef665716fa2a52ecd2633f21007a6a349053"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/8ca5f79a8f63c49b2359065832a654e1ec70ac30",
-                "reference": "8ca5f79a8f63c49b2359065832a654e1ec70ac30",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/89b5ef665716fa2a52ecd2633f21007a6a349053",
+                "reference": "89b5ef665716fa2a52ecd2633f21007a6a349053",
                 "shasum": ""
             },
             "require": {
@@ -8082,7 +8082,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-03-24T13:45:00+00:00"
+            "time": "2025-05-21T20:55:28+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
