@@ -6,6 +6,11 @@ logs
 npm-debug.log
 yarn-error.log
 
+# Setup and runtime files (legacy)
+# .setup-completed は使用されなくなりましたが、念のため保持
+.setup-completed
+*.pid
+
 # Local env files
 .env
 .env.*

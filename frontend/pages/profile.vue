@@ -1,13 +1,3 @@
-<script lang="ts">
-// @ts-nocheck
-// TypeScriptのエラーを抑制するためのディレクティブ
-</script>
-
-<script lang="ts">
-// @ts-nocheck
-// TypeScriptのエラーを抑制するためのディレクティブ
-</script>
-
 <script setup lang="ts">
 // @ts-nocheck
 import { ref, onMounted, defineComponent } from 'vue'
@@ -18,7 +8,7 @@ import { useRouter } from 'vue-router'
 
 // Nuxt 3でページメタデータを定義
 definePageMeta({
-  middleware: ['auth']
+  middleware: ['auth'],
 })
 
 interface Post {
@@ -65,7 +55,7 @@ const formatDate = (dateString?: string) => {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date)
 }
 
@@ -125,8 +115,8 @@ const fetchUserPosts = async () => {
         user_id: user.value?.id,
       },
       headers: {
-        Authorization: `Bearer ${authStore.token}`
-      }
+        Authorization: `Bearer ${authStore.token}`,
+      },
     })
     userPosts.value = response.data.data || []
   } catch (error) {
@@ -144,8 +134,8 @@ const fetchUserComments = async () => {
     // 実際のAPIでは、ユーザーIDに基づいてコメントをフィルタリングするエンドポイントを使用
     const response = await axios.get('/api/user/comments', {
       headers: {
-        Authorization: `Bearer ${authStore.token}`
-      }
+        Authorization: `Bearer ${authStore.token}`,
+      },
     })
     userComments.value = response.data || []
   } catch (error) {
@@ -317,151 +307,3 @@ const fetchUserComments = async () => {
     </template>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useAuth } from '../composables/useAuth'
-import { storeToRefs } from 'pinia'
-import axios from 'axios'
-import { useRouter } from 'vue-router'
-
-interface Post {
-  id: number
-  title: string
-  content: string
-  slug: string
-  status: string
-  published_at: string | null
-  created: string
-  updated: string
-}
-
-interface Comment {
-  id: number
-  content: string
-  created: string
-  updated: string
-  post?: {
-    id: number
-    title: string
-    slug: string
-  }
-}
-
-// Nuxt 3でページメタデータを定義
-definePageMeta({
-  middleware: ['auth']
-})
-
-const router = useRouter()
-const auth = useAuth()
-const authStore = auth
-const { isAuthenticated: isLoggedIn, user } = storeToRefs(authStore)
-
-const loading = ref(true)
-const activeTab = ref('posts')
-const userPosts = ref<Post[]>([])
-const userComments = ref<Comment[]>([])
-const postsLoading = ref(true)
-const commentsLoading = ref(true)
-
-// 日付をフォーマットする関数
-const formatDate = (dateString?: string) => {
-  if (!dateString) return '日付なし'
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('ja-JP', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date)
-}
-
-// コンテンツを切り詰める関数
-const truncateContent = (content: string, maxLength = 50) => {
-  if (!content) return ''
-  if (content.length <= maxLength) return content
-  return content.substring(0, maxLength) + '...'
-}
-
-// 投稿ステータスに応じた色を返す関数
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'published':
-      return 'success'
-    case 'draft':
-      return 'warning'
-    case 'archived':
-      return 'error'
-    default:
-      return 'grey'
-  }
-}
-
-// 投稿ステータスのラベルを返す関数
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case 'published':
-      return '公開'
-    case 'draft':
-      return '下書き'
-    case 'archived':
-      return 'アーカイブ'
-    default:
-      return 'その他'
-  }
-}
-
-// 未ログインの場合はログインページにリダイレクト
-onMounted(() => {
-  if (!isLoggedIn.value) {
-    router.push('/login')
-  } else {
-    loading.value = false
-    fetchUserPosts()
-    fetchUserComments()
-  }
-})
-
-// ユーザーの投稿を取得
-const fetchUserPosts = async () => {
-  postsLoading.value = true
-  try {
-    // 実際のAPIでは、ユーザーIDに基づいて投稿をフィルタリングするエンドポイントを使用
-    const response = await axios.get('/api/posts', {
-      params: {
-        user_id: user.value?.id,
-      },
-      headers: {
-        Authorization: `Bearer ${authStore.token}`
-      }
-    })
-    userPosts.value = response.data.data || []
-  } catch (error) {
-    console.error('投稿の取得に失敗しました:', error)
-    userPosts.value = []
-  } finally {
-    postsLoading.value = false
-  }
-}
-
-// ユーザーのコメントを取得
-const fetchUserComments = async () => {
-  commentsLoading.value = true
-  try {
-    // 実際のAPIでは、ユーザーIDに基づいてコメントをフィルタリングするエンドポイントを使用
-    const response = await axios.get('/api/user/comments', {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`
-      }
-    })
-    userComments.value = response.data || []
-  } catch (error) {
-    console.error('コメントの取得に失敗しました:', error)
-    userComments.value = []
-  } finally {
-    commentsLoading.value = false
-  }
-}
-</script>

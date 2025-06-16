@@ -19,8 +19,9 @@ NC='\033[0m' # No Color
 PROJECT_NAME="${1:-$(basename "$PWD")}"
 
 # 初回実行かどうかの判定
+# テンプレート初期化が完了済みかどうかをREADME.mdで判定
 IS_FIRST_RUN=false
-if [ ! -f ".setup-completed" ]; then
+if grep -q "Laravel + Nuxt + PostgreSQL テンプレート" README.md && ! grep -q "quick-chef" README.md; then
   IS_FIRST_RUN=true
 fi
 
@@ -260,8 +261,7 @@ info "フロントエンドの依存関係をインストール中..."
 $DOCKER_COMPOSE exec frontend yarn install || warning "Yarnインストールに問題が発生しました"
 success "フロントエンドの依存関係をインストールしました"
 
-# セットアップ完了フラグの作成
-touch .setup-completed
+# セットアップ完了
 
 # 完了メッセージ
 echo ""
