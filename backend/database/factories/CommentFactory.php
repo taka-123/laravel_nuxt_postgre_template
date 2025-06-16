@@ -30,27 +30,27 @@ class CommentFactory extends Factory
             'post_id' => Post::factory(),
             'user_id' => User::factory(),
             'content' => fake()->paragraph(),
-            'status' => 'published',
+            'is_approved' => true,
         ];
     }
 
     /**
-     * Indicate that the comment is a draft.
+     * Indicate that the comment is not approved.
      */
-    public function draft(): static
+    public function unapproved(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'draft',
+            'is_approved' => false,
         ]);
     }
 
     /**
-     * Indicate that the comment is published.
+     * Indicate that the comment is approved.
      */
-    public function published(): static
+    public function approved(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'published',
+            'is_approved' => true,
         ]);
     }
 }
