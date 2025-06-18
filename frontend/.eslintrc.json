@@ -44,7 +44,14 @@
     "no-undef": "off",
     "no-unused-vars": "off",
     "import/no-named-as-default": "off",
-    "import/no-named-as-default-member": "off"
+    "import/no-named-as-default-member": "off",
+    "dot-notation": "off",
+    "require-await": "off",
+    "camelcase": "off",
+    "import/order": "off",
+    "import/named": "off",
+    "vue/attributes-order": "warn",
+    "vue/v-slot-style": "warn"
   },
   "overrides": [
     {

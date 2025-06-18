@@ -47,7 +47,8 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        $token = Auth::guard('api')->login($user);
+        Auth::guard('api')->login($user);
+        $token = Auth::guard('api')->refresh();
 
         if ($token) {
             return $this->respondWithToken($token);
@@ -75,7 +76,8 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (!$token = Auth::guard('api')->attempt($credentials)) {
+        $token = Auth::guard('api')->attempt($credentials);
+        if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
