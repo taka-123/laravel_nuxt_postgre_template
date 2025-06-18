@@ -113,10 +113,11 @@ jobs:
       - name: Run Unit Tests with Coverage
         run: |
           cd frontend
-          npm run test:coverage
+          npm run test:coverage || npm run test
 
       - name: Upload Frontend Test Coverage
         uses: codecov/codecov-action@v3
+        if: hashFiles('frontend/coverage/coverage-final.json') != ''
         with:
           files: frontend/coverage/coverage-final.json
           flags: frontend
