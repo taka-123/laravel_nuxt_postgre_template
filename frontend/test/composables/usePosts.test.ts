@@ -1,6 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { usePosts } from '~/composables/usePosts'
 
+// authストアのモック
+vi.mock('~/stores/auth', () => ({
+  useAuthStore: () => ({
+    isLoggedIn: false,
+    user: null,
+    token: null
+  })
+}))
+
 // モックデータ
 const mockPosts = [
   {

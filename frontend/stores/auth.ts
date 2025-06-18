@@ -1,7 +1,6 @@
 // stores/auth.ts
 import { defineStore } from 'pinia'
 import { useApi } from '~/composables/useApi'
-import { useNuxtApp } from '#app'
 
 interface User {
   id: number
@@ -185,14 +184,8 @@ export const useAuthStore = defineStore('auth', {
           this.refreshToken = refreshToken
           this.isAuthenticated = true
 
-          // 開発環境では認証APIリクエストをスキップ
-          const { $config } = useNuxtApp()
-          if ($config?.public?.appEnv === 'development') {
-            // 開発環境では何もしない
-          } else {
-            // 本番環境でのみユーザー情報を取得
-            this.fetchUser()
-          }
+          // ユーザー情報を取得
+          this.fetchUser()
         }
       }
     },
