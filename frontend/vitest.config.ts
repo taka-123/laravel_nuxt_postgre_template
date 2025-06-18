@@ -1,23 +1,17 @@
 import { fileURLToPath } from 'node:url'
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
 
-export default defineVitestConfig({
+export default defineConfig({
+  plugins: [vue()],
   test: {
-    // Nuxt 3テスト環境を使用
-    environment: 'nuxt',
-    environmentOptions: {
-      nuxt: {
-        // happy-domを使用（より高速で軽量）
-        domEnvironment: 'happy-dom',
-      }
-    },
+    environment: 'happy-dom',
     globals: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       reportsDirectory: './coverage',
     },
-    // テストのインクルード・除外パターン
     include: ['**/*.{test,spec}.{js,ts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.nuxt', '.output'],
   },
