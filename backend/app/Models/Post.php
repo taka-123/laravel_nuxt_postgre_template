@@ -6,17 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     
     /**
-     * Laravelのタイムスタンプを無効化
+     * Laravelのタイムスタンプを有効化
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -31,11 +32,8 @@ class Post extends Model
         'featured_image',
         'status',
         'published_at',
-        'created',
         'created_user',
-        'updated',
         'updated_user',
-        'deleted',
         'deleted_user',
     ];
 
@@ -46,9 +44,9 @@ class Post extends Model
      */
     protected $casts = [
         'published_at' => 'datetime',
-        'created' => 'datetime',
-        'updated' => 'datetime',
-        'deleted' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
@@ -64,7 +62,7 @@ class Post extends Model
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class)->whereNull('deleted');
+        return $this->hasMany(Comment::class);
     }
 
     /**
@@ -74,7 +72,6 @@ class Post extends Model
     {
         return $query->where('status', 'published')
             ->whereNotNull('published_at')
-            ->whereNull('deleted')
             ->where('published_at', '<=', now());
     }
 }

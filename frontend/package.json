@@ -26,7 +26,7 @@
     "@nuxt/image": "^1.7.0",
     "@pinia/nuxt": "^0.5.1",
     "@zxing/browser": "^0.1.4",
-    "@zxing/library": "^0.20.0",
+    "@zxing/library": "^0.21.0",
     "axios": "^1.6.2",
     "jsbarcode": "^3.11.6",
     "nuxt": "3.16.1",
@@ -57,7 +57,7 @@
     "lint-staged": "^15.5.1",
     "prettier": "^3.5.3",
     "typescript": "^5.2.2",
-    "vitest": "^0.33.0"
+    "vitest": "^3.2.4"
   },
   "version": "1.0.0",
   "description": "Laravel + Nuxt + PostgreSQL テンプレートのフロントエンド部分",

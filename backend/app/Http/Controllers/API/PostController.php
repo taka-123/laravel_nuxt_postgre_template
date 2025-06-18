@@ -19,7 +19,7 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Post::with('user')->whereNull('deleted');
+        $query = Post::with('user');
 
         // 検索条件の適用
         if ($request->has('search')) {
@@ -59,7 +59,6 @@ class PostController extends Controller
     public function show($slug)
     {
         $post = Post::with(['user', 'comments.user'])
-            ->whereNull('deleted')
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -103,10 +102,6 @@ class PostController extends Controller
             'featured_image' => $request->featured_image,
             'status' => $request->status,
             'published_at' => $request->status === 'published' ? now() : null,
-            'created' => now(),
-            'created_user' => Auth::user()->email,
-            'updated' => now(),
-            'updated_user' => Auth::user()->email,
         ]);
 
         $post->save();
@@ -123,7 +118,7 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $post = Post::whereNull('deleted')->findOrFail($id);
+        $post = Post::findOrFail($id);
 
         // 投稿者本人のみ更新可能
         if (Auth::id() !== $post->user_id) {
@@ -151,8 +146,6 @@ class PostController extends Controller
             'content' => $request->content,
             'featured_image' => $request->featured_image,
             'status' => $request->status,
-            'updated' => now(),
-            'updated_user' => Auth::user()->email,
         ]);
 
         return response()->json($post);
@@ -166,17 +159,14 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        $post = Post::whereNull('deleted')->findOrFail($id);
+        $post = Post::findOrFail($id);
 
         // 投稿者本人のみ削除可能
         if (Auth::id() !== $post->user_id) {
             return response()->json(['error' => '権限がありません'], 403);
         }
 
-        $post->update([
-            'deleted' => now(),
-            'deleted_user' => Auth::user()->email,
-        ]);
+        $post->delete();
 
         return response()->json(['message' => '投稿が削除されました']);
     }

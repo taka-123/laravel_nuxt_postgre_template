@@ -18,15 +18,15 @@ interface Post {
   slug: string
   status: string
   published_at: string | null
-  created: string
-  updated: string
+  created_at: string
+  updated_at: string
 }
 
 interface Comment {
   id: number
   content: string
-  created: string
-  updated: string
+  created_at: string
+  updated_at: string
   post?: {
     id: number
     title: string
@@ -189,7 +189,7 @@ const fetchUserComments = async () => {
                         <v-icon icon="mdi-calendar" class="mr-2"></v-icon>
                       </template>
                       <v-list-item-title>登録日</v-list-item-title>
-                      <v-list-item-subtitle>{{ formatDate(user?.created) }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>{{ formatDate(user?.created_at) }}</v-list-item-subtitle>
                     </v-list-item>
                   </v-list>
                 </v-col>
@@ -255,7 +255,7 @@ const fetchUserComments = async () => {
 
                         <v-list-item-subtitle>
                           <v-icon icon="mdi-calendar" size="small"></v-icon>
-                          {{ formatDate(post.published_at || post.created) }}
+                          {{ formatDate(post.published_at || post.created_at) }}
                         </v-list-item-subtitle>
 
                         <template v-slot:append>
@@ -293,7 +293,7 @@ const fetchUserComments = async () => {
                           <v-icon icon="mdi-file-document" size="small"></v-icon>
                           {{ comment.post?.title }} |
                           <v-icon icon="mdi-calendar" size="small"></v-icon>
-                          {{ formatDate(comment.created) }}
+                          {{ formatDate(comment.created_at) }}
                         </v-list-item-subtitle>
                       </v-list-item>
                     </v-list>

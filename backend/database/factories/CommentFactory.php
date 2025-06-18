@@ -31,8 +31,6 @@ class CommentFactory extends Factory
             'user_id' => User::factory(),
             'content' => fake()->paragraph(),
             'is_approved' => true,
-            'created' => now(),
-            'updated' => now(),
         ];
     }
 

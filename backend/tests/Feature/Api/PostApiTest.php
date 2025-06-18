@@ -40,12 +40,10 @@ class PostApiTest extends TestCase
                         'status',
                         'user_id',
                         'published_at',
-                        'created',
-                        'updated',
+                        'created_at',
+                        'updated_at',
                     ]
                 ],
-                'meta',
-                'links',
             ]);
     }
 
@@ -171,7 +169,7 @@ class PostApiTest extends TestCase
         // レスポンスの検証
         $response->assertStatus(200);
 
-        // 論理削除されていることを確認（deleted列がNULLでないこと）
+        // 論理削除されていることを確認（deleted_at列がNULLでないこと）
         $this->assertSoftDeleted('posts', [
             'id' => $post->id,
         ]);

@@ -18,12 +18,12 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->timestamp('created')->nullable(); // レコード作成日時
-            $table->string('created_user', 256)->nullable(); // レコード作成ユーザー
-            $table->timestamp('updated')->nullable(); // レコード最終更新日時
-            $table->string('updated_user', 256)->nullable(); // レコード最終更新ユーザー
-            $table->timestamp('deleted')->nullable(); // 論理削除日時
-            $table->string('deleted_user', 256)->nullable(); // レコード削除ユーザー
+            $table->timestamp('created_at')->nullable(); // レコード作成日時
+            $table->string('created_by', 256)->nullable(); // レコード作成ユーザー
+            $table->timestamp('updated_at')->nullable(); // レコード最終更新日時
+            $table->string('updated_by', 256)->nullable(); // レコード最終更新ユーザー
+            $table->timestamp('deleted_at')->nullable(); // 論理削除日時
+            $table->string('deleted_by', 256)->nullable(); // レコード削除ユーザー
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

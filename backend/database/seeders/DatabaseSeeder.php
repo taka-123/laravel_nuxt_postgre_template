@@ -63,10 +63,8 @@ class DatabaseSeeder extends Seeder
                 'slug' => Str::slug($title),
                 'status' => 'published',
                 'published_at' => now()->subDays(rand(1, 30)),
-                'created' => now(),
-                'created_user' => $user->email,
-                'updated' => now(),
-                'updated_user' => $user->email,
+                'created_by' => $user->email,
+                'updated_by' => $user->email,
             ]);
             
             $post->save();
@@ -88,10 +86,8 @@ class DatabaseSeeder extends Seeder
                 'user_id' => $user->id,
                 'content' => "これは{$user->name}によるコメントです。この投稿は非常に参考になりました。",
                 'is_approved' => true,
-                'created' => now(),
-                'created_user' => $user->email,
-                'updated' => now(),
-                'updated_user' => $user->email,
+                'created_by' => $user->email,
+                'updated_by' => $user->email,
             ]);
             
             $comment->save();

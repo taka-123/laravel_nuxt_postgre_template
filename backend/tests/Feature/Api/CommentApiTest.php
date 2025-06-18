@@ -44,8 +44,8 @@ class CommentApiTest extends TestCase
                     'content',
                     'post_id',
                     'user_id',
-                    'created',
-                    'updated',
+                    'created_at',
+                    'updated_at',
                     'user',
                 ]
             ]);
@@ -161,7 +161,7 @@ class CommentApiTest extends TestCase
         // レスポンスの検証
         $response->assertStatus(200);
 
-        // 論理削除されていることを確認（deleted列がNULLでないこと）
+        // 論理削除されていることを確認（deleted_at列がNULLでないこと）
         $this->assertSoftDeleted('comments', [
             'id' => $comment->id,
         ]);
@@ -234,11 +234,6 @@ class CommentApiTest extends TestCase
             ->deleteJson("/api/comments/{$comment->id}");
 
         // レスポンスの検証
-        $response->assertStatus(200);
-
-        // 論理削除されていることを確認
-        $this->assertSoftDeleted('comments', [
-            'id' => $comment->id,
-        ]);
+        $response->assertStatus(403);
     }
 }

@@ -5,17 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Comment extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     
     /**
-     * Laravelのタイムスタンプを無効化
+     * Laravelのタイムスタンプを有効化
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -27,11 +28,8 @@ class Comment extends Model
         'user_id',
         'content',
         'is_approved',
-        'created',
         'created_user',
-        'updated',
         'updated_user',
-        'deleted',
         'deleted_user',
     ];
 
@@ -42,9 +40,9 @@ class Comment extends Model
      */
     protected $casts = [
         'is_approved' => 'boolean',
-        'created' => 'datetime',
-        'updated' => 'datetime',
-        'deleted' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
@@ -68,6 +66,6 @@ class Comment extends Model
      */
     public function scopeApproved($query)
     {
-        return $query->where('is_approved', true)->whereNull('deleted');
+        return $query->where('is_approved', true);
     }
 }

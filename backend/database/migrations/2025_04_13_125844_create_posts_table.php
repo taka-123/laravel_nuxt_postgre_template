@@ -20,12 +20,12 @@ return new class extends Migration
             $table->string('featured_image')->nullable(); // アイキャッチ画像
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft'); // 公開ステータス
             $table->timestamp('published_at')->nullable(); // 公開日時
-            $table->timestamp('created')->nullable(); // レコード作成日時
-            $table->string('created_user', 256)->nullable(); // レコード作成ユーザー
-            $table->timestamp('updated')->nullable(); // レコード最終更新日時
-            $table->string('updated_user', 256)->nullable(); // レコード最終更新ユーザー
-            $table->timestamp('deleted')->nullable(); // 論理削除日時
-            $table->string('deleted_user', 256)->nullable(); // レコード削除ユーザー
+            $table->timestamp('created_at')->nullable(); // レコード作成日時
+            $table->string('created_by', 256)->nullable(); // レコード作成ユーザー
+            $table->timestamp('updated_at')->nullable(); // レコード最終更新日時
+            $table->string('updated_by', 256)->nullable(); // レコード最終更新ユーザー
+            $table->timestamp('deleted_at')->nullable(); // 論理削除日時
+            $table->string('deleted_by', 256)->nullable(); // レコード削除ユーザー
         });
     }
 

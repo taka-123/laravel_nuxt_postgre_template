@@ -10,8 +10,8 @@ export interface Post {
   status: string
   user_id: number
   published_at: string | null
-  created: string
-  updated: string
+  created_at: string
+  updated_at: string
   user?: {
     id: number
     name: string

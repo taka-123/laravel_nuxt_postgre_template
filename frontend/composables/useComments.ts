@@ -7,8 +7,8 @@ export interface Comment {
   content: string
   post_id: number
   user_id: number
-  created: string
-  updated: string
+  created_at: string
+  updated_at: string
   user?: {
     id: number
     name: string

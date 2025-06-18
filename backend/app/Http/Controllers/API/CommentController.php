@@ -19,13 +19,12 @@ class CommentController extends Controller
      */
     public function index($postId)
     {
-        $post = Post::whereNull('deleted')->findOrFail($postId);
+        $post = Post::findOrFail($postId);
         
         $comments = Comment::with('user')
             ->where('post_id', $postId)
-            ->whereNull('deleted')
             ->where('is_approved', true)
-            ->orderBy('created', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
             
         return response()->json($comments);
@@ -40,7 +39,7 @@ class CommentController extends Controller
      */
     public function store(Request $request, $postId)
     {
-        $post = Post::whereNull('deleted')->findOrFail($postId);
+        $post = Post::findOrFail($postId);
         
         $validator = Validator::make($request->all(), [
             'content' => 'required|string|max:1000',
@@ -57,10 +56,6 @@ class CommentController extends Controller
             'user_id' => $user->id,
             'content' => $request->content,
             'is_approved' => true, // デフォルトで承認済み（必要に応じて変更可能）
-            'created' => now(),
-            'created_user' => $user->email,
-            'updated' => now(),
-            'updated_user' => $user->email,
         ]);
         
         $comment->save();
@@ -80,7 +75,7 @@ class CommentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $comment = Comment::whereNull('deleted')->findOrFail($id);
+        $comment = Comment::findOrFail($id);
         
         // コメント投稿者本人のみ更新可能
         if (Auth::id() !== $comment->user_id) {
@@ -97,8 +92,6 @@ class CommentController extends Controller
 
         $comment->update([
             'content' => $request->content,
-            'updated' => now(),
-            'updated_user' => Auth::user()->email,
         ]);
 
         return response()->json($comment);
@@ -112,17 +105,14 @@ class CommentController extends Controller
      */
     public function destroy($id)
     {
-        $comment = Comment::whereNull('deleted')->findOrFail($id);
+        $comment = Comment::findOrFail($id);
         
         // コメント投稿者本人のみ削除可能
         if (Auth::id() !== $comment->user_id) {
             return response()->json(['error' => '権限がありません'], 403);
         }
 
-        $comment->update([
-            'deleted' => now(),
-            'deleted_user' => Auth::user()->email,
-        ]);
+        $comment->delete();
 
         return response()->json(['message' => 'コメントが削除されました']);
     }

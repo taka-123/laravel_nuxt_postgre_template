@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -12,14 +13,14 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
     
     /**
-     * Laravelのタイムスタンプを無効化
+     * Laravelのタイムスタンプを有効化
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -30,8 +31,6 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
-        'created',
-        'updated',
     ];
 
     /**
@@ -54,9 +53,9 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'created' => 'datetime',
-            'updated' => 'datetime',
-            'deleted' => 'datetime',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 
@@ -85,7 +84,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function posts(): HasMany
     {
-        return $this->hasMany(Post::class)->whereNull('deleted');
+        return $this->hasMany(Post::class);
     }
 
     /**
@@ -93,6 +92,6 @@ class User extends Authenticatable implements JWTSubject
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class)->whereNull('deleted');
+        return $this->hasMany(Comment::class);
     }
 }

@@ -11,8 +11,8 @@ const mockPosts = [
     status: 'published',
     user_id: 1,
     published_at: '2025-01-01T00:00:00.000Z',
-    created: '2025-01-01T00:00:00.000Z',
-    updated: '2025-01-01T00:00:00.000Z',
+    created_at: '2025-01-01T00:00:00.000Z',
+    updated_at: '2025-01-01T00:00:00.000Z',
     user: {
       id: 1,
       name: 'テストユーザー',
@@ -26,8 +26,8 @@ const mockPosts = [
     status: 'draft',
     user_id: 1,
     published_at: null,
-    created: '2025-01-02T00:00:00.000Z',
-    updated: '2025-01-02T00:00:00.000Z',
+    created_at: '2025-01-02T00:00:00.000Z',
+    updated_at: '2025-01-02T00:00:00.000Z',
     user: {
       id: 1,
       name: 'テストユーザー',
@@ -101,9 +101,12 @@ describe('usePosts', () => {
 
       // テスト用に日付のフォーマットをモック
       const originalDateTimeFormat = Intl.DateTimeFormat
-      Intl.DateTimeFormat = vi.fn().mockImplementation(() => ({
-        format: () => '2025年1月1日 00:00',
-      }))
+      const mockFormat = vi.fn(() => '2025年1月1日 00:00')
+      const mockDateTimeFormat = Object.assign(
+        vi.fn().mockImplementation(() => ({ format: mockFormat })),
+        { supportedLocalesOf: vi.fn() }
+      )
+      Intl.DateTimeFormat = mockDateTimeFormat as any
 
       expect(formatDate('2025-01-01T00:00:00.000Z')).toBe('2025年1月1日 00:00')
       expect(formatDate(undefined)).toBe('日付なし')
