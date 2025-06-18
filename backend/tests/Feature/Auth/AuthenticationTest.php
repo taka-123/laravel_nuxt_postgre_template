@@ -180,11 +180,24 @@ class AuthenticationTest extends TestCase
      */
     public function test_user_can_refresh_token(): void
     {
-        // ユーザーを作成してログイン
-        $user = User::factory()->create();
+        // ユーザーを作成
+        $user = User::factory()->create([
+            'password' => bcrypt('password'),
+        ]);
 
-        $response = $this->actingAs($user, 'api')
-            ->postJson('/api/auth/refresh');
+        // まずログインしてトークンを取得
+        $loginResponse = $this->postJson('/api/auth/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $loginResponse->assertStatus(200);
+        $token = $loginResponse->json('access_token');
+
+        // トークンを使ってリフレッシュ
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->postJson('/api/auth/refresh');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
