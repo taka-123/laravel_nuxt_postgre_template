@@ -1,22 +1,22 @@
-# 書籍管理システム デプロイ状況レポート
+# Laravel + Nuxt + PostgreSQL テンプレート デプロイ状況レポート
 
 ## 現在の状態
 
 ### デプロイ状況
 
 - **バックエンド**: ✅ 正常にデプロイ済み
-  - URL: https://book-management-backend.fly.dev
+  - URL: https://sample-app-backend.fly.dev
   - ステータス: 稼働中
   - 最終デプロイ: 2025-05-07
 
 - **データベース**: ✅ 正常に稼働中
   - タイプ: Managed PostgreSQL (MPG)
-  - 接続先: book-management-db-mpg.flycast:5432
+  - 接続先: sample-app-db-mpg.flycast:5432
   - ステータス: 稼働中
   - 最終更新: 2025-05-11
 
 - **フロントエンド**: ✅ 正常にデプロイ済み
-  - URL: https://book-management-frontend.fly.dev
+  - URL: https://sample-app-frontend.fly.dev
   - ステータス: 稼働中
   - 最終デプロイ: 2025-05-06
 
@@ -158,6 +158,6 @@ jobs:
 **重要な更新 (2025-05-11)**
 
 1. Managed PostgreSQL (MPG)への移行が完了し、アプリケーションが新しいデータベースで正常に動作していることを確認
-2. 不要になった旧Unmanaged PostgreSQLインスタンス（book-management-db）を削除
+2. 不要になった旧Unmanaged PostgreSQLインスタンス（sample-app-db）を削除
 3. GitHub Actionsによる自動デプロイパイプラインを構築
 4. API名前空間の参照の不一致を修正（大文字小文字の問題）

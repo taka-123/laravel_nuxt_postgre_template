@@ -21,14 +21,10 @@
         "tailwindcss": "^4.0.0",
         "vite": "^6.0.11"
     },
-    "dependencies": {
-        "@zxing/browser": "^0.1.5",
-        "@zxing/library": "^0.21.3",
-        "jsbarcode": "^3.11.6"
-    },
+    "dependencies": {},
     "name": "backend",
     "version": "1.0.0",
-    "description": "このディレクトリには書籍管理システムのバックエンド（Laravel 12.x）が含まれています。",
+    "description": "Laravel + Nuxt + PostgreSQL テンプレートのバックエンド（Laravel 12.x）です。",
     "main": "vite.config.js",
     "directories": {
         "test": "tests"
