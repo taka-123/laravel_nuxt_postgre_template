@@ -97,16 +97,16 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 
 # Dockerコンテナの起動
-docker-compose up -d
+docker compose up -d
 
 # バックエンドの依存関係インストール
-docker-compose exec backend composer install
+docker compose exec backend composer install
 
 # マイグレーションとシーディング
-docker-compose exec backend php artisan migrate --seed
+docker compose exec backend php artisan migrate --seed
 
 # フロントエンドの依存関係インストール
-docker-compose exec frontend yarn install
+docker compose exec frontend yarn install
 ```
 
 ### 4. アプリケーションへのアクセス
@@ -123,13 +123,13 @@ docker-compose exec frontend yarn install
 
    ```bash
    # マイグレーションファイルの作成
-   docker-compose exec backend php artisan make:migration create_your_models_table
+   docker compose exec backend php artisan make:migration create_your_models_table
 
    # モデルの作成
-   docker-compose exec backend php artisan make:model YourModel
+   docker compose exec backend php artisan make:model YourModel
 
    # コントローラーの作成
-   docker-compose exec backend php artisan make:controller API/YourModelController --api
+   docker compose exec backend php artisan make:controller API/YourModelController --api
    ```
 
 2. **フロントエンド側の実装**
@@ -157,13 +157,13 @@ docker-compose exec frontend yarn install
 ### バックエンドテスト
 
 ```bash
-docker-compose exec backend php artisan test
+docker compose exec backend php artisan test
 ```
 
 ### フロントエンドテスト
 
 ```bash
-docker-compose exec frontend yarn test
+docker compose exec frontend yarn test
 ```
 
 ## セキュリティに関する注意
