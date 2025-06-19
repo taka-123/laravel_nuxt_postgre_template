@@ -6,4 +6,3 @@
   "printWidth": 80,
   "endOfLine": "lf"
 }
-EOF < /dev/null
