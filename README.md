@@ -58,7 +58,7 @@ cd my-project
 ### 前提条件
 
 - Docker Desktop (最新版)
-- Node.js 20.x 以上
+- Node.js 22.x 以上
 - PHP 8.3 以上
 - Composer 2.x
 - Git
@@ -66,13 +66,15 @@ cd my-project
 ### 開発環境の起動
 
 ```bash
-# バックエンドの起動
-cd backend
-./vendor/bin/sail up -d
-
-# フロントエンドの起動（別ターミナル）
-cd frontend
+# Docker環境での起動（推奨）
 docker-compose up -d
+
+# または、ローカル環境での起動
+# バックエンド
+cd backend && php artisan serve
+
+# フロントエンド（別ターミナル）
+cd frontend && npm run dev
 ```
 
 アプリケーションにアクセス：
@@ -152,9 +154,12 @@ npm run build
 # テスト実行
 npm run test
 
+# カバレッジ付きテスト
+npm run test:coverage
+
 # コード品質チェック
 npm run lint
-npm run format
+npm run lint:fix
 ```
 
 ## TypeScript 設定
@@ -189,6 +194,30 @@ npm run format
 
 3. **ESLint 設定**
    - TypeScript と Vue 3 の連携に最適化されたルール設定
+
+## 実装済みサンプル機能
+
+このテンプレートには以下の機能が完全に実装されており、すぐに動作確認できます：
+
+### ✅ 認証システム
+- ユーザー登録・ログイン・ログアウト
+- JWT トークンベース認証
+- プロフィール画面
+
+### ✅ ブログ機能
+- 投稿の作成・表示・編集・削除
+- 下書き・公開状態管理
+- 投稿者制限（自分の投稿のみ編集可能）
+
+### ✅ コメント機能
+- 投稿別コメント表示
+- コメントの作成・編集・削除
+- 投稿者は他ユーザーのコメントも削除可能
+
+### ✅ UI/UX
+- Vuetify Material Design
+- レスポンシブ対応
+- ローディング状態表示
 
 ## API 連携サンプル
 
