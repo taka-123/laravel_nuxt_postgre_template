@@ -1,4 +1,4 @@
-# [PROJECT_NAME] Laravel + Nuxt + PostgreSQL テンプレート
+# Laravel + Nuxt + PostgreSQL テンプレート
 
 Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 16.x を使用したモダンなウェブアプリケーションテンプレートです。
 
