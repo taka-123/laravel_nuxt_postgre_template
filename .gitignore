@@ -1,10 +1,43 @@
-# General
+# General OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 *.log
 logs
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# IDE and Editor files
+.idea/
+.vscode/settings.json
+.vscode/launch.json
+.vscode/.ropeproject
+.history/
+*.swp
+*.swo
+*~
+.project
+.metadata
+.recommenders
+
+# Additional editor files
+*.sublime-project
+*.sublime-workspace
+.atom/
+.brackets.json
+.editorconfig~
+
+# Docker temporary files
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
 
 # Setup and runtime files (legacy)
 # .setup-completed は使用されなくなりましたが、念のため保持
