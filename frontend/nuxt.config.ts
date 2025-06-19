@@ -7,8 +7,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@pinia/nuxt',
-    // テスト環境の統合（本番ビルド時は除外）
-    ...(process.env.NODE_ENV !== 'production' ? ['@nuxt/test-utils/module'] : []),
     (_options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig', (config) => {
         // @ts-expect-error
@@ -27,7 +25,7 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: ['vue', 'vue-router', 'pinia', '@vueuse/core', '@vueuse/head'],
-      exclude: [],
+      exclude: ['vue-demi'],
     },
   },
   // APIリクエストのプロキシ設定
@@ -45,11 +43,6 @@ export default defineNuxtConfig({
     strict: false,
     typeCheck: false,
     shim: false
-  },
-  vite: {
-    optimizeDeps: {
-      exclude: ['vue-demi']
-    }
   },
   runtimeConfig: {
     public: {

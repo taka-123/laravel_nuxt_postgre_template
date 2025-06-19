@@ -15,28 +15,28 @@ ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ >/etc/timezone
 
 # Install base packages including those needed for adding repositories
-RUN apt-get update &&
-    apt-get install -y --no-install-recommends gnupg gosu curl ca-certificates zip unzip git supervisor sqlite3 libcap2-bin software-properties-common &&
-    apt-get clean &&
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gnupg gosu curl ca-certificates zip unzip git supervisor sqlite3 libcap2-bin software-properties-common && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Add Repositories (PHP, Node.js, Yarn, PostgreSQL)
-RUN add-apt-repository ppa:ondrej/php -y &&
-    curl -sLS https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - &&
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /etc/apt/keyrings/yarn.gpg >/dev/null &&
-    echo "deb [signed-by=/etc/apt/keyrings/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&
-    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg &&
+RUN add-apt-repository ppa:ondrej/php -y && \
+    curl -sLS https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /etc/apt/keyrings/yarn.gpg >/dev/null && \
+    echo "deb [signed-by=/etc/apt/keyrings/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg && \
     echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main" >/etc/apt/sources.list.d/pgdg.list
 
 # Install CORE PHP Packages ONLY
-RUN apt-get update &&
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        php8.3-common php8.3-cli php8.3-fpm &&
-    apt-get install -f -y &&
+        php8.3-common php8.3-cli php8.3-fpm && \
+    apt-get install -f -y && \
     dpkg --configure -a
 
 # Install PHP Extensions (non-problematic), Node, Yarn, DB clients
-RUN apt-get update &&
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         php8.3-sqlite3 php8.3-gd php8.3-imagick \
         php8.3-imap php8.3-mysql php8.3-mbstring \
@@ -48,8 +48,8 @@ RUN apt-get update &&
         nodejs \
         yarn \
         mysql-client \
-        postgresql-client-$POSTGRES_VERSION &&
-    apt-get install -f -y &&
+        postgresql-client-$POSTGRES_VERSION && \
+    apt-get install -f -y && \
     dpkg --configure -a
 
 # Install php8.3-zip separately
@@ -68,12 +68,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends php8.3-curl && 
 RUN apt-get update && apt-get install -y --no-install-recommends php8.3-swoole && apt-get install -f -y && dpkg --configure -a
 
 # Install Composer and Global npm packages
-RUN curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer &&
+RUN curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer && \
     npm install -g npm
 
 # Final Cleanup
-RUN apt-get -y autoremove &&
-    apt-get clean &&
+RUN apt-get -y autoremove && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.3
