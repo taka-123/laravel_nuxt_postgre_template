@@ -67,7 +67,7 @@ cd my-project
 
 ```bash
 # Docker環境での起動（推奨）
-docker-compose up -d
+docker compose up -d
 
 # または、ローカル環境での起動
 # バックエンド
@@ -290,13 +290,13 @@ Docker 環境で問題が発生した場合：
 
 ```bash
 # コンテナとボリュームを完全に削除してリセット
-docker-compose down -v
+docker compose down -v
 
 # イメージを再ビルド
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # 再起動
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 貢献
