@@ -67,8 +67,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends php8.3-curl && 
 # Install php8.3-swoole separately
 RUN apt-get update && apt-get install -y --no-install-recommends php8.3-swoole && apt-get install -f -y && dpkg --configure -a
 
-# Install Composer and Global npm packages
-RUN curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer && \
+# Install Composer with signature verification and Global npm packages
+RUN curl -sLS https://getcomposer.org/installer -o composer-setup.php && \
+    curl -sLS https://composer.github.io/installer.sig -o composer-setup.sig && \
+    php -r "if (hash_file('sha384', 'composer-setup.php') === trim(file_get_contents('composer-setup.sig'))) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); exit(1); }" && \
+    php composer-setup.php --install-dir=/usr/bin --filename=composer && \
+    rm composer-setup.php composer-setup.sig && \
     npm install -g npm
 
 # Final Cleanup
