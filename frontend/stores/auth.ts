@@ -41,11 +41,13 @@ export const useAuthStore = defineStore('auth', {
       const api = useApi()
 
       try {
+        console.log('ログイン試行開始:', { email })
         const response = await api.post('/auth/login', {
           email,
           password,
         })
 
+        console.log('ログイン成功:', response.data)
         const { access_token, user } = response.data
 
         this.token = access_token
@@ -61,7 +63,13 @@ export const useAuthStore = defineStore('auth', {
 
         return { success: true }
       } catch (error: any) {
+        console.log('ログインエラー詳細:', error)
+        console.log('エラーレスポンス:', error.response)
+        console.log('エラーデータ:', error.response?.data)
+        
         this.error = error.response?.data?.error || error.response?.data?.message || 'ログインに失敗しました'
+        console.log('設定されたエラー:', this.error)
+        
         throw new Error(this.error)
       } finally {
         this.loading = false
