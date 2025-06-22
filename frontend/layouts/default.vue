@@ -30,17 +30,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useAuthStore } from '~/stores/auth';
+import { storeToRefs } from 'pinia';
 
-// 認証状態（実際には適切な認証システムと連携する）
-const isAuthenticated = ref(false);
-const router = useRouter();
+const authStore = useAuthStore();
+const { isAuthenticated } = storeToRefs(authStore);
 
 // ログアウト処理
 const handleLogout = async () => {
-  // ここに実際のログアウト処理を実装
-  isAuthenticated.value = false;
-  router.push('/login');
+  await authStore.logout();
 };
 </script>
