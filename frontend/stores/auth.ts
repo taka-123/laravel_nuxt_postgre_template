@@ -14,6 +14,7 @@ interface AuthState {
   refreshToken: string | null
   isAuthenticated: boolean
   loading: boolean
+  error: string | null
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -23,17 +24,20 @@ export const useAuthStore = defineStore('auth', {
     refreshToken: null,
     isAuthenticated: false,
     loading: false,
+    error: null,
   }),
 
   getters: {
     getUser: (state) => state.user,
     isLoggedIn: (state) => state.isAuthenticated,
     getToken: (state) => state.token,
+    getError: (state) => state.error,
   },
 
   actions: {
     async login(email: string, password: string) {
       this.loading = true
+      this.error = null
       const api = useApi()
 
       try {
@@ -57,10 +61,21 @@ export const useAuthStore = defineStore('auth', {
 
         return { success: true }
       } catch (error: any) {
-        return {
-          success: false,
-          message: error.response?.data?.error || error.response?.data?.message || 'ログインに失敗しました',
+        // エラーメッセージを日本語化
+        let errorMessage = 'ログインに失敗しました'
+        
+        if (error.response?.status === 401) {
+          errorMessage = 'メールアドレスまたはパスワードが正しくありません'
+        } else if (error.response?.status === 422) {
+          errorMessage = '入力内容に不備があります'
+        } else if (error.response?.status >= 500) {
+          errorMessage = 'サーバーエラーが発生しました。しばらく待ってから再度お試しください'
+        } else if (error.code === 'NETWORK_ERROR') {
+          errorMessage = 'ネットワークに接続できません'
         }
+        
+        this.error = errorMessage
+        throw new Error(this.error)
       } finally {
         this.loading = false
       }
@@ -188,6 +203,11 @@ export const useAuthStore = defineStore('auth', {
           this.fetchUser()
         }
       }
+    },
+
+    // エラーをクリア
+    clearError() {
+      this.error = null
     },
   },
 })

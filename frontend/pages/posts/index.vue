@@ -6,7 +6,7 @@
           <v-card-title class="d-flex align-center">
             <span class="text-h5">投稿一覧</span>
             <v-spacer></v-spacer>
-            <v-btn v-if="isLoggedIn" color="primary" to="/posts/create" prepend-icon="mdi-plus"> 新規投稿 </v-btn>
+            <v-btn v-if="isAuthenticated" color="primary" to="/posts/create" prepend-icon="mdi-plus"> 新規投稿 </v-btn>
           </v-card-title>
 
           <v-card-text>
@@ -22,7 +22,7 @@
                   @update:model-value="debouncedSearch"
                 ></v-text-field>
               </v-col>
-              <v-col cols="12" sm="6" md="4" v-if="isLoggedIn">
+              <v-col cols="12" sm="6" md="4" v-if="isAuthenticated">
                 <v-select
                   v-model="statusFilter"
                   :items="statusOptions"
@@ -127,7 +127,7 @@ interface PostsResponse {
 
 const router = useRouter()
 const authStore = useAuthStore()
-const { isLoggedIn, user } = storeToRefs(authStore)
+const { isAuthenticated, user } = storeToRefs(authStore)
 
 const posts = ref<Post[]>([])
 const loading = ref(true)

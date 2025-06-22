@@ -91,13 +91,13 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const { isLoggedIn, user } = storeToRefs(authStore)
+const { isAuthenticated, user } = storeToRefs(authStore)
 const form = ref(null)
 const submitting = ref(false)
 
 // 未ログインの場合はログインページにリダイレクト
 onMounted(() => {
-  if (!isLoggedIn.value) {
+  if (!isAuthenticated.value) {
     router.push('/login')
   }
 })

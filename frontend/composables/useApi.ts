@@ -40,9 +40,9 @@ export const useApi = () => {
       return response
     },
     async (error) => {
-      // クライアントサイドでのみ認証エラー処理
-      if (!process.server && error.response?.status === 401) {
-        // 認証エラーの場合の処理
+      // クライアントサイドでのみ認証エラー処理（ログインページ以外）
+      if (!process.server && error.response?.status === 401 && !window.location.pathname.includes('/login')) {
+        // 認証エラーの場合の処理（ログインページ以外）
         localStorage.removeItem('auth_token')
         window.location.href = '/login'
       }
