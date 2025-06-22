@@ -6,7 +6,9 @@
       <v-form @submit.prevent="login">
         <!-- デバッグ用表示 -->
         <div class="mb-2" style="background: #f0f0f0; padding: 8px; font-size: 12px;">
-          Debug: エラー状態 = "{{ getError }}" ({{ getError ? 'あり' : 'なし' }})
+          Debug: エラー状態 = "{{ getError }}" ({{ getError ? 'あり' : 'なし' }})<br>
+          Raw ストア error = "{{ authStore.error }}"<br>
+          getter getError = "{{ authStore.getError }}"
         </div>
         
         <v-alert v-if="getError" type="error" class="mb-4">
@@ -47,10 +49,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAuth } from '~/composables/useAuth'
+import { useAuthStore } from '~/stores/auth'
+import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 
 // 認証機能を取得
-const { loginAndRedirect, loading, getError, clearError } = useAuth()
+const { loginAndRedirect } = useAuth()
+const authStore = useAuthStore()
+const { loading, getError } = storeToRefs(authStore)
 const route = useRoute()
 const router = useRouter()
 
@@ -101,7 +107,7 @@ const login = async () => {
   if (!validateForm()) return
 
   // ログイン開始時にエラーをクリア
-  clearError()
+  authStore.clearError()
 
   try {
     // クエリパラメータからリダイレクト先を取得（存在する場合）
