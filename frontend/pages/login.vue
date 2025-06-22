@@ -4,13 +4,6 @@
       <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
 
       <v-form @submit.prevent="login">
-        <!-- デバッグ用表示 -->
-        <div class="mb-2" style="background: #f0f0f0; padding: 8px; font-size: 12px;">
-          Debug: エラー状態 = "{{ getError }}" ({{ getError ? 'あり' : 'なし' }})<br>
-          Raw ストア error = "{{ authStore.error }}"<br>
-          getter getError = "{{ authStore.getError }}"
-        </div>
-        
         <v-alert v-if="getError" type="error" class="mb-4">
           {{ getError }}
         </v-alert>

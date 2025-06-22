@@ -249,7 +249,6 @@ export function useAuth() {
       } catch (error) {
         // エラーはauthStoreで既に設定されているので、ここでは何もしない
         // エラー表示はコンポーネント側で行う
-        console.error('ログインエラー:', error)
       }
     },
 

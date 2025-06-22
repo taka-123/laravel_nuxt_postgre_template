@@ -40,9 +40,6 @@ export const useApi = () => {
       return response
     },
     async (error) => {
-      // 一時的に401リダイレクトを無効化（ログインページでは不要）
-      console.log('API エラー:', error.response?.status, error.response?.data)
-      
       // クライアントサイドでのみ認証エラー処理（ログインページ以外）
       if (!process.server && error.response?.status === 401 && !window.location.pathname.includes('/login')) {
         // 認証エラーの場合の処理（ログインページ以外）
