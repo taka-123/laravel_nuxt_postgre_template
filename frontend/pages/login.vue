@@ -4,8 +4,8 @@
       <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
 
       <v-form @submit.prevent="login">
-        <v-alert v-if="error" type="error" class="mb-4">
-          {{ error }}
+        <v-alert v-if="getError" type="error" class="mb-4">
+          {{ getError }}
         </v-alert>
 
         <v-text-field
@@ -45,7 +45,7 @@ import { useAuth } from '~/composables/useAuth'
 import { useRoute, useRouter } from 'vue-router'
 
 // 認証機能を取得
-const { loginAndRedirect, loading, error, clearError } = useAuth()
+const { loginAndRedirect, loading, getError, clearError } = useAuth()
 const route = useRoute()
 const router = useRouter()
 
