@@ -35,10 +35,10 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile # frontend ディレクトリ内に Dockerfile を作成する必要があります
-    image: laravel-nuxt-template-frontend
+      dockerfile: Dockerfile.dev # 開発環境用Dockerfile
+    image: laravel-nuxt-template-frontend-dev
     ports:
-      - "${FRONTEND_PORT:-3000}:8080"
+      - "${FRONTEND_PORT:-3000}:3000"
     volumes:
       - "./frontend:/app"
       - "/app/node_modules" # node_modules をホストと共有しないように設定

@@ -1,0 +1,19 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "Laravel",
+    "Nuxt",
+    "Vuetify",
+    "phpcs",
+    "Intelephense",
+    "laravel",
+    "nuxt"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "vendor/**",
+    "*.lock",
+    "*.log"
+  ]
+}
