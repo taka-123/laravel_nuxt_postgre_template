@@ -4,6 +4,11 @@
       <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
 
       <v-form @submit.prevent="login">
+        <!-- デバッグ用表示 -->
+        <div class="mb-2" style="background: #f0f0f0; padding: 8px; font-size: 12px;">
+          Debug: エラー状態 = "{{ getError }}" ({{ getError ? 'あり' : 'なし' }})
+        </div>
+        
         <v-alert v-if="getError" type="error" class="mb-4">
           {{ getError }}
         </v-alert>
@@ -83,17 +88,20 @@ const validateForm = () => {
 // エラーメッセージをクリア
 const clearEmailError = () => {
   emailError.value = ''
-  clearError()
+  // 認証エラーは手動でクリアしない（フォーム送信時のみクリア）
 }
 
 const clearPasswordError = () => {
   passwordError.value = ''
-  clearError()
+  // 認証エラーは手動でクリアしない（フォーム送信時のみクリア）
 }
 
 // ログイン処理
 const login = async () => {
   if (!validateForm()) return
+
+  // ログイン開始時にエラーをクリア
+  clearError()
 
   try {
     // クエリパラメータからリダイレクト先を取得（存在する場合）
