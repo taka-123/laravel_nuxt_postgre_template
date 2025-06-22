@@ -247,7 +247,8 @@ export function useAuth() {
         await authStore.login(email, password)
         router.push(redirectPath || '/')
       } catch (error) {
-        console.error('ログインエラー:', error)
+        // エラーはauthStoreで既に設定されているので、ここでは何もしない
+        // エラー表示はコンポーネント側で行う
       }
     },
 

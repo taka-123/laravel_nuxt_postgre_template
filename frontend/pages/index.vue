@@ -9,11 +9,11 @@
               このテンプレートは、Laravel、Nuxt、PostgreSQLを使用したモダンなウェブアプリケーション開発の基盤を提供します。
               認証機能、CRUD操作、テスト環境、CI/CD設定などが整っています。
             </p>
-            <v-alert v-if="!isLoggedIn" type="info" class="mt-4">
+            <v-alert v-if="!isAuthenticated" type="info" class="mt-4">
               投稿やコメントなどの機能を利用するには、ログインが必要です。
             </v-alert>
           </v-card-text>
-          <v-card-actions v-if="!isLoggedIn">
+          <v-card-actions v-if="!isAuthenticated">
             <v-btn color="primary" to="/login" variant="elevated"> ログイン </v-btn>
             <v-btn color="secondary" to="/register" variant="outlined" class="ml-2"> 新規登録 </v-btn>
           </v-card-actions>
@@ -45,7 +45,7 @@
       </v-col>
     </v-row>
 
-    <v-row v-if="isLoggedIn">
+    <v-row v-if="isAuthenticated">
       <v-col cols="12" md="4">
         <v-card>
           <v-card-title>投稿管理</v-card-title>
@@ -99,7 +99,7 @@ interface Post {
 }
 
 const authStore = useAuthStore()
-const { isLoggedIn } = storeToRefs(authStore)
+const { isAuthenticated } = storeToRefs(authStore)
 
 const posts = ref<Post[]>([])
 const loading = ref(true)

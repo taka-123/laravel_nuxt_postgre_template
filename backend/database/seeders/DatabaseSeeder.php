@@ -60,7 +60,7 @@ class DatabaseSeeder extends Seeder
                 'user_id' => $user->id,
                 'title' => $title,
                 'content' => "これは{$user->name}によるサンプル投稿の内容です。\n\nここには記事の本文が入ります。このテンプレートではLaravel、Nuxt、PostgreSQLを使用したWebアプリケーションの基本的な機能を実装しています。",
-                'slug' => Str::slug($title),
+                'slug' => Str::slug($user->email) . '-sample-post-' . $i . '-' . now()->timestamp,
                 'status' => 'published',
                 'published_at' => now()->subDays(rand(1, 30)),
                 'created_by' => $user->email,

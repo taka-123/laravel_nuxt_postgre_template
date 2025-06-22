@@ -1,11 +1,11 @@
 <template>
-  <div class="d-flex align-center justify-center" style="height: 100vh">
-    <v-card class="pa-8 mx-auto" max-width="500">
-      <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
+  <div class="d-flex align-center justify-center" style="min-height: 100vh">
+    <v-card class="pa-8 mx-4 mx-sm-auto" max-width="450" width="100%" elevation="4">
+      <v-card-title class="text-h4 mb-6 text-center">ログイン</v-card-title>
 
       <v-form @submit.prevent="login">
-        <v-alert v-if="error" type="error" class="mb-4">
-          {{ error }}
+        <v-alert v-if="getError" type="error" class="mb-4">
+          {{ getError }}
         </v-alert>
 
         <v-text-field
@@ -28,11 +28,24 @@
           @input="clearPasswordError"
         ></v-text-field>
 
-        <div class="d-flex justify-space-between align-center mt-4">
-          <v-btn type="submit" color="primary" size="large" :loading="isLoading" :disabled="isLoading">
+        <div class="mt-6">
+          <v-btn 
+            type="submit" 
+            color="primary" 
+            size="large" 
+            :loading="loading" 
+            :disabled="loading"
+            block
+            class="mb-4"
+          >
             ログイン
           </v-btn>
-          <NuxtLink to="/register" class="text-decoration-none"> 新規登録はこちら </NuxtLink>
+          
+          <div class="text-center">
+            <NuxtLink to="/register" class="text-decoration-none text-body-2"> 
+              アカウントをお持ちでない方は新規登録
+            </NuxtLink>
+          </div>
         </div>
       </v-form>
     </v-card>
@@ -42,10 +55,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAuth } from '~/composables/useAuth'
+import { useAuthStore } from '~/stores/auth'
+import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 
 // 認証機能を取得
-const { loginAndRedirect, isLoading, getError } = useAuth()
+const { loginAndRedirect } = useAuth()
+const authStore = useAuthStore()
+const { loading, getError } = storeToRefs(authStore)
 const route = useRoute()
 const router = useRouter()
 
@@ -54,9 +71,6 @@ const email = ref('')
 const password = ref('')
 const emailError = ref('')
 const passwordError = ref('')
-
-// エラーメッセージ
-const error = computed(() => getError)
 
 // バリデーション関数
 const validateForm = () => {
@@ -86,15 +100,20 @@ const validateForm = () => {
 // エラーメッセージをクリア
 const clearEmailError = () => {
   emailError.value = ''
+  // 認証エラーは手動でクリアしない（フォーム送信時のみクリア）
 }
 
 const clearPasswordError = () => {
   passwordError.value = ''
+  // 認証エラーは手動でクリアしない（フォーム送信時のみクリア）
 }
 
 // ログイン処理
 const login = async () => {
   if (!validateForm()) return
+
+  // ログイン開始時にエラーをクリア
+  authStore.clearError()
 
   try {
     // クエリパラメータからリダイレクト先を取得（存在する場合）
