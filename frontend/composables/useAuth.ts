@@ -243,12 +243,8 @@ export function useAuth() {
 
     // ログインと同時にリダイレクト
     async loginAndRedirect(email: string, password: string, redirectPath?: string) {
-      try {
-        await authStore.login(email, password)
-        router.push(redirectPath || '/')
-      } catch (error) {
-        console.error('ログインエラー:', error)
-      }
+      await authStore.login(email, password)
+      router.push(redirectPath || '/')
     },
 
     // 登録と同時にリダイレクト

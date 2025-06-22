@@ -14,6 +14,7 @@ interface AuthState {
   refreshToken: string | null
   isAuthenticated: boolean
   loading: boolean
+  error: string | null
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -23,17 +24,20 @@ export const useAuthStore = defineStore('auth', {
     refreshToken: null,
     isAuthenticated: false,
     loading: false,
+    error: null,
   }),
 
   getters: {
     getUser: (state) => state.user,
     isLoggedIn: (state) => state.isAuthenticated,
     getToken: (state) => state.token,
+    getError: (state) => state.error,
   },
 
   actions: {
     async login(email: string, password: string) {
       this.loading = true
+      this.error = null
       const api = useApi()
 
       try {
@@ -57,10 +61,8 @@ export const useAuthStore = defineStore('auth', {
 
         return { success: true }
       } catch (error: any) {
-        return {
-          success: false,
-          message: error.response?.data?.error || error.response?.data?.message || 'ログインに失敗しました',
-        }
+        this.error = error.response?.data?.error || error.response?.data?.message || 'ログインに失敗しました'
+        throw new Error(this.error)
       } finally {
         this.loading = false
       }
@@ -188,6 +190,11 @@ export const useAuthStore = defineStore('auth', {
           this.fetchUser()
         }
       }
+    },
+
+    // エラーをクリア
+    clearError() {
+      this.error = null
     },
   },
 })

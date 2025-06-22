@@ -29,7 +29,7 @@
         ></v-text-field>
 
         <div class="d-flex justify-space-between align-center mt-4">
-          <v-btn type="submit" color="primary" size="large" :loading="isLoading" :disabled="isLoading">
+          <v-btn type="submit" color="primary" size="large" :loading="loading" :disabled="loading">
             ログイン
           </v-btn>
           <NuxtLink to="/register" class="text-decoration-none"> 新規登録はこちら </NuxtLink>
@@ -45,7 +45,7 @@ import { useAuth } from '~/composables/useAuth'
 import { useRoute, useRouter } from 'vue-router'
 
 // 認証機能を取得
-const { loginAndRedirect, isLoading, getError } = useAuth()
+const { loginAndRedirect, loading, error, clearError } = useAuth()
 const route = useRoute()
 const router = useRouter()
 
@@ -54,9 +54,6 @@ const email = ref('')
 const password = ref('')
 const emailError = ref('')
 const passwordError = ref('')
-
-// エラーメッセージ
-const error = computed(() => getError)
 
 // バリデーション関数
 const validateForm = () => {
@@ -86,10 +83,12 @@ const validateForm = () => {
 // エラーメッセージをクリア
 const clearEmailError = () => {
   emailError.value = ''
+  clearError()
 }
 
 const clearPasswordError = () => {
   passwordError.value = ''
+  clearError()
 }
 
 // ログイン処理
