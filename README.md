@@ -77,6 +77,8 @@ cd backend && php artisan serve
 cd frontend && npm run dev
 ```
 
+> **開発環境用Docker設定**: フロントエンドには開発環境用の `Dockerfile.dev` が用意されており、ホットリロードやデバッグに最適化されています。
+
 アプリケーションにアクセス：
 
 - **フロントエンド**: http://localhost:3000
