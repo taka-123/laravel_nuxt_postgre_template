@@ -61,7 +61,20 @@ export const useAuthStore = defineStore('auth', {
 
         return { success: true }
       } catch (error: any) {
-        this.error = error.response?.data?.error || error.response?.data?.message || 'ログインに失敗しました'
+        // エラーメッセージを日本語化
+        let errorMessage = 'ログインに失敗しました'
+        
+        if (error.response?.status === 401) {
+          errorMessage = 'メールアドレスまたはパスワードが正しくありません'
+        } else if (error.response?.status === 422) {
+          errorMessage = '入力内容に不備があります'
+        } else if (error.response?.status >= 500) {
+          errorMessage = 'サーバーエラーが発生しました。しばらく待ってから再度お試しください'
+        } else if (error.code === 'NETWORK_ERROR') {
+          errorMessage = 'ネットワークに接続できません'
+        }
+        
+        this.error = errorMessage
         throw new Error(this.error)
       } finally {
         this.loading = false

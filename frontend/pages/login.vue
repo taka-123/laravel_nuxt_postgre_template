@@ -1,7 +1,7 @@
 <template>
-  <div class="d-flex align-center justify-center" style="height: 100vh">
-    <v-card class="pa-8 mx-auto" max-width="500">
-      <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
+  <div class="d-flex align-center justify-center" style="min-height: 100vh">
+    <v-card class="pa-8 mx-4 mx-sm-auto" max-width="450" width="100%" elevation="4">
+      <v-card-title class="text-h4 mb-6 text-center">ログイン</v-card-title>
 
       <v-form @submit.prevent="login">
         <v-alert v-if="getError" type="error" class="mb-4">
@@ -28,11 +28,24 @@
           @input="clearPasswordError"
         ></v-text-field>
 
-        <div class="d-flex justify-space-between align-center mt-4">
-          <v-btn type="submit" color="primary" size="large" :loading="loading" :disabled="loading">
+        <div class="mt-6">
+          <v-btn 
+            type="submit" 
+            color="primary" 
+            size="large" 
+            :loading="loading" 
+            :disabled="loading"
+            block
+            class="mb-4"
+          >
             ログイン
           </v-btn>
-          <NuxtLink to="/register" class="text-decoration-none"> 新規登録はこちら </NuxtLink>
+          
+          <div class="text-center">
+            <NuxtLink to="/register" class="text-decoration-none text-body-2"> 
+              アカウントをお持ちでない方は新規登録
+            </NuxtLink>
+          </div>
         </div>
       </v-form>
     </v-card>
