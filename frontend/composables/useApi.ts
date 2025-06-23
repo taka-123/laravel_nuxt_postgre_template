@@ -4,9 +4,9 @@ import { useRuntimeConfig } from '#app'
 export const useApi = () => {
   const config = useRuntimeConfig()
 
-  // 開発環境ではプロキシを利用、本番環境では直接APIサーバーに接続
+  // 開発環境では直接APIサーバーに接続、本番環境では環境変数を使用
   const baseURL = process.env.NODE_ENV === 'development' 
-    ? '' // 開発環境ではプロキシを使用するため空文字
+    ? 'http://localhost:8000/api' // 開発環境では直接接続
     : (process.server ? config.public.serverApiBase : config.public.apiBase)
 
   const api = axios.create({
