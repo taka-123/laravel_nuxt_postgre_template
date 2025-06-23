@@ -86,7 +86,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { storeToRefs } from 'pinia'
-import axios from 'axios'
+import { useApi } from '~/composables/useApi'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -122,9 +122,10 @@ const submitPost = async () => {
 
   if (!valid) return
 
+  const api = useApi()
   submitting.value = true
   try {
-    const response = await axios.post('/api/posts', post.value)
+    const response = await api.post('/posts', post.value)
     router.push(`/posts/${response.data.slug}`)
   } catch (error) {
     console.error('投稿の作成に失敗しました:', error)

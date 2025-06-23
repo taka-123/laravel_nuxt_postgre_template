@@ -28,16 +28,6 @@ export default defineNuxtConfig({
       exclude: ['vue-demi'],
     },
   },
-  // APIリクエストのプロキシ設定
-  nitro: {
-    devProxy: {
-      '/api': {
-        target: 'http://localhost:8000/api',
-        changeOrigin: true,
-        prependPath: false,
-      },
-    },
-  },
   css: ['vuetify/lib/styles/main.sass', '@mdi/font/css/materialdesignicons.min.css'],
   typescript: {
     strict: false,
