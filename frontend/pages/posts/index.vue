@@ -98,7 +98,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { storeToRefs } from 'pinia'
-import axios from 'axios'
+import { useApi } from '~/composables/useApi'
 import { useRouter } from 'vue-router'
 
 interface Post {
@@ -156,6 +156,7 @@ const debouncedSearch = () => {
 
 // 投稿一覧を取得
 const fetchPosts = async () => {
+  const api = useApi()
   loading.value = true
   try {
     const params: Record<string, any> = {
@@ -173,7 +174,7 @@ const fetchPosts = async () => {
       params.status = statusFilter.value
     }
 
-    const response = await axios.get<PostsResponse>('/api/posts', { params })
+    const response = await api.get<PostsResponse>('/posts', { params })
     posts.value = response.data.data
     currentPage.value = response.data.current_page
     totalPages.value = response.data.last_page

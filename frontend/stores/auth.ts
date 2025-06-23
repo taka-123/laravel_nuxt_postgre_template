@@ -123,15 +123,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         if (this.token) {
-          await api.post(
-            '/auth/logout',
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${this.token}`,
-              },
-            },
-          )
+          await api.post('/auth/logout')
         }
 
         return { success: true }
@@ -165,11 +157,7 @@ export const useAuthStore = defineStore('auth', {
       const api = useApi()
 
       try {
-        const response = await api.get('/auth/user', {
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-          },
-        })
+        const response = await api.get('/auth/me')
 
         this.user = response.data
         return { success: true }

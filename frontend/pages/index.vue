@@ -81,7 +81,7 @@
 import { useAuthStore } from '../stores/auth'
 import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { useApi } from '~/composables/useApi'
 
 interface Post {
   id: number
@@ -105,8 +105,10 @@ const posts = ref<Post[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
+  const api = useApi()
+  
   try {
-    const response = await axios.get('/api/posts', {
+    const response = await api.get('/posts', {
       params: {
         per_page: 5,
         sort_by: 'published_at',
