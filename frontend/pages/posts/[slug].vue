@@ -117,9 +117,9 @@
                       <span class="text-caption text-grey">{{ formatDate(comment.created_at) }}</span>
                     </v-list-item-title>
 
-                    <v-list-item-text class="mt-2">
+                    <div class="mt-2">
                       {{ comment.content }}
-                    </v-list-item-text>
+                    </div>
 
                     <template v-slot:append v-if="isLoggedIn && (comment.user_id === user?.id || isAdmin)">
                       <v-menu>
@@ -212,7 +212,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { storeToRefs } from 'pinia'
-import axios from 'axios'
+import { useApi } from '~/composables/useApi'
 import { useRoute, useRouter } from 'vue-router'
 
 interface User {
@@ -276,9 +276,10 @@ const isAdmin = computed(() => {
 
 // 投稿詳細を取得
 const fetchPost = async () => {
+  const api = useApi()
   loading.value = true
   try {
-    const response = await axios.get(`/api/posts/${slug.value}`)
+    const response = await api.get(`/posts/${slug.value}`)
     post.value = response.data
   } catch (error) {
     console.error('投稿の取得に失敗しました:', error)
@@ -292,9 +293,10 @@ const fetchPost = async () => {
 const fetchComments = async () => {
   if (!post.value) return
 
+  const api = useApi()
   commentsLoading.value = true
   try {
-    const response = await axios.get(`/api/posts/${post.value.id}/comments`)
+    const response = await api.get(`/posts/${post.value.id}/comments`)
     comments.value = response.data
   } catch (error) {
     console.error('コメントの取得に失敗しました:', error)
@@ -308,9 +310,10 @@ const fetchComments = async () => {
 const deletePost = async () => {
   if (!post.value) return
 
+  const api = useApi()
   deleting.value = true
   try {
-    await axios.delete(`/api/posts/${post.value.id}`)
+    await api.delete(`/posts/${post.value.id}`)
     router.push('/posts')
   } catch (error) {
     console.error('投稿の削除に失敗しました:', error)
@@ -325,9 +328,10 @@ const deletePost = async () => {
 const submitComment = async () => {
   if (!post.value || !newComment.value.trim()) return
 
+  const api = useApi()
   submittingComment.value = true
   try {
-    const response = await axios.post(`/api/posts/${post.value.id}/comments`, {
+    const response = await api.post(`/posts/${post.value.id}/comments`, {
       content: newComment.value,
     })
 
@@ -353,9 +357,10 @@ const editComment = (comment: Comment) => {
 const updateComment = async () => {
   if (!currentEditingCommentId.value || !editedCommentContent.value.trim()) return
 
+  const api = useApi()
   updatingComment.value = true
   try {
-    const response = await axios.put(`/api/comments/${currentEditingCommentId.value}`, {
+    const response = await api.put(`/comments/${currentEditingCommentId.value}`, {
       content: editedCommentContent.value,
     })
 
@@ -376,8 +381,9 @@ const updateComment = async () => {
 
 // コメントを削除
 const deleteComment = async (commentId: number) => {
+  const api = useApi()
   try {
-    await axios.delete(`/api/comments/${commentId}`)
+    await api.delete(`/comments/${commentId}`)
 
     // 削除したコメントを配列から削除
     comments.value = comments.value.filter((c) => c.id !== commentId)
