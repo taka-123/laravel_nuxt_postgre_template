@@ -14,9 +14,7 @@
       <!-- デスクトップ用ナビゲーション -->
       <div class="d-none d-md-flex">
         <v-btn to="/" variant="text">ホーム</v-btn>
-        <v-btn to="/posts" variant="text">投稿一覧</v-btn>
         <template v-if="isAuthenticated">
-          <v-btn to="/profile" variant="text">プロフィール</v-btn>
           <v-btn @click="handleLogout" variant="text">ログアウト</v-btn>
         </template>
         <template v-else>
@@ -36,13 +34,7 @@
           <v-list-item to="/">
             <v-list-item-title>ホーム</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/posts">
-            <v-list-item-title>投稿一覧</v-list-item-title>
-          </v-list-item>
           <template v-if="isAuthenticated">
-            <v-list-item to="/profile">
-              <v-list-item-title>プロフィール</v-list-item-title>
-            </v-list-item>
             <v-list-item @click="handleLogout">
               <v-list-item-title>ログアウト</v-list-item-title>
             </v-list-item>
