@@ -4,8 +4,10 @@ import { useRuntimeConfig } from '#app'
 export const useApi = () => {
   const config = useRuntimeConfig()
 
-  // サーバーサイドではserverApiBase、クライアントサイドではapiBaseを使用
-  const baseURL = process.server ? config.public.serverApiBase : config.public.apiBase
+  // 開発環境ではプロキシを利用、本番環境では直接APIサーバーに接続
+  const baseURL = process.env.NODE_ENV === 'development' 
+    ? '' // 開発環境ではプロキシを使用するため空文字
+    : (process.server ? config.public.serverApiBase : config.public.apiBase)
 
   const api = axios.create({
     baseURL,

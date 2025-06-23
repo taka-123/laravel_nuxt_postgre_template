@@ -157,7 +157,7 @@ export const useAuthStore = defineStore('auth', {
       const api = useApi()
 
       try {
-        const response = await api.get('/auth/user')
+        const response = await api.get('/auth/me')
 
         this.user = response.data
         return { success: true }
