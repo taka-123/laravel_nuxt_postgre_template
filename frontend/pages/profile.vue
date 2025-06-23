@@ -2,8 +2,9 @@
 // @ts-nocheck
 import { ref, onMounted, defineComponent } from 'vue'
 import { useAuth } from '../composables/useAuth'
+import { useAuthStore } from '../stores/auth'
 import { storeToRefs } from 'pinia'
-import axios from 'axios'
+import { useApi } from '~/composables/useApi'
 import { useRouter } from 'vue-router'
 
 // Nuxt 3でページメタデータを定義
@@ -35,8 +36,7 @@ interface Comment {
 }
 
 const router = useRouter()
-const auth = useAuth()
-const authStore = auth
+const authStore = useAuthStore()
 const { isAuthenticated: isLoggedIn, user } = storeToRefs(authStore)
 
 const loading = ref(true)
@@ -107,15 +107,12 @@ onMounted(() => {
 
 // ユーザーの投稿を取得
 const fetchUserPosts = async () => {
+  const api = useApi()
   postsLoading.value = true
   try {
-    // 実際のAPIでは、ユーザーIDに基づいて投稿をフィルタリングするエンドポイントを使用
-    const response = await axios.get('/api/posts', {
+    const response = await api.get('/posts', {
       params: {
         user_id: user.value?.id,
-      },
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
       },
     })
     userPosts.value = response.data.data || []
@@ -129,14 +126,10 @@ const fetchUserPosts = async () => {
 
 // ユーザーのコメントを取得
 const fetchUserComments = async () => {
+  const api = useApi()
   commentsLoading.value = true
   try {
-    // 実際のAPIでは、ユーザーIDに基づいてコメントをフィルタリングするエンドポイントを使用
-    const response = await axios.get('/api/user/comments', {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
-    })
+    const response = await api.get('/user/comments')
     userComments.value = response.data || []
   } catch (error) {
     console.error('コメントの取得に失敗しました:', error)

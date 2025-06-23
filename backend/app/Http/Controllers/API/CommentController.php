@@ -98,6 +98,23 @@ class CommentController extends Controller
     }
 
     /**
+     * 認証済みユーザーのコメント一覧を取得する
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userComments()
+    {
+        $user = Auth::user();
+        
+        $comments = Comment::with(['post:id,title,slug'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return response()->json($comments);
+    }
+
+    /**
      * コメントを削除する（論理削除）
      *
      * @param int $id

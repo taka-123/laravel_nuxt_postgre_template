@@ -105,7 +105,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../../../stores/auth'
 import { storeToRefs } from 'pinia'
-import axios from 'axios'
+import { useApi } from '~/composables/useApi'
 import { useRoute, useRouter } from 'vue-router'
 
 interface Post {
@@ -139,9 +139,10 @@ const statusOptions = [
 
 // 投稿詳細を取得
 const fetchPost = async () => {
+  const api = useApi()
   loading.value = true
   try {
-    const response = await axios.get(`/api/posts/${postId.value}`)
+    const response = await api.get(`/posts/${postId.value}`)
     post.value = response.data
 
     // 投稿者本人または管理者でない場合はリダイレクト
@@ -165,9 +166,10 @@ const updatePost = async () => {
 
   if (!valid) return
 
+  const api = useApi()
   submitting.value = true
   try {
-    await axios.put(`/api/posts/${post.value.id}`, {
+    await api.put(`/posts/${post.value.id}`, {
       title: post.value.title,
       content: post.value.content,
       featured_image: post.value.featured_image,

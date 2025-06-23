@@ -30,12 +30,19 @@ class PostController extends Controller
             });
         }
 
+        // ユーザーIDによるフィルタリング
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->input('user_id'));
+        }
+
         // ステータスによるフィルタリング
         if ($request->has('status')) {
             $query->where('status', $request->input('status'));
         } else {
-            // デフォルトでは公開済みの投稿のみを表示
-            $query->published();
+            // ユーザーIDが指定されている場合は全ステータス、そうでなければ公開済みのみ
+            if (!$request->has('user_id')) {
+                $query->published();
+            }
         }
 
         // ソート順の適用
@@ -51,7 +58,7 @@ class PostController extends Controller
     }
 
     /**
-     * 投稿の詳細を取得する
+     * 投稿の詳細を取得する（slug）
      *
      * @param string $slug
      * @return \Illuminate\Http\JsonResponse
@@ -61,6 +68,20 @@ class PostController extends Controller
         $post = Post::with(['user', 'comments.user'])
             ->where('slug', $slug)
             ->firstOrFail();
+
+        return response()->json($post);
+    }
+
+    /**
+     * 投稿の詳細を取得する（ID）
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showById($id)
+    {
+        $post = Post::with(['user', 'comments.user'])
+            ->findOrFail($id);
 
         return response()->json($post);
     }
