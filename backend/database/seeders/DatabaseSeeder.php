@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'テストユーザー',
-            'email' => 'user@example.com',
+            'email' => 'test@example.com',
         ]);
     }
 }
