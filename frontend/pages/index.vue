@@ -3,74 +3,57 @@
     <v-row>
       <v-col cols="12">
         <v-card class="mb-4">
-          <v-card-title class="text-h4"> Laravel + Nuxt + PostgreSQL テンプレートへようこそ </v-card-title>
+          <v-card-title class="text-h4">
+            Laravel + Nuxt + PostgreSQL テンプレート
+          </v-card-title>
           <v-card-text>
             <p class="text-body-1">
-              このテンプレートは、Laravel、Nuxt、PostgreSQLを使用したモダンなウェブアプリケーション開発の基盤を提供します。
-              認証機能、CRUD操作、テスト環境、CI/CD設定などが整っています。
+              このテンプレートは、Laravel（バックエンド）、Nuxt（フロントエンド）、PostgreSQL（データベース）を使用したシンプルな認証システムのサンプルです。
             </p>
             <v-alert v-if="!isAuthenticated" type="info" class="mt-4">
-              投稿やコメントなどの機能を利用するには、ログインが必要です。
+              ダッシュボードを表示するには、ログインしてください。
             </v-alert>
           </v-card-text>
           <v-card-actions v-if="!isAuthenticated">
-            <v-btn color="primary" to="/login" variant="elevated"> ログイン </v-btn>
-            <v-btn color="secondary" to="/register" variant="outlined" class="ml-2"> 新規登録 </v-btn>
+            <v-btn color="primary" to="/login" variant="elevated">ログイン</v-btn>
+            <v-btn color="secondary" to="/register" variant="outlined" class="ml-2">新規登録</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col cols="12">
-        <h2 class="text-h5 mb-4">最新の投稿</h2>
-        <v-progress-circular v-if="loading" indeterminate color="primary" />
-        <div v-else-if="posts.length === 0" class="text-center py-4">
-          <p>投稿がまだありません</p>
-        </div>
-        <div v-else>
-          <v-card v-for="post in posts" :key="post.id" class="mb-4">
-            <v-card-title>{{ post.title }}</v-card-title>
-            <v-card-subtitle>
-              {{ new Date(post.published_at).toLocaleDateString() }} by {{ post.user?.name }}
-            </v-card-subtitle>
-            <v-card-text>
-              {{ truncateContent(post.content) }}
-            </v-card-text>
-            <v-card-actions>
-              <v-btn color="primary" :to="`/posts/${post.slug}`" variant="text"> 続きを読む </v-btn>
-            </v-card-actions>
-          </v-card>
-        </div>
-      </v-col>
-    </v-row>
-
+    <!-- ログイン時のみ表示するダッシュボード -->
     <v-row v-if="isAuthenticated">
-      <v-col cols="12" md="4">
+      <v-col cols="12">
         <v-card>
-          <v-card-title>投稿管理</v-card-title>
-          <v-card-text> 投稿の作成、編集、削除が可能です。 </v-card-text>
-          <v-card-actions>
-            <v-btn color="primary" to="/posts" variant="text"> 投稿一覧へ </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="4">
-        <v-card>
-          <v-card-title>新規投稿</v-card-title>
-          <v-card-text> 新しい投稿を作成します。 </v-card-text>
-          <v-card-actions>
-            <v-btn color="primary" to="/posts/create" variant="text"> 投稿作成へ </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="4">
-        <v-card>
-          <v-card-title>プロフィール</v-card-title>
-          <v-card-text> プロフィール情報の編集や、自分の投稿とコメントの管理ができます。 </v-card-text>
-          <v-card-actions>
-            <v-btn color="primary" to="/profile" variant="text"> プロフィールへ </v-btn>
-          </v-card-actions>
+          <v-card-title class="text-h5">ダッシュボード</v-card-title>
+          <v-card-text>
+            <v-alert type="success" class="mb-4">
+              ログインに成功しました！
+            </v-alert>
+            
+            <h3 class="text-h6 mb-3">ユーザー情報</h3>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>名前</v-list-item-title>
+                <v-list-item-subtitle>{{ user?.name }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>メールアドレス</v-list-item-title>
+                <v-list-item-subtitle>{{ user?.email }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>登録日</v-list-item-title>
+                <v-list-item-subtitle>{{ formatDate(user?.created_at) }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+            
+            <v-divider class="my-4"></v-divider>
+            
+            <p class="text-body-2">
+              これは、フロントエンド・バックエンド・データベースが正常に連携していることを示すシンプルなダッシュボードです。
+            </p>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -80,54 +63,17 @@
 <script setup lang="ts">
 import { useAuthStore } from '../stores/auth'
 import { storeToRefs } from 'pinia'
-import { ref, onMounted } from 'vue'
-import { useApi } from '~/composables/useApi'
-
-interface Post {
-  id: number
-  title: string
-  content: string
-  slug: string
-  featured_image: string | null
-  status: string
-  published_at: string
-  user: {
-    id: number
-    name: string
-    email: string
-  }
-}
 
 const authStore = useAuthStore()
-const { isAuthenticated } = storeToRefs(authStore)
+const { isAuthenticated, user } = storeToRefs(authStore)
 
-const posts = ref<Post[]>([])
-const loading = ref(true)
-
-onMounted(async () => {
-  const api = useApi()
-  
-  try {
-    const response = await api.get('/posts', {
-      params: {
-        per_page: 5,
-        sort_by: 'published_at',
-        sort_order: 'desc',
-      },
-    })
-    posts.value = response.data.data
-  } catch (error) {
-    console.error('投稿の取得に失敗しました:', error)
-  } finally {
-    loading.value = false
-  }
-})
-
-/**
- * 投稿内容を適切な長さに切り詰める
- */
-const truncateContent = (content: string): string => {
-  if (content.length <= 150) return content
-  return content.substring(0, 150) + '...'
+// 日付をフォーマット
+const formatDate = (dateString?: string): string => {
+  if (!dateString) return '未設定'
+  return new Date(dateString).toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 }
 </script>
