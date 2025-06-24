@@ -15,6 +15,7 @@ interface AuthState {
   isAuthenticated: boolean
   loading: boolean
   error: string | null
+  initialized: boolean
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -25,6 +26,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: false,
     loading: false,
     error: null,
+    initialized: false,
   }),
 
   getters: {
@@ -189,6 +191,9 @@ export const useAuthStore = defineStore('auth', {
           // ユーザー情報を取得（エラーは内部で処理される）
           await this.fetchUser()
         }
+        
+        // 初期化完了をマーク
+        this.initialized = true
       }
     },
 
