@@ -34,7 +34,7 @@ cd my-project
 - **最新技術スタック**: Laravel 12、Nuxt 3、PostgreSQL 16 を使用
 - **アーキテクチャ**: フロントエンドとバックエンドを分離した API ベースのアーキテクチャ
 - **認証機能**: JWT を使用したトークンベースの認証
-- **サンプル CRUD**: 投稿とコメントの基本的な CRUD 機能
+- **シンプルな実装**: 認証とダッシュボードによるフロント・バック・DB連携のサンプル
 - **TypeScript 対応**: Nuxt 3 プロジェクトでの最適化された TypeScript 設定
 - **テスト環境**: PHPUnit と Vitest を使用したテスト環境
 - **Docker 対応**: Docker Compose を使用した開発環境

@@ -129,7 +129,6 @@ export const useAuthStore = defineStore('auth', {
         return { success: true }
       } catch (error) {
         // エラーが発生しても、ローカルのログアウト処理は続行
-        console.error('ログアウトエラー:', error)
         return { success: true }
       } finally {
         // ローカルの認証状態をクリア
@@ -177,7 +176,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     // ページ読み込み時にローカルストレージからトークンを復元
-    initAuth() {
+    async initAuth() {
       if (process.client) {
         const token = localStorage.getItem('auth_token')
         const refreshToken = localStorage.getItem('refresh_token')
@@ -187,8 +186,8 @@ export const useAuthStore = defineStore('auth', {
           this.refreshToken = refreshToken
           this.isAuthenticated = true
 
-          // ユーザー情報を取得
-          this.fetchUser()
+          // ユーザー情報を取得（エラーは内部で処理される）
+          await this.fetchUser()
         }
       }
     },
