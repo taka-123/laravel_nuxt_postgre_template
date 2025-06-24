@@ -121,7 +121,7 @@ const login = async () => {
 
     await loginAndRedirect(email.value, password.value, redirectPath)
   } catch (err) {
-    console.error('ログインエラー:', err)
+    // エラーは認証ストアで処理済み（UIに表示される）
   }
 }
 </script>
