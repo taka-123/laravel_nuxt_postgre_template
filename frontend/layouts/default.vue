@@ -14,13 +14,15 @@
       <!-- デスクトップ用ナビゲーション -->
       <div class="d-none d-md-flex">
         <v-btn to="/" variant="text">ホーム</v-btn>
-        <template v-if="isAuthenticated">
-          <v-btn @click="handleLogout" variant="text">ログアウト</v-btn>
-        </template>
-        <template v-else>
-          <v-btn to="/login" variant="text">ログイン</v-btn>
-          <v-btn to="/register" variant="text">登録</v-btn>
-        </template>
+        <ClientOnly>
+          <template v-if="isAuthenticated">
+            <v-btn @click="handleLogout" variant="text">ログアウト</v-btn>
+          </template>
+          <template v-else>
+            <v-btn to="/login" variant="text">ログイン</v-btn>
+            <v-btn to="/register" variant="text">登録</v-btn>
+          </template>
+        </ClientOnly>
       </div>
       
       <!-- モバイル用ハンバーガーメニュー -->
@@ -34,19 +36,21 @@
           <v-list-item to="/">
             <v-list-item-title>ホーム</v-list-item-title>
           </v-list-item>
-          <template v-if="isAuthenticated">
-            <v-list-item @click="handleLogout">
-              <v-list-item-title>ログアウト</v-list-item-title>
-            </v-list-item>
-          </template>
-          <template v-else>
-            <v-list-item to="/login">
-              <v-list-item-title>ログイン</v-list-item-title>
-            </v-list-item>
-            <v-list-item to="/register">
-              <v-list-item-title>登録</v-list-item-title>
-            </v-list-item>
-          </template>
+          <ClientOnly>
+            <template v-if="isAuthenticated">
+              <v-list-item @click="handleLogout">
+                <v-list-item-title>ログアウト</v-list-item-title>
+              </v-list-item>
+            </template>
+            <template v-else>
+              <v-list-item to="/login">
+                <v-list-item-title>ログイン</v-list-item-title>
+              </v-list-item>
+              <v-list-item to="/register">
+                <v-list-item-title>登録</v-list-item-title>
+              </v-list-item>
+            </template>
+          </ClientOnly>
         </v-list>
       </v-menu>
     </v-app-bar>
