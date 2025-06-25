@@ -5,7 +5,7 @@
 ## バックエンド技術スタック
 
 - **フレームワーク**: Laravel 12.x
-- **データベース**: PostgreSQL 16.x
+- **データベース**: PostgreSQL 17.x
 - **認証**: JWT（php-open-source-saver/jwt-auth）
 - **コード品質**: PHP_CodeSniffer（PSR-12）, PHPStan/Larastan
 - **テスト**: PHPUnit
