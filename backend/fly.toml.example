@@ -6,44 +6,57 @@
 # 1. このファイルをコピーして fly.toml を作成
 # 2. app名を任意のユニークな名前に変更
 # 3. 必要に応じてregionやその他の設定を調整
+# 4. データベース設定を本番環境に合わせて変更
 
 app = 'your-app-name-backend'  # ← ユニークなアプリ名に変更してください
 primary_region = 'nrt'          # ← 必要に応じて地域を変更（nrt=東京）
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
 
-[experimental]
-  auto_rollback = true
-
 [build]
   dockerfile = 'Dockerfile.fly'
 
 [env]
   APP_ENV = 'production'
+  BROADCAST_DRIVER = 'log'
+  CACHE_DRIVER = 'file'
+  DB_CONNECTION = "pgsql"
+  DB_HOST = "your-postgres-hostname.flycast"  # ← PostgreSQLホスト名に変更
+  DB_PORT = "5432"
+  DB_DATABASE = "your_database_name"         # ← データベース名に変更
+  DB_USERNAME = "your_username"              # ← ユーザー名に変更
   LOG_CHANNEL = 'stderr'
   LOG_LEVEL = 'info'
   LOG_STDERR_FORMATTER = 'Monolog\Formatter\JsonFormatter'
+  QUEUE_CONNECTION = 'database'
+  SESSION_DRIVER = 'cookie'
+  # PHPの共有メモリ設定
+  PHP_MEMORY_LIMIT = "128M"
+  PHP_SESSION_SAVE_PATH = "/tmp"
+  PHP_SYS_TEMP_DIR = "/tmp"
+  PHP_UPLOAD_TMP_DIR = "/tmp"
 
-[[services]]
-  protocol = 'tcp'
+# Laravel永続ストレージ用マウント
+[[mounts]]
+  source = 'your_app_storage'  # ← ボリューム名を変更
+  destination = '/var/www/html/storage'
+
+# HTTP サービス設定（新しい形式）
+[http_service]
   internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
   processes = ['app']
 
-  [[services.ports]]
-    port = 80
-    handlers = ['http']
-    force_https = true
-
-  [[services.ports]]
-    port = 443
-    handlers = ['tls', 'http']
-
-  [services.concurrency]
+  [http_service.concurrency]
     type = 'connections'
     hard_limit = 25
     soft_limit = 20
 
-  [[services.tcp_checks]]
-    interval = '15s'
-    timeout = '2s'
-    grace_period = '1s'
+# VM 設定
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 512

@@ -12,37 +12,29 @@ primary_region = 'nrt'          # ← 必要に応じて地域を変更（nrt=�
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
 
-[experimental]
-  auto_rollback = true
-
 [build]
   dockerfile = 'Dockerfile.fly'
 
 [env]
-  PORT = '3000'
-  HOST = '0.0.0.0'
   NODE_ENV = 'production'
+  PORT = '3000'
 
-[[services]]
-  protocol = 'tcp'
+# HTTP サービス設定（新しい形式）
+[http_service]
   internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
   processes = ['app']
 
-  [[services.ports]]
-    port = 80
-    handlers = ['http']
-    force_https = true
-
-  [[services.ports]]
-    port = 443
-    handlers = ['tls', 'http']
-
-  [services.concurrency]
+  [http_service.concurrency]
     type = 'connections'
     hard_limit = 25
     soft_limit = 20
 
-  [[services.tcp_checks]]
-    interval = '15s'
-    timeout = '2s'
-    grace_period = '1s'
+# VM 設定
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 256
