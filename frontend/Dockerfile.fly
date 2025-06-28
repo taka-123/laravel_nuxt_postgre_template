@@ -21,9 +21,9 @@ COPY . .
 
 # 環境変数の設定（ビルド時に使用）
 ARG BROWSER_API_BASE_URL
-ENV BROWSER_API_BASE_URL=${BROWSER_API_BASE_URL:-https://book-management-backend.fly.dev/api}
+ENV BROWSER_API_BASE_URL=${BROWSER_API_BASE_URL:-https://your-app-name-backend.fly.dev/api}
 ARG SERVER_API_BASE_URL
-ENV SERVER_API_BASE_URL=${SERVER_API_BASE_URL:-https://book-management-backend.fly.dev/api}
+ENV SERVER_API_BASE_URL=${SERVER_API_BASE_URL:-https://your-app-name-backend.fly.dev/api}
 ARG NODE_ENV
 ENV NODE_ENV=${NODE_ENV:-production}
 ENV HOST=0.0.0.0

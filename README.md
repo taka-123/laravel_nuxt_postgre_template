@@ -206,15 +206,6 @@ npm run lint:fix
 - JWT トークンベース認証
 - プロフィール画面
 
-### ✅ ブログ機能
-- 投稿の作成・表示・編集・削除
-- 下書き・公開状態管理
-- 投稿者制限（自分の投稿のみ編集可能）
-
-### ✅ コメント機能
-- 投稿別コメント表示
-- コメントの作成・編集・削除
-- 投稿者は他ユーザーのコメントも削除可能
 
 ### ✅ UI/UX
 - Vuetify Material Design
@@ -271,6 +262,37 @@ const createPost = async (postData) => {
 
 1. **GitHub Actions**: `.github/workflows/` ディレクトリに CI/CD パイプラインの設定
 2. **Fly.io 設定**: コンテナデプロイと Fly Postgres の利用
+
+#### デプロイ手順
+
+1. **Fly.io CLI のインストール**
+   ```bash
+   curl -L https://fly.io/install.sh | sh
+   fly auth login
+   ```
+
+2. **API Token の取得**
+   ```bash
+   fly tokens create
+   ```
+
+3. **GitHub Secrets の設定**
+   以下の環境変数をリポジトリの GitHub Secrets に設定：
+   - `FLY_API_TOKEN`: 上記で取得した API Token
+
+4. **アプリ名の変更**
+   `backend/fly.toml` と `frontend/fly.toml` の app 名を変更：
+   ```toml
+   app = "your-app-name-backend"  # 任意の名前に変更
+   ```
+   
+   参考用に `fly.toml.example` ファイルも提供しているため、必要に応じて利用してください。
+
+5. **詳細なセットアップ手順**
+   より詳細な手順については [`docs/fly-setup.md`](docs/fly-setup.md) を参照してください。
+   
+6. **本番環境変数の確認**
+   PostgreSQL 17 アップグレード時の注意事項：[PR #28](https://github.com/taka-123/laravel_nuxt_postgre_template/pull/28) を参照
 
 ### 将来の拡張オプション
 
