@@ -49,8 +49,23 @@ docker-compose.*.yml
 .env.*
 !.env.example
 
-# Claude Code settings
+# Claude Code個人設定・秘密情報
 .claude/settings.local.json
+.claude/*.local.*
+.claude/cache/
+.claude/logs/
+
+# MCP環境変数
+.mcp.env
+.mcp.local.json
+
+# Claude Code一時ファイル
+.claude-code-*
+*.claude-tmp
+~/.claude.json
+
+# 個人用CLAUDE.md
+CLAUDE.local.md
 
 # Node dependencies
 node_modules

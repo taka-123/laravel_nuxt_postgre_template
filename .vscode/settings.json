@@ -1,41 +1,34 @@
 {
-  // エディタの基本設定
+  // ===================================
+  // 自動フォーマット設定
+  // ===================================
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.tabSize": 2,
-  "editor.insertSpaces": true,
-  "editor.detectIndentation": false,
 
-  // ファイル設定
+  // ===================================
+  // プロジェクト固有の設定
+  // ===================================
   "files.encoding": "utf8",
   "files.eol": "\n",
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.associations": {
-    "*.blade.php": "blade",
-    ".env.*": "dotenv"
+    "*.blade.php": "blade"
   },
 
-  // 検索設定
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/vendor": true,
-    "**/dist": true,
-    "**/.nuxt": true
-  },
-
-  // 言語別設定
-  // フロントエンド
-  "[vue]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  // ===================================
+  // 言語別フォーマッター指定
+  // ===================================
+  // フロントエンド（Prettier）
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[json]": {
@@ -53,90 +46,31 @@
   "[scss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  // バックエンド
-  "[php]": {
-    "editor.tabSize": 4,
-    "editor.defaultFormatter": "junstyle.php-cs-fixer"
-  },
-  // マークダウン
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "prettier.proseWrap": "always",
-    "editor.tabSize": 4,
     "files.trimTrailingWhitespace": false
   },
-  // YAML
+
+  // バックエンド（Laravel Pint）
+  "[php]": {
+    "editor.defaultFormatter": "open-southeners.laravel-pint"
+  },
+  "[blade]": {
+    "editor.defaultFormatter": "shufo.vscode-blade-formatter"
+  },
+
+  // その他
   "[yaml]": {
     "editor.defaultFormatter": "redhat.vscode-yaml"
   },
-  // その他
-  "[shellscript]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
-  "[dotenv]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
-  "[dockerfile]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
-  "[ignore]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
 
+  // ===================================
   // ESLint設定
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "vue"
-  ],
+  // ===================================
+  "eslint.validate": ["javascript", "typescript", "vue"],
 
-  // PHP関連ツール設定
-  "php-cs-fixer.rules": "@PSR12",
-  "php-cs-fixer.executablePath": "${workspaceFolder}/backend/vendor/bin/php-cs-fixer",
-  "php-cs-fixer.onsave": true,
-  "phpstan.enabled": false,
-
-  // YAML関連設定
-  "yaml.schemas": {
-    "https://raw.githubusercontent.com/awslabs/goformation/master/schema/cloudformation.schema.json": [
-      "**/*.cf.yaml",
-      "**/*.cf.yml",
-      "**/.aws/cloudformation/*.yaml",
-      "**/.aws/cloudformation/*.yml"
-    ]
-  },
-  "yaml.customTags": [
-    "!And",
-    "!And sequence",
-    "!Base64",
-    "!Cidr",
-    "!Condition",
-    "!Equals",
-    "!Equals sequence",
-    "!FindInMap",
-    "!FindInMap sequence",
-    "!GetAtt",
-    "!GetAtt scalar",
-    "!GetAZs",
-    "!If",
-    "!If sequence",
-    "!ImportValue",
-    "!Join",
-    "!Join sequence",
-    "!Not",
-    "!Not sequence",
-    "!Or",
-    "!Or sequence",
-    "!Ref",
-    "!Select",
-    "!Select sequence",
-    "!Split",
-    "!Split sequence",
-    "!Sub",
-    "!Sub sequence"
-  ],
-  "yaml.validate": false,
-  "json.validate.enable": false
+  // ===================================
+  // Laravel Pint有効化
+  // ===================================
+  "laravel-pint.enable": true
 }
