@@ -1,11 +1,14 @@
-# fly.toml app configuration file generated for laravel-nuxt-template-frontend on 2025-05-06T14:42:03+09:00
+# fly.toml app configuration file generated for laravel-nuxt-template-frontend
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
-# 注意: このファイルを使用する前に、app名を任意のユニークな名前に変更してください
+# 使用方法：
+# 1. このファイルをコピーして fly.toml を作成
+# 2. app名を任意のユニークな名前に変更
+# 3. 必要に応じてregionやその他の設定を調整
 
 app = 'your-app-name-frontend'  # ← ユニークなアプリ名に変更してください
-primary_region = 'nrt'
+primary_region = 'nrt'          # ← 必要に応じて地域を変更（nrt=東京）
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
 
@@ -16,6 +19,7 @@ kill_timeout = '5s'
   NODE_ENV = 'production'
   PORT = '3000'
 
+# HTTP サービス設定（新しい形式）
 [http_service]
   internal_port = 3000
   force_https = true
@@ -29,6 +33,7 @@ kill_timeout = '5s'
     hard_limit = 25
     soft_limit = 20
 
+# VM 設定
 [[vm]]
   cpu_kind = 'shared'
   cpus = 1

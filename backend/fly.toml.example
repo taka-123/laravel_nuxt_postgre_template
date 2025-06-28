@@ -1,11 +1,15 @@
-# fly.toml app configuration file generated for laravel-nuxt-template-backend on 2025-05-17T10:40:00+09:00
+# fly.toml app configuration file generated for laravel-nuxt-template-backend
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
-# 注意: このファイルを使用する前に、app名を任意のユニークな名前に変更してください
+# 使用方法：
+# 1. このファイルをコピーして fly.toml を作成
+# 2. app名を任意のユニークな名前に変更
+# 3. 必要に応じてregionやその他の設定を調整
+# 4. データベース設定を本番環境に合わせて変更
 
 app = 'your-app-name-backend'  # ← ユニークなアプリ名に変更してください
-primary_region = 'nrt'
+primary_region = 'nrt'          # ← 必要に応じて地域を変更（nrt=東京）
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
 
@@ -17,10 +21,10 @@ kill_timeout = '5s'
   BROADCAST_DRIVER = 'log'
   CACHE_DRIVER = 'file'
   DB_CONNECTION = "pgsql"
-  DB_HOST = "laravel-nuxt-template-db-unique.flycast"
+  DB_HOST = "your-postgres-hostname.flycast"  # ← PostgreSQLホスト名に変更
   DB_PORT = "5432"
-  DB_DATABASE = "laravel_nuxt_template"
-  DB_USERNAME = "laravel_nuxt_template_user"
+  DB_DATABASE = "your_database_name"         # ← データベース名に変更
+  DB_USERNAME = "your_username"              # ← ユーザー名に変更
   LOG_CHANNEL = 'stderr'
   LOG_LEVEL = 'info'
   LOG_STDERR_FORMATTER = 'Monolog\Formatter\JsonFormatter'
@@ -32,10 +36,12 @@ kill_timeout = '5s'
   PHP_SYS_TEMP_DIR = "/tmp"
   PHP_UPLOAD_TMP_DIR = "/tmp"
 
+# Laravel永続ストレージ用マウント
 [[mounts]]
-  source = 'laravel_nuxt_template_storage'
+  source = 'your_app_storage'  # ← ボリューム名を変更
   destination = '/var/www/html/storage'
 
+# HTTP サービス設定（新しい形式）
 [http_service]
   internal_port = 8080
   force_https = true
@@ -49,6 +55,7 @@ kill_timeout = '5s'
     hard_limit = 25
     soft_limit = 20
 
+# VM 設定
 [[vm]]
   cpu_kind = 'shared'
   cpus = 1
