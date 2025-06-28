@@ -1,31 +1,42 @@
 {
+  "cleanupPeriodDays": 30,
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "BASH_DEFAULT_TIMEOUT_MS": "300000",
+    "LANG": "ja_JP.UTF-8"
+  },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "Read(**)",
       "Edit(**)",
       "List(*)",
 
-      "Bash(git status*)",
-      "Bash(git diff*)",
       "Bash(git add*)",
-      "Bash(git commit*)",
-      "Bash(git log*)",
       "Bash(git branch*)",
       "Bash(git checkout*)",
-      "Bash(git pull*)",
+      "Bash(git commit*)",
+      "Bash(git diff*)",
       "Bash(git fetch*)",
+      "Bash(git log*)",
+      "Bash(git pull*)",
       "Bash(git stash*)",
-      "Bash(git push origin feature/*)",
+      "Bash(git status*)",
+      "Bash(git switch:*)",
+      "Bash(git worktree add:*)",
       "Bash(git push origin develop*)",
+      "Bash(git push origin feature/*)",
 
+      "Bash(node *.js)",
       "Bash(npm install*)",
       "Bash(npm run*)",
-      "Bash(node *.js)",
+      "Bash(php artisan*)",
       "Bash(python *.py)",
       "Bash(python3 *.py)",
       "Bash(composer install*)",
       "Bash(composer update*)",
-      "Bash(php artisan*)",
+      "Bash(composer require*)",
+      "Bash(composer dump-autoload*)",
 
       "Bash(cp:*)",
       "Bash(chmod:*)",
@@ -46,8 +57,14 @@
       "Bash(rm -rf*)",
       "Bash(sudo:*)",
 
-      "Bash(curl:*)",
-      "Bash(wget:*)",
+      "Bash(composer exec*)",
+      "Bash(composer global*)",
+      "Bash(composer run-script*)",
+
+      "Bash(git push origin main*)",
+      "Bash(git push origin master*)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
 
       "Read(.env*)",
       "Write(.env*)",
@@ -58,12 +75,6 @@
       "Read(.aws/*)",
       "Read(.npmrc)",
       "Read(.netrc)",
-
-      "Bash(git push origin main*)",
-      "Bash(git push origin master*)",
-      "Bash(git push --force*)",
-      "Bash(git reset --hard*)",
-
       "Read(/etc/*)",
       "Write(/etc/*)",
       "Edit(/etc/*)",
@@ -73,11 +84,6 @@
       "Bash(*TRUNCATE*)",
       "Bash(redis-cli FLUSH*)"
     ]
-  },
-  "env": {
-    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
-    "BASH_DEFAULT_TIMEOUT_MS": "300000",
-    "LANG": "ja_JP.UTF-8"
   },
   "ignorePatterns": [
     "node_modules/**",
@@ -89,7 +95,5 @@
     "storage/**",
     ".next/**",
     ".nuxt/**"
-  ],
-  "includeCoAuthoredBy": false,
-  "cleanupPeriodDays": 30
+  ]
 }
