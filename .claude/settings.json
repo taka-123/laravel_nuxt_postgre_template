@@ -1,0 +1,95 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Edit(**)",
+      "List(*)",
+
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git pull*)",
+      "Bash(git fetch*)",
+      "Bash(git stash*)",
+      "Bash(git push origin feature/*)",
+      "Bash(git push origin develop*)",
+
+      "Bash(npm install*)",
+      "Bash(npm run*)",
+      "Bash(node *.js)",
+      "Bash(python *.py)",
+      "Bash(python3 *.py)",
+      "Bash(composer install*)",
+      "Bash(composer update*)",
+      "Bash(php artisan*)",
+
+      "Bash(cp:*)",
+      "Bash(chmod:*)",
+      "Bash(docker:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(rg:*)",
+      "Bash(rm *.tmp)",
+      "Bash(rm -f *.log)",
+
+      "WebFetch(domain:*)",
+      "WebSearch(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf*)",
+      "Bash(sudo:*)",
+
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+
+      "Read(.env*)",
+      "Write(.env*)",
+      "Edit(.env*)",
+      "Read(~/.ssh/*)",
+      "Write(~/.ssh/*)",
+      "Edit(~/.ssh/*)",
+      "Read(.aws/*)",
+      "Read(.npmrc)",
+      "Read(.netrc)",
+
+      "Bash(git push origin main*)",
+      "Bash(git push origin master*)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+
+      "Read(/etc/*)",
+      "Write(/etc/*)",
+      "Edit(/etc/*)",
+
+      "Bash(*DROP DATABASE*)",
+      "Bash(*DROP TABLE*)",
+      "Bash(*TRUNCATE*)",
+      "Bash(redis-cli FLUSH*)"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "BASH_DEFAULT_TIMEOUT_MS": "300000",
+    "LANG": "ja_JP.UTF-8"
+  },
+  "ignorePatterns": [
+    "node_modules/**",
+    ".git/**",
+    "*.log",
+    "dist/**",
+    "build/**",
+    "vendor/**",
+    "storage/**",
+    ".next/**",
+    ".nuxt/**"
+  ],
+  "includeCoAuthoredBy": false,
+  "cleanupPeriodDays": 30
+}
