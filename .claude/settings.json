@@ -33,7 +33,10 @@
       "Bash(php artisan*)",
       "Bash(python *.py)",
       "Bash(python3 *.py)",
-      "Bash(composer:*)",
+      "Bash(composer install*)",
+      "Bash(composer update*)",
+      "Bash(composer require*)",
+      "Bash(composer dump-autoload*)",
 
       "Bash(cp:*)",
       "Bash(chmod:*)",
@@ -53,8 +56,16 @@
     "deny": [
       "Bash(rm -rf*)",
       "Bash(sudo:*)",
-      "Bash(curl:*)",
-      "Bash(wget:*)",
+
+      "Bash(composer exec*)",
+      "Bash(composer global*)",
+      "Bash(composer run-script*)",
+
+      "Bash(git push origin main*)",
+      "Bash(git push origin master*)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+
       "Read(.env*)",
       "Write(.env*)",
       "Edit(.env*)",
@@ -64,13 +75,10 @@
       "Read(.aws/*)",
       "Read(.npmrc)",
       "Read(.netrc)",
-      "Bash(git push origin main*)",
-      "Bash(git push origin master*)",
-      "Bash(git push --force*)",
-      "Bash(git reset --hard*)",
       "Read(/etc/*)",
       "Write(/etc/*)",
       "Edit(/etc/*)",
+
       "Bash(*DROP DATABASE*)",
       "Bash(*DROP TABLE*)",
       "Bash(*TRUNCATE*)",
