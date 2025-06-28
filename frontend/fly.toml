@@ -2,8 +2,9 @@
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
+# 注意: このファイルを使用する前に、app名を任意のユニークな名前に変更してください
 
-app = 'your-app-name-frontend'
+app = 'your-app-name-frontend'  # ← ユニークなアプリ名に変更してください
 primary_region = 'nrt'
 kill_signal = 'SIGINT'
 kill_timeout = '5s'

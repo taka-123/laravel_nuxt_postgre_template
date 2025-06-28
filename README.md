@@ -285,8 +285,13 @@ const createPost = async (postData) => {
    ```toml
    app = "your-app-name-backend"  # 任意の名前に変更
    ```
+   
+   参考用に `fly.toml.example` ファイルも提供しているため、必要に応じて利用してください。
 
-5. **本番環境変数の確認**
+5. **詳細なセットアップ手順**
+   より詳細な手順については [`docs/fly-setup.md`](docs/fly-setup.md) を参照してください。
+   
+6. **本番環境変数の確認**
    PostgreSQL 17 アップグレード時の注意事項：[PR #28](https://github.com/taka-123/laravel_nuxt_postgre_template/pull/28) を参照
 
 ### 将来の拡張オプション
