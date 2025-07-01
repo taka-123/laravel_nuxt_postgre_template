@@ -63,6 +63,18 @@ cd my-project
 - Composer 2.x
 - Git
 
+#### mise を使用した開発環境管理（オプション）
+
+[mise](https://mise.jdx.dev/) を使用することで、Node.js と PHP のバージョンを簡単に管理できます：
+
+```bash
+# mise がインストールされている場合
+mise install  # .mise.toml に記載されたツールを自動インストール
+
+# volta、asdf、nodenv、phpenv など他のバージョン管理ツールとも共存可能
+# mise を使わない場合は、上記の前提条件に従って手動でインストール
+```
+
 ### 開発環境の起動
 
 ```bash
