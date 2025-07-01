@@ -4,6 +4,24 @@
 
 Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 17.x を使用したモダンなフルスタック Web アプリケーションテンプレート。API ドリブンなアーキテクチャでフロントエンドとバックエンドを分離。
 
+## プロジェクト構造
+
+```
+laravel_nuxt_postgre_template/
+├── .claude/                 # Claude AI設定
+├── .cursor/                 # Cursor IDE設定
+├── .fly/                    # Fly.io デプロイ設定
+├── .husky/                  # Git hooks設定
+├── backend/                 # Laravel API アプリケーション
+├── frontend/               # Nuxt.js フロントエンド
+├── docker/                # Docker Compose設定
+├── docs/                  # プロジェクトドキュメント
+├── docker-compose.yml     # Docker Compose定義
+├── setup.sh              # 初期セットアップスクリプト
+├── git-flow.md           # Git Flow運用ガイド
+└── README.md             # プロジェクトメイン説明
+```
+
 ## アーキテクチャ
 
 ### バックエンド (Laravel API)

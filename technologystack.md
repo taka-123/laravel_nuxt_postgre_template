@@ -46,9 +46,12 @@ Laravel + Nuxt.js + PostgreSQL を使用したモダンなウェブアプリケ�
 | ----------------------------- | ----------------------------------------------------------------- |
 | Docker Compose (Laravel Sail) | 開発環境の一貫性を確保。チームでの開発効率を向上。                |
 | VS Code / Cursor / Windsurf   | 開発者の好みに合わせた IDE 選択。各種プラグインによる生産性向上。 |
+| Claude AI                     | AIアシスタント統合。`.claude/`ディレクトリで設定管理。            |
 | ESLint + Prettier             | JavaScript/TypeScript のコード品質とスタイル統一。                |
 | PHP_CodeSniffer               | PHP コードの品質管理とスタイル統一。                              |
+| PHPStan                       | PHP 静的解析ツール。コード品質向上とバグ予防。                    |
 | Husky                         | Git フック自動化によるコミット前のコード検証。品質維持に貢献。    |
+| lint-staged                   | ステージされたファイルのみに対する lint 実行。効率的な品質管理。  |
 
 ## モバイルアプリ対応
 
