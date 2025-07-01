@@ -90,16 +90,33 @@ php artisan optimize:clear
 ```
 backend/
 ├── app/               # アプリケーションコード
-│   ├── Console/       # コンソールコマンド
-│   ├── Exceptions/    # 例外ハンドラー
 │   ├── Http/          # コントローラー、ミドルウェア等
+│   │   ├── Controllers/  # APIコントローラー
+│   │   └── Middleware/   # カスタムミドルウェア
 │   ├── Models/        # Eloquentモデル
 │   └── Providers/     # サービスプロバイダー
+├── bootstrap/         # アプリケーション起動ファイル
 ├── config/            # 設定ファイル
-├── database/          # マイグレーション、シード
+├── database/          # マイグレーション、シーダー
+│   ├── factories/     # モデルファクトリー
+│   ├── migrations/    # データベースマイグレーション
+│   └── seeders/       # データベースシーダー
+├── docker/            # Docker設定ファイル
+│   ├── nginx/         # Nginx設定
+│   ├── php/           # PHP設定
+│   └── supervisor/    # Supervisor設定
+├── public/            # 公開ディレクトリ
+├── resources/         # ビュー、アセット
 ├── routes/            # ルート定義
-├── storage/           # アプリケーションストレージ
-└── tests/             # テストコード
+├── storage/           # ログ、キャッシュ等
+├── tests/             # テストファイル
+│   ├── Feature/       # 機能テスト
+│   └── Unit/          # ユニットテスト
+├── composer.json      # Composer依存関係
+├── Dockerfile.fly     # Fly.io用Dockerfile
+├── fly.toml          # Fly.io設定
+├── phpcs.xml         # コーディング規約
+└── phpstan.neon      # 静的解析設定
 ```
 
 ## 詳細情報

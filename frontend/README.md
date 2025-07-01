@@ -61,15 +61,28 @@ npm run test:coverage
 
 ```
 frontend/
-├── assets/           # 静的ファイル（SCSS, 画像など）
-├── components/       # 再利用可能なVueコンポーネント
 ├── composables/      # 再利用可能なVue Composables
+│   ├── useApi.ts     # API通信用コンポーザブル
+│   └── useAuth.ts    # 認証用コンポーザブル
+├── docker/           # Docker設定ファイル
+│   └── nginx/        # Nginx設定
 ├── layouts/          # レイアウトコンポーネント
 ├── pages/            # ページコンポーネント（ルーティング）
 ├── plugins/          # Nuxtプラグイン
+│   ├── axios.ts      # Axios設定
+│   ├── pinia.ts      # Pinia設定
+│   └── vuetify.ts    # Vuetify設定
 ├── public/           # 公開ファイル
+├── server/           # サーバーサイド設定
 ├── stores/           # Piniaストア
-└── test/             # テストファイル
+├── test/             # テストファイル
+├── types/            # TypeScript型定義
+├── package.json      # npm依存関係
+├── nuxt.config.ts    # Nuxt設定
+├── tsconfig.json     # TypeScript設定
+├── Dockerfile.fly    # Fly.io用Dockerfile
+├── fly.toml         # Fly.io設定
+└── vitest.config.ts  # Vitest設定
 ```
 
 ## 詳細情報
