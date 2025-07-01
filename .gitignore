@@ -115,3 +115,19 @@ packaged.yaml
 .aws/cloudformation/outputs/
 .aws/credentials
 .aws/config
+
+# Claude parallel development environment
+claude-parallel/
+
+# CodeRabbit configuration (template development only)
+.coderabbit.yaml
+.coderabbit.yml
+
+# Cursor IDE
+.cursor/
+
+# Windsurf IDE
+.windsurfrules
+
+# mise version management
+mise.toml

@@ -29,12 +29,12 @@ cd my-project
 **初回実行時**: テンプレートのカスタマイズ + 開発環境セットアップを自動実行  
 **2 回目以降**: 開発環境セットアップのみ実行
 
-## テンプレートの特徴
+## ✨ テンプレートの特徴
 
 - **最新技術スタック**: Laravel 12、Nuxt 3、PostgreSQL 17 を使用
 - **アーキテクチャ**: フロントエンドとバックエンドを分離した API ベースのアーキテクチャ
 - **認証機能**: JWT を使用したトークンベースの認証
-- **シンプルな実装**: 認証とダッシュボードによるフロント・バック・DB連携のサンプル
+- **シンプルな実装**: 認証とダッシュボードによるフロント・バック・DB 連携のサンプル
 - **TypeScript 対応**: Nuxt 3 プロジェクトでの最適化された TypeScript 設定
 - **テスト環境**: PHPUnit と Vitest を使用したテスト環境
 - **Docker 対応**: Docker Compose を使用した開発環境
@@ -42,39 +42,7 @@ cd my-project
 - **デプロイ設定**: Fly.io へのデプロイ設定済み
 - **セキュリティ**: 安全なパスワードハッシュと CSRF 保護
 
-## プロジェクト構成
-
-```
-laravel_nuxt_postgre_template/
-├── .claude/                 # Claude AI設定
-├── .cursor/                 # Cursor IDE設定
-├── .fly/                    # Fly.io デプロイ設定
-├── .husky/                  # Git hooks設定
-├── backend/                 # Laravel API アプリケーション
-│   ├── app/                 # アプリケーションコード
-│   ├── config/             # 設定ファイル
-│   ├── database/           # マイグレーション・シーダー
-│   ├── resources/          # ビュー・アセット
-│   ├── routes/             # ルート定義
-│   ├── tests/              # テストファイル
-│   └── fly.toml           # Fly.io設定
-├── frontend/               # Nuxt.js フロントエンド
-│   ├── composables/        # Vue Composables
-│   ├── layouts/           # レイアウトコンポーネント
-│   ├── pages/             # ページコンポーネント
-│   ├── stores/            # Pinia状態管理
-│   └── nuxt.config.ts     # Nuxt設定
-├── docker/                # Docker Compose設定
-├── docs/                  # プロジェクトドキュメント
-├── docker-compose.yml     # Docker Compose定義
-├── setup.sh              # 初期セットアップスクリプト
-├── git-flow.md           # Git Flow運用ガイド
-└── README.md             # プロジェクトメイン説明
-```
-
-## 開発環境のセットアップ
-
-### 前提条件
+## 📋 前提条件
 
 - Docker Desktop (最新版)
 - Node.js 22.x 以上
@@ -82,7 +50,7 @@ laravel_nuxt_postgre_template/
 - Composer 2.x
 - Git
 
-#### mise を使用した開発環境管理（オプション）
+### mise を使用した開発環境管理（オプション）
 
 [mise](https://mise.jdx.dev/) を使用することで、Node.js と PHP のバージョンを簡単に管理できます：
 
@@ -94,7 +62,7 @@ mise install  # .mise.toml に記載されたツールを自動インストー�
 # mise を使わない場合は、上記の前提条件に従って手動でインストール
 ```
 
-### 開発環境の起動
+## 🔧 開発環境の起動
 
 ```bash
 # Docker環境での起動（推奨）
@@ -108,256 +76,124 @@ cd backend && php artisan serve
 cd frontend && npm run dev
 ```
 
-> **開発環境用Docker設定**: フロントエンドには開発環境用の `Dockerfile.dev` が用意されており、ホットリロードやデバッグに最適化されています。
+> **開発環境用 Docker 設定**: フロントエンドには開発環境用の `Dockerfile.dev` が用意されており、ホットリロードやデバッグに最適化されています。
 
-アプリケーションにアクセス：
+### アクセス URL
 
 - **フロントエンド**: http://localhost:3000
 - **バックエンド API**: http://localhost:8000
 - **pgAdmin**: http://localhost:5050
 
-### 推奨エディタとプラグイン
-
-Visual Studio Code を推奨エディタとして使用します。
-
-#### 必須拡張機能
-
-**バックエンド (Laravel)**:
-
-- PHP Intelephense
-- Laravel Blade Formatter
-- Laravel Snippets
-- PHP DocBlocker
-
-**フロントエンド (Nuxt/Vue)**:
-
-- ESLint
-- Prettier
-- Volar（Vue Language Features）
-- TypeScript Vue Plugin
-
-**その他**:
-
-- GitLens
-- Docker
-- DotENV
-- PostgreSQL
-
-### ポート設定
-
-| サービス                 | ポート |
-| ------------------------ | ------ |
-| バックエンド (Laravel)   | 8000   |
-| フロントエンド (Nuxt.js) | 3000   |
-| PostgreSQL               | 5432   |
-| pgAdmin                  | 5050   |
-
-## 開発ガイド
-
-### バックエンド（Laravel）
-
-```bash
-cd backend
-
-# マイグレーション実行
-php artisan migrate
-
-# シーダー実行
-php artisan db:seed
-
-# テスト実行
-php artisan test
-
-# コード品質チェック
-./vendor/bin/phpcs
-./vendor/bin/pint
-```
-
-### フロントエンド（Nuxt）
-
-```bash
-cd frontend
-
-# 開発サーバー起動
-npm run dev
-
-# ビルド
-npm run build
-
-# テスト実行
-npm run test
-
-# カバレッジ付きテスト
-npm run test:coverage
-
-# コード品質チェック
-npm run lint
-npm run lint:fix
-```
-
-## TypeScript 設定
-
-### フロントエンド TypeScript 設定
-
-本テンプレートでは、Nuxt 3 と Vue 3 の組み合わせで最適な TypeScript 体験を提供するために、以下の設定が行われています：
-
-1. **tsconfig.json**
-
-   ```json
-   {
-     "compilerOptions": {
-       "strict": false,
-       "skipLibCheck": true,
-       "noImplicitAny": false,
-       "noImplicitThis": false,
-       "verbatimModuleSyntax": false,
-       "suppressImplicitAnyIndexErrors": true
-     },
-     "vueCompilerOptions": {
-       "target": 3,
-       "experimentalDisableTemplateSupport": true
-     }
-   }
-   ```
-
-2. **型定義ファイル**
-
-   - `shims-vue.d.ts` - Vue コンポーネントの型定義
-   - `env.d.ts` - 環境変数の型定義
-
-3. **ESLint 設定**
-   - TypeScript と Vue 3 の連携に最適化されたルール設定
-
-## 実装済みサンプル機能
+## 📚 実装済みサンプル機能
 
 このテンプレートには以下の機能が完全に実装されており、すぐに動作確認できます：
 
 ### ✅ 認証システム
+
 - ユーザー登録・ログイン・ログアウト
 - JWT トークンベース認証
 - プロフィール画面
 
-
 ### ✅ UI/UX
+
 - Vuetify Material Design
 - レスポンシブ対応
 - ローディング状態表示
 
-## API 連携サンプル
+## 🔧 開発ツールの設定
 
-### 認証フロー
+### テンプレート用の .gitignore 設定
 
-JWT を使用した認証フローのサンプルが含まれています：
+このテンプレートでは、以下のツールがデフォルトで `.gitignore` に含まれています：
 
-```typescript
-// frontend/composables/useAuth.ts
-const login = async (email: string, password: string) => {
-  try {
-    const response = await $fetch("/api/login", {
-      method: "POST",
-      body: { email, password },
-    });
-    // トークンの保存とユーザー情報の取得
-  } catch (error) {
-    // エラー処理
-  }
-};
-```
+- **claude-parallel/**: Claude Code 並列開発環境ツール
+- **.coderabbit.yaml**: CodeRabbit AI コードレビューツール設定
+- **.cursor/**: Cursor IDE設定
+- **.windsurfrules**: Windsurf IDE設定
+- **mise.toml**: mise バージョン管理ツール設定
 
-### CRUD 操作サンプル
-
-投稿（Posts）とコメント（Comments）の基本的な CRUD 操作サンプル：
-
-```typescript
-// 投稿一覧の取得
-const fetchPosts = async () => {
-  const { data } = await useFetch("/api/posts");
-  return data.value;
-};
-
-// 新規投稿の作成
-const createPost = async (postData) => {
-  const { data } = await useFetch("/api/posts", {
-    method: "POST",
-    body: postData,
-  });
-  return data.value;
-};
-```
-
-## デプロイ設定
-
-### Fly.io へのデプロイ
-
-本テンプレートには、Fly.io へのデプロイ設定が含まれています：
-
-1. **GitHub Actions**: `.github/workflows/` ディレクトリに CI/CD パイプラインの設定
-2. **Fly.io 設定**: コンテナデプロイと Fly Postgres の利用
-
-#### デプロイ手順
-
-1. **Fly.io CLI のインストール**
-   ```bash
-   curl -L https://fly.io/install.sh | sh
-   fly auth login
-   ```
-
-2. **API Token の取得**
-   ```bash
-   fly tokens create
-   ```
-
-3. **GitHub Secrets の設定**
-   以下の環境変数をリポジトリの GitHub Secrets に設定：
-   - `FLY_API_TOKEN`: 上記で取得した API Token
-
-4. **アプリ名の変更**
-   `backend/fly.toml` と `frontend/fly.toml` の app 名を変更：
-   ```toml
-   app = "your-app-name-backend"  # 任意の名前に変更
-   ```
-   
-   参考用に `fly.toml.example` ファイルも提供しているため、必要に応じて利用してください。
-
-5. **詳細なセットアップ手順**
-   より詳細な手順については [`docs/fly-setup.md`](docs/fly-setup.md) を参照してください。
-   
-6. **本番環境変数の確認**
-   PostgreSQL 17 アップグレード時の注意事項：[PR #28](https://github.com/taka-123/laravel_nuxt_postgre_template/pull/28) を参照
-
-### 将来の拡張オプション
-
-大規模なプロジェクトへの拡張時には AWS ECS/RDS/CloudFront などの利用も検討可能です。
-
-## トラブルシューティング
-
-### TypeScript 言語サービスのクラッシュ
-
-VSCode で問題が発生した場合：
-
-1. VSCode を再起動する
-2. コマンドパレット（Cmd+Shift+P）から「TypeScript: Restart TS Server」を実行する
-3. `.vscode/settings.json` の設定を確認する
-
-### Docker 環境の問題
-
-Docker 環境で問題が発生した場合：
+これらのツールをプロジェクトで使用したい場合は、`.gitignore` から該当行を削除してください：
 
 ```bash
-# コンテナとボリュームを完全に削除してリセット
-docker compose down -v
+# claude-parallelを使用する場合
+# .gitignoreから以下の行を削除
+# claude-parallel/
 
-# イメージを再ビルド
-docker compose build --no-cache
+# CodeRabbitを使用する場合
+# .gitignoreから以下の行を削除
+# .coderabbit.yaml
+# .coderabbit.yml
 
-# 再起動
-docker compose up -d
+# Cursor IDEを使用する場合
+# .gitignoreから以下の行を削除
+# .cursor/
+
+# Windsurf IDEを使用する場合
+# .gitignoreから以下の行を削除
+# .windsurfrules
+
+# miseを使用する場合
+# .gitignoreから以下の行を削除
+# mise.toml
 ```
 
-## 貢献
+#### claude-parallel について
+
+[claude-parallel](https://github.com/taka-123/claude-parallel) は、Git worktree と tmux を組み合わせた並列開発環境ツールです。チーム開発で使用する場合は、Git 管理に含めることで、チーム全体で同じ並列開発環境を共有できます。
+
+#### CodeRabbit について
+
+CodeRabbit は AI によるコードレビューツールです。プロジェクトで使用する場合は、設定ファイルをバージョン管理に含めることで、チーム全体で一貫したレビュー基準を維持できます。
+
+## 📖 ドキュメント
+
+### プロジェクト情報
+
+- **[技術スタック](technologystack.md)** - 使用技術の詳細
+- **[プロジェクト構造](directorystructure.md)** - ディレクトリ構成の説明
+
+### 開発ガイド
+
+- **[開発ガイド](docs/development.md)** - TypeScript設定、API設計、開発コマンド
+- **[トラブルシューティング](docs/troubleshooting.md)** - よくある問題と解決方法
+
+### デプロイ
+
+- **[Fly.io デプロイガイド](docs/deployment/fly-io.md)** - Fly.io への詳細なデプロイ手順
+
+### 開発フロー
+
+- **[git-flow.md](git-flow.md)** - GitHub Issue 作成から PR マージまでの標準的なフロー
+
+このガイドは参考として提供していますので、プロジェクトの規模やチームの状況に応じて自由にカスタマイズしてください。
+
+### CLAUDE.md について
+
+このテンプレートには `CLAUDE.md` というプロジェクト仕様書が含まれています。これは以下の理由でGit管理されています：
+
+- **プロジェクト固有の技術仕様や設計思想を記載**
+- **新メンバーのオンボーディング資料として活用可能**
+- **AI開発ツール（Claude Code等）との連携で開発効率向上**
+
+ただし、以下の場合は削除または `.gitignore` への追加を検討してください：
+
+- チームでAI開発ツールを全く使用しない
+- 技術ドキュメントとしてメンテナンスする予定がない
+- README.md で十分な情報が提供されている
+
+```bash
+# CLAUDE.mdを使用しない場合
+# .gitignoreに追加
+echo "CLAUDE.md" >> .gitignore
+
+# または削除
+rm CLAUDE.md
+```
+
+## 🤝 貢献
 
 プロジェクトへの貢献を歓迎します。Pull Request や Issue の報告をお待ちしています。
 
-## ライセンス
+## 📄 ライセンス
 
 MIT License

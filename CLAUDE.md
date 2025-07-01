@@ -9,13 +9,12 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 17.x を使用したモダンなフル�
 ```
 laravel_nuxt_postgre_template/
 ├── .claude/                 # Claude AI設定
-├── .cursor/                 # Cursor IDE設定
 ├── .fly/                    # Fly.io デプロイ設定
 ├── .husky/                  # Git hooks設定
 ├── backend/                 # Laravel API アプリケーション
 ├── frontend/               # Nuxt.js フロントエンド
 ├── docker/                # Docker Compose設定
-├── docs/                  # プロジェクトドキュメント
+├── docs/                  # 技術詳細ドキュメント（デプロイ除外）
 ├── docker-compose.yml     # Docker Compose定義
 ├── setup.sh              # 初期セットアップスクリプト
 ├── git-flow.md           # Git Flow運用ガイド
