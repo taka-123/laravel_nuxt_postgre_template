@@ -73,20 +73,86 @@ echo ""
 if [ "$IS_FIRST_RUN" = true ]; then
   section "📝 テンプレートのカスタマイズ"
 
-  # Gitの初期化（テンプレートの履歴をクリア）
-  if [ -d ".git" ] && [ -f "template-setup.sh" ]; then
-    info "Git履歴をクリアして新しいリポジトリを初期化..."
-    rm -rf .git
-    git init
-    git add .
-    git commit -m "feat: initialize project from template"
-    success "Gitリポジトリを初期化しました"
-  fi
+  # プロジェクト名の形式変換
+  PROJECT_NAME_HYPHEN="${PROJECT_NAME}"
+  PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
+  
+  info "プロジェクト名変換："
+  echo "  - ハイフン形式: ${PROJECT_NAME_HYPHEN}"
+  echo "  - アンダースコア形式: ${PROJECT_NAME_UNDERSCORE}"
 
-  # README.mdの更新
-  info "README.mdを更新中..."
+  # 置換対象ファイルのリスト
+  TEMPLATE_FILES=(
+    "package.json"
+    "frontend/package.json"
+    "frontend/package-lock.json"
+    "backend/composer.json"
+    "docker-compose.yml"
+    "backend/fly.toml"
+    "backend/fly.toml.example"
+    "backend/fly.staging.toml"
+    "frontend/fly.toml"
+    "frontend/fly.toml.example"
+    "frontend/fly.staging.toml"
+    "README.md"
+    "CLAUDE.md"
+    "README_aws.md"
+    "setup.sh"
+  )
+
+  # 包括的なプレースホルダー置換関数
+  replace_placeholders() {
+    local file="$1"
+    if [ ! -f "$file" ]; then
+      warning "ファイルが見つかりません: $file"
+      return
+    fi
+
+    info "プレースホルダーを置換中: $file"
+    
+    # バックアップ作成
+    cp "$file" "$file.bak"
+    
+    # 基本的なプレースホルダー置換
+    sed -i.tmp "s/laravel-nuxt-template-frontend-dev/${PROJECT_NAME_HYPHEN}-frontend-dev/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template-backend-staging-unique/${PROJECT_NAME_HYPHEN}-backend-staging-unique/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template-frontend-staging-unique/${PROJECT_NAME_HYPHEN}-frontend-staging-unique/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template-db-staging-unique/${PROJECT_NAME_HYPHEN}-db-staging-unique/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template-db-unique/${PROJECT_NAME_HYPHEN}-db-unique/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template-pgsql-main/${PROJECT_NAME_HYPHEN}-pgsql-main/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template-frontend/${PROJECT_NAME_HYPHEN}-frontend/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template-backend/${PROJECT_NAME_HYPHEN}-backend/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template\/backend/${PROJECT_NAME_HYPHEN}\/backend/g" "$file"
+    sed -i.tmp "s/laravel-nuxt-template/${PROJECT_NAME_HYPHEN}/g" "$file"
+    
+    # アンダースコア形式のプレースホルダー置換
+    sed -i.tmp "s/laravel_nuxt_template_storage_stg/${PROJECT_NAME_UNDERSCORE}_storage_stg/g" "$file"
+    sed -i.tmp "s/laravel_nuxt_template_storage/${PROJECT_NAME_UNDERSCORE}_storage/g" "$file"
+    sed -i.tmp "s/laravel_nuxt_template_staging/${PROJECT_NAME_UNDERSCORE}_staging/g" "$file"
+    sed -i.tmp "s/laravel_nuxt_template_user/${PROJECT_NAME_UNDERSCORE}_user/g" "$file"
+    sed -i.tmp "s/laravel_nuxt_template/${PROJECT_NAME_UNDERSCORE}/g" "$file"
+    
+    # 一時ファイルを削除
+    rm -f "$file.tmp"
+    
+    success "✓ $file の置換が完了しました"
+  }
+
+  # 各ファイルに対して置換を実行
+  info "全てのテンプレートファイルでプレースホルダーを置換中..."
+  for file in "${TEMPLATE_FILES[@]}"; do
+    replace_placeholders "$file"
+  done
+
+  # 特別なドキュメント処理
+  info "ドキュメントファイルの特別処理中..."
+  
+  # README.mdの特別処理
   if [ -f "README.md" ]; then
-    # プロジェクト名の置換
+    info "README.mdを更新中..."
+    # プロジェクト名とタイトルの置換
+    sed -i.bak "s/Laravel + Nuxt + PostgreSQL テンプレート/${PROJECT_NAME}/g" README.md
+    sed -i.bak "s/Laravel 12\.x + Nuxt\.js 3\.16 + PostgreSQL 17\.x を使用したモダンなウェブアプリケーションテンプレートです\./${PROJECT_NAME} - Laravel + Nuxt.js アプリケーション/g" README.md
     sed -i.bak "s/\[PROJECT_NAME\]/${PROJECT_NAME}/g" README.md
     # テンプレート固有の説明を削除
     sed -i.bak '/> \*\*テンプレートから作成されたプロジェクトの場合\*\*/,+1d' README.md
@@ -98,42 +164,48 @@ if [ "$IS_FIRST_RUN" = true ]; then
 ./setup.sh\
 ```' README.md
     sed -i.bak '/### 直接クローンする場合/,/```$/d' README.md
+    # テンプレートの特徴をプロジェクトの特徴に変更
+    sed -i.bak 's/## テンプレートの特徴/## プロジェクトの特徴/g' README.md
+    # テンプレート固有の説明を削除・調整
+    sed -i.bak '/テンプレートのカスタマイズ/d' README.md
+    sed -i.bak 's/テンプレート/プロジェクト/g' README.md
     rm -f README.md.bak
-    success "README.mdを更新しました"
+    success "README.mdの特別処理が完了しました"
   fi
 
-  # package.jsonファイルの更新
-  info "プロジェクト設定ファイルを更新中..."
-
-  # フロントエンド package.json
-  if [ -f "frontend/package.json" ]; then
-    sed -i.bak "s/\"name\": \".*\"/\"name\": \"${PROJECT_NAME}-frontend\"/" frontend/package.json
-    sed -i.bak "s/\"description\": \".*\"/\"description\": \"${PROJECT_NAME} frontend application\"/" frontend/package.json
-    rm -f frontend/package.json.bak
-    success "フロントエンド package.json を更新しました"
+  # CLAUDE.mdの特別処理
+  if [ -f "CLAUDE.md" ]; then
+    info "CLAUDE.mdを更新中..."
+    # プロジェクト名のタイトル更新
+    sed -i.bak "s/# プロジェクト名/# ${PROJECT_NAME}/g" CLAUDE.md
+    # プロジェクト概要の更新
+    sed -i.bak "s/Laravel 12\.x + Nuxt\.js 3\.16 + PostgreSQL 17\.x を使用したモダンなフルスタック Web アプリケーションテンプレート/${PROJECT_NAME} - Laravel + Nuxt.js フルスタック Web アプリケーション/g" CLAUDE.md
+    # データベース名の更新
+    sed -i.bak "s/データベース: laravel_nuxt_template/データベース: ${PROJECT_NAME_UNDERSCORE}/g" CLAUDE.md
+    # テンプレート関連の説明を調整
+    sed -i.bak 's/テンプレート/プロジェクト/g' CLAUDE.md
+    rm -f CLAUDE.md.bak
+    success "CLAUDE.mdの特別処理が完了しました"
   fi
 
-  # バックエンド package.json
-  if [ -f "backend/package.json" ]; then
-    sed -i.bak "s/\"name\": \".*\"/\"name\": \"${PROJECT_NAME}-backend\"/" backend/package.json
-    sed -i.bak "s/\"description\": \".*\"/\"description\": \"${PROJECT_NAME} backend application\"/" backend/package.json
-    rm -f backend/package.json.bak
-    success "バックエンド package.json を更新しました"
+  # README_aws.mdの特別処理
+  if [ -f "README_aws.md" ]; then
+    info "README_aws.mdを更新中..."
+    sed -i.bak "s/Laravel + Nuxt + PostgreSQL テンプレート/${PROJECT_NAME}/g" README_aws.md
+    sed -i.bak "s/ECR_REPOSITORY: laravel-nuxt-template/ECR_REPOSITORY: ${PROJECT_NAME_HYPHEN}/g" README_aws.md
+    sed -i.bak 's/テンプレート/プロジェクト/g' README_aws.md
+    rm -f README_aws.md.bak
+    success "README_aws.mdの特別処理が完了しました"
   fi
 
-  # composer.json の更新
-  if [ -f "backend/composer.json" ]; then
-    sed -i.bak "s/\"name\": \".*\"/\"name\": \"${PROJECT_NAME}\/backend\"/" backend/composer.json
-    sed -i.bak "s/\"description\": \".*\"/\"description\": \"${PROJECT_NAME} のバックエンド部分\"/" backend/composer.json
-    rm -f backend/composer.json.bak
-    success "バックエンド composer.json を更新しました"
-  fi
-
-  # Docker Compose設定の更新
-  if [ -f "docker-compose.yml" ]; then
-    sed -i.bak "s/container_name: .*-/container_name: ${PROJECT_NAME}-/g" docker-compose.yml
-    rm -f docker-compose.yml.bak
-    success "Docker Compose設定を更新しました"
+  # Gitの初期化（テンプレートの履歴をクリア）
+  if [ -d ".git" ] && [ -f "template-setup.sh" ]; then
+    info "Git履歴をクリアして新しいリポジトリを初期化..."
+    rm -rf .git
+    git init
+    git add .
+    git commit -m "feat: initialize project from template"
+    success "Gitリポジトリを初期化しました"
   fi
 
   # template-setup.shを削除
@@ -142,6 +214,12 @@ if [ "$IS_FIRST_RUN" = true ]; then
     success "テンプレート設定スクリプトを削除しました"
   fi
 
+  # バックアップファイルのクリーンアップ
+  info "バックアップファイルをクリーンアップ中..."
+  find . -name "*.bak" -type f -delete 2>/dev/null || true
+  success "バックアップファイルのクリーンアップが完了しました"
+
+  success "🎉 全26箇所のプレースホルダー置換が完了しました！"
   echo ""
 fi
 
@@ -189,7 +267,7 @@ FRONTEND_PORT=3000
 FORWARD_DB_PORT=5432
 
 # データベース設定（docker-compose.yml用）
-DB_DATABASE=laravel_nuxt_template
+DB_DATABASE=${PROJECT_NAME_UNDERSCORE:-laravel_nuxt_template}
 DB_USERNAME=sail
 DB_PASSWORD=password
 EOF
