@@ -2,7 +2,6 @@
 
 laravel_nuxt_postgre_template/
 ├── .claude/                 # Claude AI設定
-├── .cursor/                 # Cursor IDE設定
 ├── .fly/                    # Fly.io デプロイ設定
 ├── .husky/                  # Git hooks設定
 ├── backend/                 # Laravel API アプリケーション
@@ -32,7 +31,7 @@ laravel_nuxt_postgre_template/
 │   ├── nuxt.config.ts     # Nuxt設定
 │   └── tsconfig.json      # TypeScript設定
 ├── docker/                # Docker Compose設定
-├── docs/                  # プロジェクトドキュメント
+├── docs/                  # 技術詳細ドキュメント（デプロイ除外）
 ├── docker-compose.yml     # Docker Compose定義
 ├── package.json          # ルートレベル依存関係
 ├── setup.sh              # 初期セットアップスクリプト

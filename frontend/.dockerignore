@@ -1,0 +1,38 @@
+# Node modules
+node_modules/
+
+# Build output
+.output/
+.nuxt/
+.nitro/
+dist/
+
+# Cache
+.cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+
+# Documentation and development files
+../docs/
+../.claude/
+../git-flow.md
+../directorystructure.md
+../technologystack.md
+../README_aws.md
+../.aws/
+../claude-parallel/
+
+# Test coverage
+coverage/
+__snapshots__/
+vitest-*.json
+
+# Fly.io
+fly.toml
