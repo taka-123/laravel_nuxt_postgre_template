@@ -14,7 +14,7 @@ laravel_nuxt_postgre_template/
 ├── backend/                 # Laravel API アプリケーション
 ├── frontend/               # Nuxt.js フロントエンド
 ├── docker/                # Docker Compose設定
-├── docs/                  # プロジェクトドキュメント
+├── docs/                  # 技術詳細ドキュメント（デプロイ除外）
 ├── docker-compose.yml     # Docker Compose定義
 ├── setup.sh              # 初期セットアップスクリプト
 ├── git-flow.md           # Git Flow運用ガイド

@@ -83,3 +83,13 @@ vendor/psr/container/vendor
 vendor/psr/event-dispatcher/vendor
 vendor/psr/event-dispatcher/**/composer.lock
 fly.toml
+
+# Documentation and development files
+../docs/
+../.claude/
+../git-flow.md
+../directorystructure.md
+../technologystack.md
+../README_aws.md
+../.aws/
+../claude-parallel/
