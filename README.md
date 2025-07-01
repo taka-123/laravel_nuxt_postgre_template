@@ -34,7 +34,7 @@ cd my-project
 - **最新技術スタック**: Laravel 12、Nuxt 3、PostgreSQL 17 を使用
 - **アーキテクチャ**: フロントエンドとバックエンドを分離した API ベースのアーキテクチャ
 - **認証機能**: JWT を使用したトークンベースの認証
-- **シンプルな実装**: 認証とダッシュボードによるフロント・バック・DB連携のサンプル
+- **シンプルな実装**: 認証とダッシュボードによるフロント・バック・DB 連携のサンプル
 - **TypeScript 対応**: Nuxt 3 プロジェクトでの最適化された TypeScript 設定
 - **テスト環境**: PHPUnit と Vitest を使用したテスト環境
 - **Docker 対応**: Docker Compose を使用した開発環境
@@ -47,7 +47,6 @@ cd my-project
 ```
 laravel_nuxt_postgre_template/
 ├── .claude/                 # Claude AI設定
-├── .cursor/                 # Cursor IDE設定
 ├── .fly/                    # Fly.io デプロイ設定
 ├── .husky/                  # Git hooks設定
 ├── backend/                 # Laravel API アプリケーション
@@ -108,7 +107,7 @@ cd backend && php artisan serve
 cd frontend && npm run dev
 ```
 
-> **開発環境用Docker設定**: フロントエンドには開発環境用の `Dockerfile.dev` が用意されており、ホットリロードやデバッグに最適化されています。
+> **開発環境用 Docker 設定**: フロントエンドには開発環境用の `Dockerfile.dev` が用意されており、ホットリロードやデバッグに最適化されています。
 
 アプリケーションにアクセス：
 
@@ -233,12 +232,13 @@ npm run lint:fix
 このテンプレートには以下の機能が完全に実装されており、すぐに動作確認できます：
 
 ### ✅ 認証システム
+
 - ユーザー登録・ログイン・ログアウト
 - JWT トークンベース認証
 - プロフィール画面
 
-
 ### ✅ UI/UX
+
 - Vuetify Material Design
 - レスポンシブ対応
 - ローディング状態表示
@@ -297,37 +297,112 @@ const createPost = async (postData) => {
 #### デプロイ手順
 
 1. **Fly.io CLI のインストール**
+
    ```bash
    curl -L https://fly.io/install.sh | sh
    fly auth login
    ```
 
 2. **API Token の取得**
+
    ```bash
    fly tokens create
    ```
 
 3. **GitHub Secrets の設定**
    以下の環境変数をリポジトリの GitHub Secrets に設定：
+
    - `FLY_API_TOKEN`: 上記で取得した API Token
 
 4. **アプリ名の変更**
    `backend/fly.toml` と `frontend/fly.toml` の app 名を変更：
+
    ```toml
    app = "your-app-name-backend"  # 任意の名前に変更
    ```
-   
+
    参考用に `fly.toml.example` ファイルも提供しているため、必要に応じて利用してください。
 
 5. **詳細なセットアップ手順**
    より詳細な手順については [`docs/fly-setup.md`](docs/fly-setup.md) を参照してください。
-   
 6. **本番環境変数の確認**
    PostgreSQL 17 アップグレード時の注意事項：[PR #28](https://github.com/taka-123/laravel_nuxt_postgre_template/pull/28) を参照
 
-### 将来の拡張オプション
+## 開発ツールの設定
 
-大規模なプロジェクトへの拡張時には AWS ECS/RDS/CloudFront などの利用も検討可能です。
+### テンプレート用の .gitignore 設定
+
+このテンプレートでは、以下のツールがデフォルトで `.gitignore` に含まれています：
+
+- **claude-parallel/**: Claude Code 並列開発環境ツール
+- **.coderabbit.yaml**: CodeRabbit AI コードレビューツール設定
+- **.cursor/**: Cursor IDE設定
+- **.windsurfrules**: Windsurf IDE設定
+- **mise.toml**: mise バージョン管理ツール設定
+
+これらのツールをプロジェクトで使用したい場合は、`.gitignore` から該当行を削除してください：
+
+```bash
+# claude-parallelを使用する場合
+# .gitignoreから以下の行を削除
+# claude-parallel/
+
+# CodeRabbitを使用する場合
+# .gitignoreから以下の行を削除
+# .coderabbit.yaml
+# .coderabbit.yml
+
+# Cursor IDEを使用する場合
+# .gitignoreから以下の行を削除
+# .cursor/
+
+# Windsurf IDEを使用する場合
+# .gitignoreから以下の行を削除
+# .windsurfrules
+
+# miseを使用する場合
+# .gitignoreから以下の行を削除
+# mise.toml
+```
+
+#### claude-parallel について
+
+[claude-parallel](https://github.com/taka-123/claude-parallel) は、Git worktree と tmux を組み合わせた並列開発環境ツールです。チーム開発で使用する場合は、Git 管理に含めることで、チーム全体で同じ並列開発環境を共有できます。
+
+#### CodeRabbit について
+
+CodeRabbit は AI によるコードレビューツールです。プロジェクトで使用する場合は、設定ファイルをバージョン管理に含めることで、チーム全体で一貫したレビュー基準を維持できます。
+
+### 開発フローの参考ガイド
+
+このテンプレートには、チーム開発で活用できる Git Flow ベースの開発フローガイドが含まれています：
+
+- [`git-flow.md`](git-flow.md) - GitHub Issue 作成から PR マージまでの標準的なフロー
+
+このガイドは参考として提供していますので、プロジェクトの規模やチームの状況に応じて自由にカスタマイズしてください。
+
+### CLAUDE.md について
+
+このテンプレートには `CLAUDE.md` というプロジェクト仕様書が含まれています。これは以下の理由でGit管理されています：
+
+- **プロジェクト固有の技術仕様や設計思想を記載**
+- **新メンバーのオンボーディング資料として活用可能**
+- **AI開発ツール（Claude Code等）との連携で開発効率向上**
+
+ただし、以下の場合は削除または `.gitignore` への追加を検討してください：
+
+- チームでAI開発ツールを全く使用しない
+- 技術ドキュメントとしてメンテナンスする予定がない
+- README.md で十分な情報が提供されている
+
+```bash
+# CLAUDE.mdを使用しない場合
+# .gitignoreに追加
+echo "CLAUDE.md" >> .gitignore
+
+# または削除
+rm CLAUDE.md
+```
 
 ## トラブルシューティング
 

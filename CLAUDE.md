@@ -9,7 +9,6 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 17.x を使用したモダンなフル�
 ```
 laravel_nuxt_postgre_template/
 ├── .claude/                 # Claude AI設定
-├── .cursor/                 # Cursor IDE設定
 ├── .fly/                    # Fly.io デプロイ設定
 ├── .husky/                  # Git hooks設定
 ├── backend/                 # Laravel API アプリケーション
