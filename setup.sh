@@ -15,8 +15,10 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# プロジェクト名の取得
+# プロジェクト名の取得と形式変換
 PROJECT_NAME="${1:-$(basename "$PWD")}"
+PROJECT_NAME_HYPHEN="${PROJECT_NAME}"
+PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
 
 # 初回実行かどうかの判定
 # テンプレート初期化が完了済みかどうかをREADME.mdで判定
@@ -73,10 +75,6 @@ echo ""
 if [ "$IS_FIRST_RUN" = true ]; then
   section "📝 テンプレートのカスタマイズ"
 
-  # プロジェクト名の形式変換
-  PROJECT_NAME_HYPHEN="${PROJECT_NAME}"
-  PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
-  
   info "プロジェクト名変換："
   echo "  - ハイフン形式: ${PROJECT_NAME_HYPHEN}"
   echo "  - アンダースコア形式: ${PROJECT_NAME_UNDERSCORE}"
