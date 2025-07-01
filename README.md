@@ -45,12 +45,31 @@ cd my-project
 ## プロジェクト構成
 
 ```
-/
-├── backend/          # Laravel アプリケーション
-├── frontend/         # Nuxt.js アプリケーション
-├── docker/           # Docker 関連ファイル
-├── docs/             # プロジェクトドキュメント
-└── .github/          # GitHub Actions ワークフロー
+laravel_nuxt_postgre_template/
+├── .claude/                 # Claude AI設定
+├── .cursor/                 # Cursor IDE設定
+├── .fly/                    # Fly.io デプロイ設定
+├── .husky/                  # Git hooks設定
+├── backend/                 # Laravel API アプリケーション
+│   ├── app/                 # アプリケーションコード
+│   ├── config/             # 設定ファイル
+│   ├── database/           # マイグレーション・シーダー
+│   ├── resources/          # ビュー・アセット
+│   ├── routes/             # ルート定義
+│   ├── tests/              # テストファイル
+│   └── fly.toml           # Fly.io設定
+├── frontend/               # Nuxt.js フロントエンド
+│   ├── composables/        # Vue Composables
+│   ├── layouts/           # レイアウトコンポーネント
+│   ├── pages/             # ページコンポーネント
+│   ├── stores/            # Pinia状態管理
+│   └── nuxt.config.ts     # Nuxt設定
+├── docker/                # Docker Compose設定
+├── docs/                  # プロジェクトドキュメント
+├── docker-compose.yml     # Docker Compose定義
+├── setup.sh              # 初期セットアップスクリプト
+├── git-flow.md           # Git Flow運用ガイド
+└── README.md             # プロジェクトメイン説明
 ```
 
 ## 開発環境のセットアップ
