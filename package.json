@@ -7,8 +7,8 @@
   },
   "lint-staged": {
     "backend/**/*.php": [
-      "cd backend && ./vendor/bin/pint",
-      "cd backend && ./vendor/bin/phpcs"
+      "backend/vendor/bin/pint -- {files}",
+      "backend/vendor/bin/phpcs -- {files}"
     ]
   },
   "author": "",
