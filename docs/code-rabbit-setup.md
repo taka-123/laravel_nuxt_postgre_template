@@ -4,14 +4,20 @@
 
 Code Rabbit は AI を活用したコードレビューツールです。GitHub と統合することで、プルリクエストに対して自動的にコードレビューを実行し、品質向上を支援します。
 
-## 基本設定（完了済み）
+## 基本設定
 
-✅ **アカウント作成**: GitHub アカウントで Code Rabbit にサインアップ済み
-✅ **リポジトリ連携**: `taka-123/laravel_nuxt_postgre_template` との連携設定済み
+### 1. アカウント作成
+1. https://www.coderabbit.ai/ja にアクセス
+2. **GitHubでサインアップ** をクリック
+3. GitHub アカウントで認証
+
+### 2. リポジトリ連携
+1. Code Rabbit ダッシュボードでリポジトリを選択
+2. 連携を承認
 
 ## VS Code 拡張機能のインストール（推奨・完全無料）
 
-✅ **VS Code拡張機能は完全無料**で利用できます！
+**VS Code拡張機能は完全無料**で利用できます！
 
 ### インストール手順
 
@@ -39,7 +45,7 @@ Code Rabbit は AI を活用したコードレビューツールです。GitHub 
    - `Reject`: 指摘を無視
    - カスタム対応: GitHub Copilot等に内容を転送
 
-## 使用方法
+## 基本的な使用方法
 
 ### プルリクエストでの自動レビュー
 
@@ -84,7 +90,7 @@ Code Rabbit は AI を活用したコードレビューツールです。GitHub 
 A: リポジトリの連携設定を確認してください。必要に応じて Code Rabbit の設定画面で再連携してください。
 
 **Q: 特定のファイルをレビュー対象外にしたい**
-A: `.coderabbit.yml` 設定ファイルでレビュー対象を制御できます。
+A: `.coderabbit.yaml` 設定ファイルでレビュー対象を制御できます。
 
 **Q: VS Code 拡張が動作しない**
 A: Code Rabbit アカウントでログインしているか確認してください。
@@ -95,7 +101,9 @@ Code Rabbit は日本語でのレビューが可能です。以下の設定を�
 
 ### 1. 設定ファイルの作成
 
-プロジェクトルートに `.coderabbit.yaml` ファイルを作成：
+プロジェクトルートに `.coderabbit.yaml` ファイルを作成してください：
+
+**注意**: このテンプレートでは `.coderabbit.yaml` は `.gitignore` に含まれています。各プロジェクトで個別に作成してください。
 
 ```yaml
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
@@ -161,27 +169,17 @@ reviews:
 - まとめて変更してからレビューを依頼
 - VS Code拡張を活用してローカルでプレビュー
 
-### ベストプラクティス設定
+### UI設定での日本語化
 
-推奨設定として、日本語でのレビュー観点をカスタマイズ：
+Code Rabbit ダッシュボードからも日本語設定が可能です：
 
-```yaml
-custom_instructions: |
-  このプロジェクトは Laravel 12.x + Nuxt.js 3.16 の構成です。
-  以下の観点を重視してレビューしてください：
-  
-  【バックエンド（Laravel）】
-  - PSR-12 準拠
-  - セキュリティ（SQLインジェクション、XSS等）
-  - Eloquent の適切な使用
-  - API レスポンスの一貫性
-  
-  【フロントエンド（Nuxt/Vue）】
-  - Vue 3 Composition API の適切な使用
-  - TypeScript の型安全性
-  - Vuetify コンポーネントの効率的な利用
-  - パフォーマンス最適化
-```
+1. https://app.coderabbit.ai/ にログイン
+2. 対象リポジトリの **「Configure」** をクリック
+3. **Language**: `Japanese` に変更
+4. **Review Instructions**: 日本語でカスタム指示を追加
+5. **Save Settings** で保存
+
+**設定の優先順位**: `.coderabbit.yaml` > リポジトリUI設定 > 組織設定
 
 ## 参考リンク
 
