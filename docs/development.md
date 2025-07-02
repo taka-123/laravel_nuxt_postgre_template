@@ -59,6 +59,7 @@ Visual Studio Code を推奨エディタとして使用します。
 - Docker
 - DotENV
 - PostgreSQL
+- CodeRabbit（AI コードレビュー）
 
 ## バックエンド開発
 
