@@ -44,6 +44,7 @@ laravel_nuxt_postgre_template/
 - **Docker Compose**: Laravel, Nuxt, PostgreSQL, pgAdmin を含む完全な開発スタック
 - **ローカル開発**: Docker なしで Laravel と Nuxt を個別に実行可能
 - **データベース**: PostgreSQL 17 (Docker) または SQLite (ローカル開発)
+- **AI コードレビュー**: Code Rabbit によるプルリクエスト自動レビュー
 
 ## 開発規約
 
