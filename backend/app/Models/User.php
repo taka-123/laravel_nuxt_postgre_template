@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -13,7 +15,7 @@ class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
-    
+
     /**
      * Laravelのタイムスタンプを有効化
      *
@@ -77,5 +79,4 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
-
 }

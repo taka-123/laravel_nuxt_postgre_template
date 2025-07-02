@@ -7,13 +7,13 @@ export function useAuth() {
 
   return {
     // ログインと同時にリダイレクト
-    async loginAndRedirect(email: string, password: string, redirectPath?: string) {
-      try {
-        await authStore.login(email, password)
-        router.push(redirectPath || '/')
-      } catch (error) {
-        throw error
-      }
+    async loginAndRedirect(
+      email: string,
+      password: string,
+      redirectPath?: string
+    ) {
+      await authStore.login(email, password)
+      router.push(redirectPath || '/')
     },
 
     // 登録と同時にリダイレクト
@@ -21,15 +21,11 @@ export function useAuth() {
       name: string,
       email: string,
       password: string,
-      password_confirmation: string,
-      redirectPath?: string,
+      passwordConfirmation: string,
+      redirectPath?: string
     ) {
-      try {
-        await authStore.register(name, email, password, password_confirmation)
-        router.push(redirectPath || '/')
-      } catch (error) {
-        throw error
-      }
+      await authStore.register(name, email, password, passwordConfirmation)
+      router.push(redirectPath || '/')
     },
 
     // ログアウトと同時にリダイレクト

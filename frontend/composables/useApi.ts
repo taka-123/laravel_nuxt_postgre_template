@@ -5,9 +5,12 @@ export const useApi = () => {
   const config = useRuntimeConfig()
 
   // 開発環境では直接APIサーバーに接続、本番環境では環境変数を使用
-  const baseURL = process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:8000/api' // 開発環境では直接接続
-    : (process.server ? config.public.serverApiBase : config.public.apiBase)
+  const baseURL =
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:8000/api' // 開発環境では直接接続
+      : process.server
+        ? config.public.serverApiBase
+        : config.public.apiBase
 
   const api = axios.create({
     baseURL,
@@ -26,14 +29,14 @@ export const useApi = () => {
       if (!process.server) {
         const token = localStorage.getItem('auth_token')
         if (token) {
-          config.headers['Authorization'] = `Bearer ${token}`
+          config.headers.Authorization = `Bearer ${token}`
         }
       }
       return config
     },
     (error) => {
       return Promise.reject(error)
-    },
+    }
   )
 
   // レスポンスインターセプター
@@ -41,12 +44,12 @@ export const useApi = () => {
     (response) => {
       return response
     },
-    async (error) => {
+    (error) => {
       // エラーレスポンスの詳細情報を設定
       if (error.response) {
         // サーバーからのレスポンスがある場合
         const { status, data } = error.response
-        
+
         // 日本語エラーメッセージの統一
         switch (status) {
           case 400:
@@ -55,7 +58,10 @@ export const useApi = () => {
           case 401:
             error.message = data?.message || '認証に失敗しました'
             // クライアントサイドでのみ認証エラー処理（ログインページ以外）
-            if (!process.server && !window.location.pathname.includes('/login')) {
+            if (
+              !process.server &&
+              !window.location.pathname.includes('/login')
+            ) {
               localStorage.removeItem('auth_token')
               localStorage.removeItem('refresh_token')
               window.location.href = '/login'
@@ -71,7 +77,9 @@ export const useApi = () => {
             error.message = data?.message || '入力内容に不備があります'
             break
           case 429:
-            error.message = data?.message || 'リクエストが多すぎます。しばらく待ってから再度お試しください'
+            error.message =
+              data?.message ||
+              'リクエストが多すぎます。しばらく待ってから再度お試しください'
             break
           case 500:
             error.message = data?.message || 'サーバーエラーが発生しました'
@@ -91,9 +99,9 @@ export const useApi = () => {
         // その他のエラー
         error.message = error.message || '予期しないエラーが発生しました'
       }
-      
+
       return Promise.reject(error)
-    },
+    }
   )
 
   return api

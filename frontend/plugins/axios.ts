@@ -21,13 +21,13 @@ export default defineNuxtPlugin(() => {
     (config) => {
       const token = localStorage.getItem('auth_token')
       if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`
+        config.headers.Authorization = `Bearer ${token}`
       }
       return config
     },
     (error) => {
       return Promise.reject(error)
-    },
+    }
   )
 
   // レスポンスインターセプター
@@ -39,7 +39,11 @@ export default defineNuxtPlugin(() => {
       const originalRequest = error.config
 
       // トークンの有効期限切れの場合（401エラー）かつリフレッシュ試行フラグがない場合
-      if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      if (
+        error.response &&
+        error.response.status === 401 &&
+        !originalRequest._retry
+      ) {
         originalRequest._retry = true
 
         try {
@@ -56,14 +60,14 @@ export default defineNuxtPlugin(() => {
               headers: {
                 Authorization: `Bearer ${refreshToken}`,
               },
-            },
+            }
           )
 
           const { access_token } = response.data
           localStorage.setItem('auth_token', access_token)
 
           // 元のリクエストを再試行
-          originalRequest.headers['Authorization'] = `Bearer ${access_token}`
+          originalRequest.headers.Authorization = `Bearer ${access_token}`
           return axios(originalRequest)
         } catch (refreshError) {
           // リフレッシュに失敗した場合はログアウト処理
@@ -77,7 +81,7 @@ export default defineNuxtPlugin(() => {
       }
 
       return Promise.reject(error)
-    },
+    }
   )
 
   return {

@@ -15,6 +15,6 @@ module.exports = {
     suppressImplicitAnyIndexErrors: true,
     checkJs: false,
     ignoreDeprecations: '5.0',
-    suppressExcessPropertyErrors: true
-  }
+    suppressExcessPropertyErrors: true,
+  },
 }
