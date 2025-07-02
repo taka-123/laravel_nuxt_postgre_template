@@ -1,6 +1,11 @@
 <template>
   <div class="d-flex align-center justify-center" style="min-height: 100vh">
-    <v-card class="pa-8 mx-4 mx-sm-auto" max-width="450" width="100%" elevation="4">
+    <v-card
+      class="pa-8 mx-4 mx-sm-auto"
+      max-width="450"
+      width="100%"
+      elevation="4"
+    >
       <v-card-title class="text-h4 mb-6 text-center">ログイン</v-card-title>
 
       <v-form @submit.prevent="login">
@@ -29,20 +34,20 @@
         ></v-text-field>
 
         <div class="mt-6">
-          <v-btn 
-            type="submit" 
-            color="primary" 
-            size="large" 
-            :loading="loading" 
+          <v-btn
+            type="submit"
+            color="primary"
+            size="large"
+            :loading="loading"
             :disabled="loading"
             block
             class="mb-4"
           >
             ログイン
           </v-btn>
-          
+
           <div class="text-center">
-            <NuxtLink to="/register" class="text-decoration-none text-body-2"> 
+            <NuxtLink to="/register" class="text-decoration-none text-body-2">
               アカウントをお持ちでない方は新規登録
             </NuxtLink>
           </div>
@@ -54,10 +59,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useAuth } from '~/composables/useAuth'
-import { useAuthStore } from '~/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
+import { useAuthStore } from '~/stores/auth'
 
 // 認証機能を取得
 const { loginAndRedirect } = useAuth()

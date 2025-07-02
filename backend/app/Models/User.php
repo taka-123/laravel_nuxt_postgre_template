@@ -13,7 +13,7 @@ class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
-    
+
     /**
      * Laravelのタイムスタンプを有効化
      *
@@ -77,5 +77,4 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
-
 }

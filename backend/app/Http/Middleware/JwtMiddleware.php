@@ -5,18 +5,16 @@ namespace App\Http\Middleware;
 use Closure;
 use Exception;
 use Illuminate\Http\Request;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class JwtMiddleware
 {
     /**
      * JWTトークンを検証し、ユーザーが認証されていることを確認します。
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -26,10 +24,10 @@ class JwtMiddleware
             $user = JWTAuth::parseToken()->authenticate();
 
             // ユーザーが見つからない場合
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'User not found'
+                    'message' => 'User not found',
                 ], 404);
             }
 
@@ -38,7 +36,7 @@ class JwtMiddleware
             return response()->json([
                 'status' => 'error',
                 'message' => 'Token has expired',
-                'error' => 'token_expired'
+                'error' => 'token_expired',
             ], 401);
 
         } catch (TokenInvalidException $e) {
@@ -46,7 +44,7 @@ class JwtMiddleware
             return response()->json([
                 'status' => 'error',
                 'message' => 'Token is invalid',
-                'error' => 'token_invalid'
+                'error' => 'token_invalid',
             ], 401);
 
         } catch (JWTException $e) {
@@ -54,7 +52,7 @@ class JwtMiddleware
             return response()->json([
                 'status' => 'error',
                 'message' => 'Authorization token not found',
-                'error' => 'token_absent'
+                'error' => 'token_absent',
             ], 401);
 
         } catch (Exception $e) {
@@ -62,7 +60,7 @@ class JwtMiddleware
             return response()->json([
                 'status' => 'error',
                 'message' => 'Authorization error',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
 

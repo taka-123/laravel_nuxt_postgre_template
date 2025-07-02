@@ -196,7 +196,7 @@ class AuthenticationTest extends TestCase
 
         // トークンを使ってリフレッシュ
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/auth/refresh');
 
         $response->assertStatus(200)

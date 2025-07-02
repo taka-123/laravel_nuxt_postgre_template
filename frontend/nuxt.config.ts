@@ -28,18 +28,22 @@ export default defineNuxtConfig({
       exclude: ['vue-demi'],
     },
   },
-  css: ['vuetify/lib/styles/main.sass', '@mdi/font/css/materialdesignicons.min.css'],
+  css: [
+    'vuetify/lib/styles/main.sass',
+    '@mdi/font/css/materialdesignicons.min.css',
+  ],
   typescript: {
     strict: false,
     typeCheck: false,
-    shim: false
+    shim: false,
   },
   runtimeConfig: {
     public: {
       // クライアントサイド（ブラウザ）用API URL
       apiBase: process.env.BROWSER_API_BASE_URL || 'http://localhost:8000/api',
       // サーバーサイド（Dockerコンテナ内）用API URL
-      serverApiBase: process.env.SERVER_API_BASE_URL || 'http://laravel.test/api',
+      serverApiBase:
+        process.env.SERVER_API_BASE_URL || 'http://laravel.test/api',
       appEnv: process.env.APP_ENV || 'development',
     },
   },

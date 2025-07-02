@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -25,9 +25,6 @@ class AuthController extends Controller
 
     /**
      * Register a User.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function register(Request $request): JsonResponse
     {
@@ -59,9 +56,6 @@ class AuthController extends Controller
 
     /**
      * Get a JWT via given credentials.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request): JsonResponse
     {
@@ -77,7 +71,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         $token = Auth::guard('api')->attempt($credentials);
-        if (!$token) {
+        if (! $token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -86,8 +80,6 @@ class AuthController extends Controller
 
     /**
      * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function me(): JsonResponse
     {
@@ -96,8 +88,6 @@ class AuthController extends Controller
 
     /**
      * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function logout(): JsonResponse
     {
@@ -109,8 +99,6 @@ class AuthController extends Controller
     /**
      * Refresh a token.
      * トークンをリフレッシュする
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function refresh(): JsonResponse
     {
@@ -119,9 +107,6 @@ class AuthController extends Controller
 
     /**
      * トークンのレスポンス形式
-     *
-     * @param string|null $token
-     * @return JsonResponse
      */
     protected function respondWithToken(?string $token): JsonResponse
     {
@@ -129,7 +114,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
-            'user' => Auth::guard('api')->user()
+            'user' => Auth::guard('api')->user(),
         ]);
     }
 }
