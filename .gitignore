@@ -121,8 +121,8 @@ packaged.yaml
 claude-parallel/
 
 # CodeRabbit configuration (template development only)
-.coderabbit.yaml
-.coderabbit.yml
+# .coderabbit.yaml
+# .coderabbit.yml
 
 # Cursor IDE
 .cursor/

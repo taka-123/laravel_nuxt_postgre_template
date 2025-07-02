@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Code Rabbit 設定ファイル - Laravel 12.x + Nuxt.js 3.16 + PostgreSQL プロジェクト用
+
+language: ja-JP
+early_access: false
+
+tone_instructions: "Laravel + Nuxt.js プロジェクト。PSR-12準拠、セキュリティ、Vue 3 Composition API、TypeScript型安全性、パフォーマンス最適化を重視してレビューしてください。"
+
+knowledge_base:
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+
+chat:
+  auto_reply: true
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  path_filters:
+    # 含める重要なファイル
+    - "backend/**/*.php"
+    - "frontend/**/*.{ts,js,vue}"
+    - "*.{md,yml,yaml,json}"
+    - "docker-compose.yml"
+    - "setup.sh"
+    # 除外パス
+    - "!**/node_modules/**"
+    - "!**/vendor/**"
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+    - "!**/dist/**"
+    - "!**/.nuxt/**"
+    - "!**/coverage/**"
+    - "!**/.phpunit.result.cache"
+    - "!**/storage/logs/**"
+    - "!**/storage/framework/**"
+    - "!**/public/hot"
+    - "!**/public/storage"
+    - "!**/*.lock"
+    - "!**/*.log"
+    - "!**/composer.lock"
+    - "!**/package-lock.json"
+    - "!**/yarn.lock"
