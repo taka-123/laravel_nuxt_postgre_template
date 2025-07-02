@@ -81,6 +81,11 @@ const { isAuthenticated } = storeToRefs(authStore)
 
 // ログアウト処理
 const handleLogout = async () => {
-  await authStore.logout()
+  try {
+    await authStore.logout()
+  } catch (error) {
+    console.error('ログアウトエラー:', error)
+    // ユーザーにエラーを通知（必要に応じてトースト等）
+  }
 }
 </script>

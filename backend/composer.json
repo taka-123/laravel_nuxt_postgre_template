@@ -38,11 +38,6 @@
       "Tests\\": "tests/"
     }
   },
-  "lint-staged": {
-    "*.php": [
-      "./vendor/bin/pint"
-    ]
-  },
   "scripts": {
     "post-autoload-dump": [
       "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
