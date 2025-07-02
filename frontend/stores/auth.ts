@@ -88,7 +88,7 @@ export const useAuthStore = defineStore('auth', {
       name: string,
       email: string,
       password: string,
-      password_confirmation: string
+      passwordConfirmation: string
     ) {
       this.loading = true
       const api = useApi()
@@ -98,7 +98,7 @@ export const useAuthStore = defineStore('auth', {
           name,
           email,
           password,
-          password_confirmation,
+          password_confirmation: passwordConfirmation,
         })
 
         const { access_token, user } = response.data
