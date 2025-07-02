@@ -118,6 +118,7 @@ npm run lint:css:fix             # stylelint自動修正
 ### 環境設定
 
 - `/backend/.env.example` - Laravel 環境変数テンプレート
+  - `FRONTEND_URL`: フロントエンドURL（本番環境CORS設定用）
 - `/frontend/.env.example` - Nuxt 環境変数テンプレート
 - `/docker-compose.yml` - Docker 開発環境
 
