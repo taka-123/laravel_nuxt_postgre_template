@@ -98,37 +98,38 @@ Code Rabbit は日本語でのレビューが可能です。以下の設定を�
 プロジェクトルートに `.coderabbit.yaml` ファイルを作成：
 
 ```yaml
-# .coderabbit.yaml
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: ja-JP
-system_message: |
-  あなたは @coderabbitai（別名 github-actions[bot]）で、OpenAIによって訓練された言語モデルです。
-  あなたの目的は、非常に経験豊富なソフトウェアエンジニアとして機能し、コードの一部を徹底的にレビューし、
-  以下の項目を重点的にチェックしてください：
+early_access: false
+
+tone_instructions: |
+  このプロジェクトは Laravel + Nuxt.js の構成です。
+  以下の観点を重視してレビューしてください：
   
-  1. コードの品質と可読性
-  2. セキュリティの問題
-  3. パフォーマンスの最適化
-  4. ベストプラクティスの遵守
-  5. バグの可能性
+  【バックエンド（Laravel）】
+  - PSR-12 コーディング規約の準拠
+  - セキュリティ（SQLインジェクション、XSS、CSRF等）
+  - Eloquent ORM の適切な使用
+  
+  【フロントエンド（Nuxt/Vue）】
+  - Vue 3 Composition API の適切な使用
+  - TypeScript の型安全性
+  - パフォーマンス最適化
+
+knowledge_base:
+  learnings:
+    scope: auto
 
 reviews:
-  auto_review: true
+  profile: chill
   request_changes_workflow: false
-  
-language_settings:
-  php:
-    # Laravel/PHP固有の設定
-    style_guide: "PSR-12"
-  typescript:
-    # TypeScript/Vue.js固有の設定
-    style_guide: "Vue 3 + TypeScript"
-
-path_filters:
-  - "!**/node_modules/**"
-  - "!**/vendor/**"
-  - "!**/*.min.js"
-  - "!**/dist/**"
-  - "!**/.nuxt/**"
+  high_level_summary: true
+  review_status: true
+  path_filters:
+    - "backend/**/*.php"
+    - "frontend/**/*.{ts,js,vue}"
+    - "!**/node_modules/**"
+    - "!**/vendor/**"
 ```
 
 ### 2. GitHub リポジトリでの設定
