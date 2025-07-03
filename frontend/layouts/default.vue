@@ -88,7 +88,6 @@ const handleLogout = async () => {
   } catch (error) {
     // 型安全性のための環境値の検証
     const isDevelopment = config.public.appEnv === 'development'
-    
     if (isDevelopment) {
       // eslint-disable-next-line no-console
       console.error('ログアウトエラー:', error)
