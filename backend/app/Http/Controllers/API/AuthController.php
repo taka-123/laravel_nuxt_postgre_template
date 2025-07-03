@@ -44,10 +44,11 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        Auth::guard('api')->login($user);
-        $token = Auth::guard('api')->refresh();
+        $guard = Auth::guard('api');
+        $guard->login($user);
+        $token = method_exists($guard, 'refresh') ? $guard->refresh() : $guard->attempt(['email' => $user->email]);
 
-        if ($token) {
+        if (is_string($token)) {
             return $this->respondWithToken($token);
         }
 
@@ -75,7 +76,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken($token);
+        return $this->respondWithToken(is_string($token) ? $token : null);
     }
 
     /**
@@ -102,7 +103,15 @@ class AuthController extends Controller
      */
     public function refresh(): JsonResponse
     {
-        return $this->respondWithToken(Auth::guard('api')->refresh());
+        $guard = Auth::guard('api');
+        if (method_exists($guard, 'refresh')) {
+            $token = $guard->refresh();
+            if (is_string($token)) {
+                return $this->respondWithToken($token);
+            }
+        }
+        
+        return response()->json(['error' => 'Could not refresh token'], 401);
     }
 
     /**
@@ -110,11 +119,18 @@ class AuthController extends Controller
      */
     protected function respondWithToken(?string $token): JsonResponse
     {
+        $guard = Auth::guard('api');
+        $ttl = 3600; // Default 1 hour
+        
+        if (method_exists($guard, 'factory') && $guard->factory()) {
+            $ttl = $guard->factory()->getTTL() * 60;
+        }
+        
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
-            'user' => Auth::guard('api')->user(),
+            'expires_in' => $ttl,
+            'user' => $guard->user(),
         ]);
     }
 }

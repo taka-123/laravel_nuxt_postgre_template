@@ -58,7 +58,7 @@
     ],
     "lint": "./vendor/bin/pint",
     "lint-staged": "lint-staged",
-    "analyze": "phpstan analyse",
+    "analyze": "phpstan analyse --memory-limit=512M",
     "test": "phpunit"
   },
   "extra": {

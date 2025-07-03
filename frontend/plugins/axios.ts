@@ -63,11 +63,11 @@ export default defineNuxtPlugin(() => {
             }
           )
 
-          const { access_token } = response.data
-          localStorage.setItem('auth_token', access_token)
+          const accessToken = response.data.access_token
+          localStorage.setItem('auth_token', accessToken)
 
           // 元のリクエストを再試行
-          originalRequest.headers.Authorization = `Bearer ${access_token}`
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`
           return axios(originalRequest)
         } catch (refreshError) {
           // リフレッシュに失敗した場合はログアウト処理

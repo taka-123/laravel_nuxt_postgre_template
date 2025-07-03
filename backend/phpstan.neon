@@ -10,4 +10,5 @@ parameters:
     level: 5
     excludePaths:
         - tests
+    treatPhpDocTypesAsCertain: false
 
