@@ -44,8 +44,7 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        $guard = Auth::guard('api');
-        $token = $guard->attempt(['email' => $request->email, 'password' => $request->password]);
+        $token = Auth::guard('api')->login($user);
 
         if (is_string($token)) {
             return $this->respondWithToken($token);
