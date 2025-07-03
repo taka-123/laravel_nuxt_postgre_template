@@ -85,7 +85,7 @@ const config = useRuntimeConfig()
 const handleLogout = async () => {
   try {
     await authStore.logout()
-  } catch (error: unknown) {
+  } catch (error) {
     // 型安全性のための環境値の検証
     const isDevelopment = config.public.appEnv === 'development'
     

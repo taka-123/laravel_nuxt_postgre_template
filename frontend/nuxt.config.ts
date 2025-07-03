@@ -44,7 +44,7 @@ export default defineNuxtConfig({
       // サーバーサイド（Dockerコンテナ内）用API URL
       serverApiBase:
         process.env.SERVER_API_BASE_URL || 'http://laravel.test/api',
-      appEnv: (process.env.NODE_ENV || 'production') as 'development' | 'production',
+      appEnv: (process.env.NODE_ENV || 'development') as 'development' | 'production',
     },
   },
 })
