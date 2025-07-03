@@ -41,15 +41,13 @@
   "scripts": {
     "post-autoload-dump": [
       "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-      "@php artisan package:discover --ansi"
+      "@php artisan package:discover --ansi",
+      "@php artisan ide-helper:generate --quiet || true",
+      "@php artisan ide-helper:models --nowrite --quiet || true",
+      "@php artisan ide-helper:meta --quiet || true"
     ],
     "post-update-cmd": [
       "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
-    ],
-    "post-install-cmd": [
-      "@php artisan ide-helper:generate",
-      "@php artisan ide-helper:models --nowrite",
-      "@php artisan ide-helper:meta"
     ],
     "post-root-package-install": [
       "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
@@ -61,6 +59,11 @@
     "dev": [
       "Composer\\Config::disableProcessTimeout",
       "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+    ],
+    "ide-helper": [
+      "@php artisan ide-helper:generate",
+      "@php artisan ide-helper:models --nowrite",
+      "@php artisan ide-helper:meta"
     ],
     "lint": "./vendor/bin/pint",
     "lint-staged": "lint-staged",
