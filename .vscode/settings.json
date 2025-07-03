@@ -76,18 +76,38 @@
   "typescript.reportStyleChecksAsWarnings": false,
   "typescript.surveys.enabled": false,
   "typescript.preferences.useLabelDetailsInCompletionEntries": true,
-  "typescript.preferences.jsxAttributeCompletionStyle": "none",
-  // tsconfig.jsonファイルでの型エラー表示を抑制
-  "typescript.validate.enable": true,
   "typescript.preferences.allowTextChangesInNewFiles": false,
-  
-  // 特定のエラーコードを無効化
-  "typescript.problems.filter": {
-    "ignoreCompilerOptions": true
-  },
+  "typescript.preferences.jsxAttributeCompletionStyle": "none",
+  "typescript.validate.enable": true,
 
   // ===================================
   // Laravel Pint有効化
   // ===================================
-  "laravel-pint.enable": true
+  "laravel-pint.enable": true,
+
+  // ===================================
+  // PHPStan設定
+  // ===================================
+  "phpstan.binPath": "${workspaceFolder}/backend/vendor/bin/phpstan",
+  "phpstan.configPath": "${workspaceFolder}/backend/phpstan.neon",
+  "phpstan.rootDir": "${workspaceFolder}/backend",
+  "phpstan.enabled": true,
+
+  // ===================================
+  // Intelephense設定
+  // ===================================
+  "intelephense.environment.phpVersion": "8.2",
+  "intelephense.environment.includePaths": [
+    "./backend/vendor/laravel/framework/src",
+    "./backend/vendor/php-open-source-saver/jwt-auth/src"
+  ],
+  "intelephense.files.associations": ["*.php", "*.blade.php"],
+  "intelephense.files.exclude": [
+    "**/node_modules/**",
+    "**/vendor/**",
+    "**/storage/**",
+    "**/bootstrap/cache/**"
+  ],
+  "intelephense.files.maxSize": 5000000,
+  "intelephense.telemetry.enabled": false
 }
