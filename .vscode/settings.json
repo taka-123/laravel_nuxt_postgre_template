@@ -70,6 +70,23 @@
   "eslint.validate": ["javascript", "typescript", "vue"],
 
   // ===================================
+  // TypeScript診断制御（IDE警告を抑制）
+  // ===================================
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.reportStyleChecksAsWarnings": false,
+  "typescript.surveys.enabled": false,
+  "typescript.preferences.useLabelDetailsInCompletionEntries": true,
+  "typescript.preferences.jsxAttributeCompletionStyle": "none",
+  // tsconfig.jsonファイルでの型エラー表示を抑制
+  "typescript.validate.enable": true,
+  "typescript.preferences.allowTextChangesInNewFiles": false,
+  
+  // 特定のエラーコードを無効化
+  "typescript.problems.filter": {
+    "ignoreCompilerOptions": true
+  },
+
+  // ===================================
   // Laravel Pint有効化
   // ===================================
   "laravel-pint.enable": true
