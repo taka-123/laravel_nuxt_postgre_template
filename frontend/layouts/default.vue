@@ -85,15 +85,15 @@ const config = useRuntimeConfig()
 const handleLogout = async () => {
   try {
     await authStore.logout()
-  } catch (error) {
-    // 開発環境のみconsole.errorを出力
-    if (config.public.appEnv === 'development') {
+  } catch (error: unknown) {
+    // 型安全性のための環境値の検証
+    const isDevelopment = config.public.appEnv === 'development'
+    
+    if (isDevelopment) {
       // eslint-disable-next-line no-console
       console.error('ログアウトエラー:', error)
     } else {
-      // 本番環境でのエラー処理
-      // エラー監視サービスへの送信やユーザー通知を実装
-      console.warn('ログアウト中にエラーが発生しました')
+      // 本番環境では silent fail または適切な UI フィードバックのみ
       // TODO: 本番環境用のエラー監視サービスとの連携を実装
       // await $errorReporting.captureException(error)
       // await $toast.error('ログアウト中にエラーが発生しました')
