@@ -90,9 +90,14 @@ const handleLogout = async () => {
     if (config.public.appEnv === 'development') {
       // eslint-disable-next-line no-console
       console.error('ログアウトエラー:', error)
+    } else {
+      // 本番環境でのエラー処理
+      // エラー監視サービスへの送信やユーザー通知を実装
+      console.warn('ログアウト中にエラーが発生しました')
+      // TODO: 本番環境用のエラー監視サービスとの連携を実装
+      // await $errorReporting.captureException(error)
+      // await $toast.error('ログアウト中にエラーが発生しました')
     }
-    // 本番環境では適切なログシステムまたはユーザー通知を実装
-    // TODO: 本番環境用のエラー処理を実装（エラー監視サービス、ユーザー通知等）
   }
 }
 </script>
