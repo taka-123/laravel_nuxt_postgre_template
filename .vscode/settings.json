@@ -84,6 +84,7 @@
   // Laravel Pint有効化
   // ===================================
   "laravel-pint.enable": true,
+  "laravel-pint.binPath": "${workspaceFolder}/backend/vendor/bin/pint",
 
   // ===================================
   // PHPStan設定
