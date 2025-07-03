@@ -45,8 +45,7 @@ class AuthController extends Controller
         ]);
 
         $guard = Auth::guard('api');
-        $guard->login($user);
-        $token = method_exists($guard, 'refresh') ? $guard->refresh() : $guard->attempt(['email' => $user->email]);
+        $token = $guard->attempt(['email' => $request->email, 'password' => $request->password]);
 
         if (is_string($token)) {
             return $this->respondWithToken($token);
