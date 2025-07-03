@@ -79,13 +79,24 @@ import { useAuthStore } from '~/stores/auth'
 const authStore = useAuthStore()
 const { isAuthenticated } = storeToRefs(authStore)
 
+const config = useRuntimeConfig()
+
 // ログアウト処理
 const handleLogout = async () => {
   try {
     await authStore.logout()
   } catch (error) {
-    console.error('ログアウトエラー:', error)
-    // ユーザーにエラーを通知（必要に応じてトースト等）
+    // 型安全性のための環境値の検証
+    const isDevelopment = config.public.appEnv === 'development'
+    if (isDevelopment) {
+      // eslint-disable-next-line no-console
+      console.error('ログアウトエラー:', error)
+    } else {
+      // 本番環境では silent fail または適切な UI フィードバックのみ
+      // TODO: 本番環境用のエラー監視サービスとの連携を実装
+      // await $errorReporting.captureException(error)
+      // await $toast.error('ログアウト中にエラーが発生しました')
+    }
   }
 }
 </script>

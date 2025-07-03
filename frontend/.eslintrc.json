@@ -16,6 +16,11 @@
   },
   "extends": ["@nuxtjs/eslint-config-typescript", "plugin:prettier/recommended"],
   "plugins": [],
+  "settings": {
+    "import/resolver": {
+      "typescript": false
+    }
+  },
   "rules": {
     "vue/multi-word-component-names": "off",
     "vue/require-default-prop": "off",
