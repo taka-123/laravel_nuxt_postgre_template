@@ -44,6 +44,7 @@ laravel_nuxt_postgre_template/
 - **Docker Compose**: Laravel, Nuxt, PostgreSQL, pgAdmin を含む完全な開発スタック
 - **ローカル開発**: Docker なしで Laravel と Nuxt を個別に実行可能
 - **データベース**: PostgreSQL 17 (Docker) または SQLite (ローカル開発)
+- **AI コードレビュー**: Code Rabbit によるプルリクエスト自動レビュー
 
 ## 開発規約
 
@@ -108,6 +109,8 @@ npm run test                     # Vitestテスト実行
 npm run test:coverage            # カバレッジ付きテスト
 npm run lint                     # ESLintチェック
 npm run lint:fix                 # ESLint自動修正
+npm run lint:css                 # stylelintチェック
+npm run lint:css:fix             # stylelint自動修正
 ```
 
 ## 主要設定ファイル
@@ -115,6 +118,7 @@ npm run lint:fix                 # ESLint自動修正
 ### 環境設定
 
 - `/backend/.env.example` - Laravel 環境変数テンプレート
+  - `FRONTEND_URL`: フロントエンドURL（本番環境CORS設定用）
 - `/frontend/.env.example` - Nuxt 環境変数テンプレート
 - `/docker-compose.yml` - Docker 開発環境
 
@@ -171,17 +175,29 @@ npm run lint:fix                 # ESLint自動修正
 
 ### バックエンド基準
 
-- Laravel Pint によるコーディング標準
-- PHPStan 静的解析（レベル 3）
-- PHPUnit によるテスト
-- PHPCS による追加のコードスタイルチェック
+- **Laravel Pint**: PSR-12準拠のフォーマッター（保存時・コミット時）
+- **PHPStan**: 静的解析（レベル 3）
+- **PHPUnit**: ユニットテスト
+- **PHPCS**: コードスタイルチェック
 
 ### フロントエンド基準
 
-- TypeScript と Vue 3 ルールを含む ESLint
-- Prettier によるコードフォーマット
-- Vitest によるユニットテスト
+- **ESLint**: TypeScript/Vue 3ルールのリンター（保存時・コミット時）
+- **Prettier**: コードフォーマッター（保存時・コミット時）
+- **stylelint**: CSS/SCSSスタイルリンター（コミット時のみ）
+- **Vitest**: ユニットテスト
 - 開発効率のため TypeScript strict モードは無効
+
+### 自動実行タイミング
+
+| ファイル種別 | 保存時 | コミット時 |
+|-------------|--------|------------|
+| **JS/TS/Vue** | ESLint + Prettier | ESLint + Prettier |
+| **CSS/SCSS** | Prettier | stylelint + Prettier |
+| **PHP** | Laravel Pint | Laravel Pint |
+| **JSON/YAML/MD** | Prettier | Prettier |
+
+**Vueファイル**: 全ツールが協調動作（`<script>`: ESLint、`<style>`: stylelint、全体: Prettier）
 
 ## エラーハンドリング
 

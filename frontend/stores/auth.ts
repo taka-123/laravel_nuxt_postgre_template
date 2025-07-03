@@ -65,17 +65,18 @@ export const useAuthStore = defineStore('auth', {
       } catch (error: any) {
         // エラーメッセージを日本語化
         let errorMessage = 'ログインに失敗しました'
-        
+
         if (error.response?.status === 401) {
           errorMessage = 'メールアドレスまたはパスワードが正しくありません'
         } else if (error.response?.status === 422) {
           errorMessage = '入力内容に不備があります'
         } else if (error.response?.status >= 500) {
-          errorMessage = 'サーバーエラーが発生しました。しばらく待ってから再度お試しください'
+          errorMessage =
+            'サーバーエラーが発生しました。しばらく待ってから再度お試しください'
         } else if (error.code === 'NETWORK_ERROR') {
           errorMessage = 'ネットワークに接続できません'
         }
-        
+
         this.error = errorMessage
         throw new Error(this.error)
       } finally {
@@ -83,7 +84,12 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async register(name: string, email: string, password: string, password_confirmation: string) {
+    async register(
+      name: string,
+      email: string,
+      password: string,
+      passwordConfirmation: string
+    ) {
       this.loading = true
       const api = useApi()
 
@@ -92,7 +98,7 @@ export const useAuthStore = defineStore('auth', {
           name,
           email,
           password,
-          password_confirmation,
+          password_confirmation: passwordConfirmation,
         })
 
         const { access_token, user } = response.data
@@ -170,7 +176,8 @@ export const useAuthStore = defineStore('auth', {
 
         return {
           success: false,
-          message: error.response?.data?.message || 'ユーザー情報の取得に失敗しました',
+          message:
+            error.response?.data?.message || 'ユーザー情報の取得に失敗しました',
         }
       } finally {
         this.loading = false
@@ -191,7 +198,7 @@ export const useAuthStore = defineStore('auth', {
           // ユーザー情報を取得（エラーは内部で処理される）
           await this.fetchUser()
         }
-        
+
         // 初期化完了をマーク
         this.initialized = true
       }

@@ -5,6 +5,12 @@
   "scripts": {
     "security:check": "npm audit && cd frontend && npm audit && cd ../backend && composer audit"
   },
+  "lint-staged": {
+    "backend/**/*.php": [
+      "backend/vendor/bin/pint --",
+      "backend/vendor/bin/phpcs --"
+    ]
+  },
   "author": "",
   "license": "MIT"
 }

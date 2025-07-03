@@ -18,8 +18,16 @@
           </v-card-text>
           <ClientOnly>
             <v-card-actions v-if="!isAuthenticated">
-              <v-btn color="primary" to="/login" variant="elevated">ログイン</v-btn>
-              <v-btn color="secondary" to="/register" variant="outlined" class="ml-2">新規登録</v-btn>
+              <v-btn color="primary" to="/login" variant="elevated"
+                >ログイン</v-btn
+              >
+              <v-btn
+                color="secondary"
+                to="/register"
+                variant="outlined"
+                class="ml-2"
+                >新規登録</v-btn
+              >
             </v-card-actions>
           </ClientOnly>
         </v-card>
@@ -36,7 +44,7 @@
               <v-alert type="success" class="mb-4">
                 ログインに成功しました！
               </v-alert>
-              
+
               <h3 class="text-h6 mb-3">ユーザー情報</h3>
               <v-list>
                 <v-list-item>
@@ -49,12 +57,14 @@
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-title>登録日</v-list-item-title>
-                  <v-list-item-subtitle>{{ formatDate(user?.created_at) }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>{{
+                    formatDate(user?.created_at)
+                  }}</v-list-item-subtitle>
                 </v-list-item>
               </v-list>
-              
+
               <v-divider class="my-4"></v-divider>
-              
+
               <p class="text-body-2">
                 これは、フロントエンド・バックエンド・データベースが正常に連携していることを示すシンプルなダッシュボードです。
               </p>
@@ -67,8 +77,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '../stores/auth'
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
 const { isAuthenticated, user } = storeToRefs(authStore)
@@ -79,7 +89,7 @@ const formatDate = (dateString?: string): string => {
   return new Date(dateString).toLocaleDateString('ja-JP', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 </script>

@@ -3,20 +3,23 @@
     <v-app-bar app color="primary" dark>
       <!-- レスポンシブなタイトル表示 -->
       <v-app-bar-title class="d-flex align-center">
-        <NuxtLink to="/" class="text-decoration-none text-white d-flex align-center">
+        <NuxtLink
+          to="/"
+          class="text-decoration-none text-white d-flex align-center"
+        >
           <span class="d-none d-sm-block">Laravel Nuxt Template</span>
           <span class="d-block d-sm-none">LNT</span>
         </NuxtLink>
       </v-app-bar-title>
-      
+
       <v-spacer></v-spacer>
-      
+
       <!-- デスクトップ用ナビゲーション -->
       <div class="d-none d-md-flex">
         <v-btn to="/" variant="text">ホーム</v-btn>
         <ClientOnly>
           <template v-if="isAuthenticated">
-            <v-btn @click="handleLogout" variant="text">ログアウト</v-btn>
+            <v-btn variant="text" @click="handleLogout">ログアウト</v-btn>
           </template>
           <template v-else>
             <v-btn to="/login" variant="text">ログイン</v-btn>
@@ -24,10 +27,10 @@
           </template>
         </ClientOnly>
       </div>
-      
+
       <!-- モバイル用ハンバーガーメニュー -->
       <v-menu class="d-flex d-md-none">
-        <template v-slot:activator="{ props }">
+        <template #activator="{ props }">
           <v-btn icon v-bind="props">
             <v-icon>mdi-menu</v-icon>
           </v-btn>
@@ -70,14 +73,30 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '~/stores/auth';
-import { storeToRefs } from 'pinia';
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '~/stores/auth'
 
-const authStore = useAuthStore();
-const { isAuthenticated } = storeToRefs(authStore);
+const authStore = useAuthStore()
+const { isAuthenticated } = storeToRefs(authStore)
+
+const config = useRuntimeConfig()
 
 // ログアウト処理
 const handleLogout = async () => {
-  await authStore.logout();
-};
+  try {
+    await authStore.logout()
+  } catch (error) {
+    // 型安全性のための環境値の検証
+    const isDevelopment = config.public.appEnv === 'development'
+    if (isDevelopment) {
+      // eslint-disable-next-line no-console
+      console.error('ログアウトエラー:', error)
+    } else {
+      // 本番環境では silent fail または適切な UI フィードバックのみ
+      // TODO: 本番環境用のエラー監視サービスとの連携を実装
+      // await $errorReporting.captureException(error)
+      // await $toast.error('ログアウト中にエラーが発生しました')
+    }
+  }
+}
 </script>
