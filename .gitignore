@@ -108,6 +108,11 @@ coverage
 # PHPStan
 /backend/.phpstan-cache
 
+# Laravel IDE Helper generated files
+/backend/_ide_helper.php
+/backend/_ide_helper_models.php
+/backend/.phpstorm.meta.php
+
 # AWS
 .aws-sam/
 samconfig.toml

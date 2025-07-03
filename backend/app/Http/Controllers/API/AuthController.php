@@ -108,7 +108,7 @@ class AuthController extends Controller
                 return $this->respondWithToken($token);
             }
         }
-        
+
         return response()->json(['error' => 'Could not refresh token'], 401);
     }
 
@@ -119,11 +119,11 @@ class AuthController extends Controller
     {
         $guard = Auth::guard('api');
         $ttl = 3600; // Default 1 hour
-        
+
         if (method_exists($guard, 'factory') && $guard->factory()) {
             $ttl = $guard->factory()->getTTL() * 60;
         }
-        
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',

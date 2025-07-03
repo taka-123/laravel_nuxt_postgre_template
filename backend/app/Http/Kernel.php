@@ -96,8 +96,6 @@ class Kernel extends HttpKernel
 
     /**
      * Configure the rate limiters for the application.
-     *
-     * @return void
      */
     protected function commands(): void
     {
