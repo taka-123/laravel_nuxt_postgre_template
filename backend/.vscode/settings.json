@@ -3,14 +3,26 @@
   "intelephense.environment.phpVersion": "8.2",
   "intelephense.environment.includePaths": [
     "./vendor/laravel/framework/src",
-    "./vendor/php-open-source-saver/jwt-auth/src"
+    "./vendor/php-open-source-saver/jwt-auth/src",
+    "./"
   ],
+  "intelephense.completion.insertUseDeclaration": true,
+  "intelephense.completion.fullyQualifyGlobalConstantsAndFunctions": false,
   "intelephense.files.associations": ["*.php", "*.blade.php"],
   "intelephense.files.exclude": [
     "**/node_modules/**",
     "**/vendor/**",
     "**/storage/**",
-    "**/bootstrap/cache/**"
+    "**/bootstrap/cache/**",
+    "!_ide_helper.php",
+    "!_ide_helper_models.php",
+    "!.phpstorm.meta.php"
+  ],
+  "intelephense.files.include": [
+    "**/*.php",
+    "_ide_helper.php",
+    "_ide_helper_models.php",
+    ".phpstorm.meta.php"
   ],
   "intelephense.files.maxSize": 5000000,
   "intelephense.telemetry.enabled": false,
