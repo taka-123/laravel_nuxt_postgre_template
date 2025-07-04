@@ -110,9 +110,19 @@
   "typescript.preferences.useLabelDetailsInCompletionEntries": true,
   "typescript.preferences.allowTextChangesInNewFiles": false,
   "typescript.preferences.jsxAttributeCompletionStyle": "none",
-  "typescript.validate.enable": true
+  "typescript.validate.enable": true,
 
   // ===================================
-  // 注意: PHP/Laravel固有の設定は backend/.vscode/ に移動
+  // PHP/Intelephenseグローバル設定
+  // ===================================
+  "intelephense.files.exclude": [
+    "**/node_modules/**",
+    "**/storage/**",
+    "**/bootstrap/cache/**"
+  ],
+  "intelephense.files.associations": ["*.php"]
+
+  // ===================================
+  // 注意: PHP/Laravel固有の詳細設定は backend/.vscode/ に移動
   // ===================================
 }
