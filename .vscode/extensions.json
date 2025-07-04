@@ -1,15 +1,7 @@
 {
   "recommendations": [
-    // 必須：コード品質統一
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "vue.volar",
-    "open-southeners.laravel-pint",
-    "shufo.vscode-blade-formatter",
-
-    // 推奨：開発効率向上
-    "bmewburn.vscode-intelephense-client",
-    "amiralizadeh9480.laravel-extra-intellisense",
+    "ms-azuretools.vscode-docker",
     "editorconfig.editorconfig"
-  ]
+  ],
+  "unwantedRecommendations": ["octref.vetur"]
 }

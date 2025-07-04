@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "bmewburn.vscode-intelephense-client",
+    "laravel.vscode-laravel",
+    "open-southeners.laravel-pint",
+    "shufo.vscode-blade-formatter"
+  ],
+  "unwantedRecommendations": [
+    "felixfbecker.php-intellisense",
+    "devsense.phptools-vscode"
+  ]
+}

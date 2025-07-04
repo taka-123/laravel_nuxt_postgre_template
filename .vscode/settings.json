@@ -4,7 +4,7 @@
   // ===================================
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll": "explicit"
   },
 
   // ===================================
@@ -15,8 +15,40 @@
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.associations": {
-    "*.blade.php": "blade"
+    "*.env.example": "dotenv",
+    "*.env.local": "dotenv",
+    "*.env.staging": "dotenv",
+    "*.env.production": "dotenv",
+    "Dockerfile*": "dockerfile",
+    "docker-compose*.yml": "dockercompose",
+    "*.toml": "toml"
   },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/storage/logs": true,
+    "**/storage/framework": true,
+    "**/.nuxt": true,
+    "**/dist": true,
+    "**/coverage": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/vendor/**": true,
+    "**/storage/logs/**": true,
+    "**/storage/framework/**": true,
+    "**/.nuxt/**": true,
+    "**/dist/**": true
+  },
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "git.ignoreLimitWarning": true,
 
   // ===================================
   // 言語別フォーマッター指定
@@ -78,37 +110,9 @@
   "typescript.preferences.useLabelDetailsInCompletionEntries": true,
   "typescript.preferences.allowTextChangesInNewFiles": false,
   "typescript.preferences.jsxAttributeCompletionStyle": "none",
-  "typescript.validate.enable": true,
+  "typescript.validate.enable": true
 
   // ===================================
-  // Laravel Pint有効化
+  // 注意: PHP/Laravel固有の設定は backend/.vscode/ に移動
   // ===================================
-  "laravel-pint.enable": true,
-  "laravel-pint.binPath": "${workspaceFolder}/backend/vendor/bin/pint",
-
-  // ===================================
-  // PHPStan設定
-  // ===================================
-  "phpstan.binPath": "${workspaceFolder}/backend/vendor/bin/phpstan",
-  "phpstan.configPath": "${workspaceFolder}/backend/phpstan.neon",
-  "phpstan.rootDir": "${workspaceFolder}/backend",
-  "phpstan.enabled": true,
-
-  // ===================================
-  // Intelephense設定
-  // ===================================
-  "intelephense.environment.phpVersion": "8.2",
-  "intelephense.environment.includePaths": [
-    "./backend/vendor/laravel/framework/src",
-    "./backend/vendor/php-open-source-saver/jwt-auth/src"
-  ],
-  "intelephense.files.associations": ["*.php", "*.blade.php"],
-  "intelephense.files.exclude": [
-    "**/node_modules/**",
-    "**/vendor/**",
-    "**/storage/**",
-    "**/bootstrap/cache/**"
-  ],
-  "intelephense.files.maxSize": 5000000,
-  "intelephense.telemetry.enabled": false
 }
