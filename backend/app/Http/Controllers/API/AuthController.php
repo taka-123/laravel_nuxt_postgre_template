@@ -46,11 +46,11 @@ class AuthController extends Controller
 
         $token = Auth::guard('api')->login($user);
 
-        if (is_string($token)) {
-            return $this->respondWithToken($token);
+        if (!is_string($token)) {
+            return $this->errorResponse('Could not create token', 500);
         }
 
-        return response()->json(['error' => 'Could not create token'], 500);
+        return $this->respondWithToken($token);
     }
 
     /**
@@ -74,7 +74,11 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken(is_string($token) ? $token : null);
+        if (!is_string($token)) {
+            return $this->errorResponse('Authentication failed', 401);
+        }
+
+        return $this->respondWithToken($token);
     }
 
     /**
@@ -109,7 +113,7 @@ class AuthController extends Controller
             }
         }
 
-        return response()->json(['error' => 'Could not refresh token'], 401);
+        return $this->errorResponse('Could not refresh token', 401);
     }
 
     /**
@@ -117,6 +121,10 @@ class AuthController extends Controller
      */
     protected function respondWithToken(?string $token): JsonResponse
     {
+        if ($token === null) {
+            return $this->errorResponse('Token generation failed', 500);
+        }
+
         $guard = Auth::guard('api');
         $ttl = 3600; // Default 1 hour
 
@@ -130,5 +138,13 @@ class AuthController extends Controller
             'expires_in' => $ttl,
             'user' => $guard->user(),
         ]);
+    }
+
+    /**
+     * 統一的なエラーレスポンス
+     */
+    private function errorResponse(string $message, int $code = 500): JsonResponse
+    {
+        return response()->json(['error' => $message], $code);
     }
 }
