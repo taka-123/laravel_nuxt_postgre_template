@@ -27,6 +27,16 @@
       "Bash(git push origin develop*)",
       "Bash(git push origin feature/*)",
 
+      "Bash(gh repo delete:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh secret set:*)",
+      "Bash(gh secret delete:*)",
+      "Bash(gh workflow disable:*)",
+      "Bash(gh release create:*)",
+      "Bash(gh release delete:*)",
+      "Bash(gh issue delete:*)",
+      "Bash(gh repo edit:*)",
+
       "Bash(node *.js)",
       "Bash(npm install*)",
       "Bash(npm run*)",
