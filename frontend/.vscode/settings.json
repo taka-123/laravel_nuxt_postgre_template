@@ -1,15 +1,17 @@
 {
-  // フロントエンド専用のTypeScript設定
-  "typescript.validate.enable": false,
+  // フロントエンド専用設定
   "typescript.preferences.includePackageJsonAutoImports": "off",
-  
-  // tsconfig.jsonファイルでのTypeScript診断を無効化
+
+  // Nuxt固有の除外設定
   "files.exclude": {
     "**/.nuxt": true,
-    "**/node_modules": true
+    "**/node_modules": true,
+    "**/.output": true
   },
-  
-  // Nuxt 3プロジェクト用設定
+
+  // Vue/Nuxt開発用設定
   "typescript.preferences.useLabelDetailsInCompletionEntries": true,
-  "typescript.preferences.allowTextChangesInNewFiles": false
+  "typescript.preferences.allowTextChangesInNewFiles": false,
+  "vue.inlayHints.missingProps": false,
+  "vue.inlayHints.optionsWrapper": false
 }

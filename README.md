@@ -46,7 +46,7 @@ cd my-project
 
 - Docker Desktop (最新版)
 - Node.js 22.x 以上
-- PHP 8.3 以上
+- PHP 8.2 以上
 - Composer 2.x
 - Git
 
@@ -108,8 +108,8 @@ cd frontend && npm run dev
 
 - **claude-parallel/**: Claude Code 並列開発環境ツール
 - **.coderabbit.yaml**: CodeRabbit AI コードレビューツール設定
-- **.cursor/**: Cursor IDE設定
-- **.windsurfrules**: Windsurf IDE設定
+- **.cursor/**: Cursor IDE 設定
+- **.windsurfrules**: Windsurf IDE 設定
 - **mise.toml**: mise バージョン管理ツール設定
 
 これらのツールをプロジェクトで使用したい場合は、`.gitignore` から該当行を削除してください：
@@ -154,7 +154,7 @@ CodeRabbit は AI によるコードレビューツールです。プロジェ�
 
 ### 開発ガイド
 
-- **[開発ガイド](docs/development.md)** - TypeScript設定、API設計、開発コマンド
+- **[開発ガイド](docs/development.md)** - TypeScript 設定、API 設計、開発コマンド
 - **[トラブルシューティング](docs/troubleshooting.md)** - よくある問題と解決方法
 
 ### デプロイ
@@ -169,15 +169,15 @@ CodeRabbit は AI によるコードレビューツールです。プロジェ�
 
 ### CLAUDE.md について
 
-このテンプレートには `CLAUDE.md` というプロジェクト仕様書が含まれています。これは以下の理由でGit管理されています：
+このテンプレートには `CLAUDE.md` というプロジェクト仕様書が含まれています。これは以下の理由で Git 管理されています：
 
 - **プロジェクト固有の技術仕様や設計思想を記載**
 - **新メンバーのオンボーディング資料として活用可能**
-- **AI開発ツール（Claude Code等）との連携で開発効率向上**
+- **AI 開発ツール（Claude Code 等）との連携で開発効率向上**
 
 ただし、以下の場合は削除または `.gitignore` への追加を検討してください：
 
-- チームでAI開発ツールを全く使用しない
+- チームで AI 開発ツールを全く使用しない
 - 技術ドキュメントとしてメンテナンスする予定がない
 - README.md で十分な情報が提供されている
 

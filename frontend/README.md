@@ -5,7 +5,7 @@
 ## フロントエンド技術スタック
 
 - **フレームワーク**: Nuxt.js 3.16
-- **UIフレームワーク**: Vuetify 3.7
+- **UIフレームワーク**: Vuetify 3.4
 - **状態管理**: Pinia
 - **HTTP通信**: Axios
 - **コード品質**: ESLint + Prettier
