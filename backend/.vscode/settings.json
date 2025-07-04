@@ -1,0 +1,35 @@
+{
+  // バックエンド専用設定
+  "intelephense.environment.phpVersion": "8.2",
+  "intelephense.environment.includePaths": [
+    "./vendor/laravel/framework/src",
+    "./vendor/php-open-source-saver/jwt-auth/src"
+  ],
+  "intelephense.files.associations": ["*.php", "*.blade.php"],
+  "intelephense.files.exclude": [
+    "**/node_modules/**",
+    "**/vendor/**",
+    "**/storage/**",
+    "**/bootstrap/cache/**"
+  ],
+  "intelephense.files.maxSize": 5000000,
+  "intelephense.telemetry.enabled": false,
+
+  // Laravel Pint設定
+  "laravel-pint.enable": true,
+  "laravel-pint.binPath": "./vendor/bin/pint",
+
+  // PHPStan設定
+  "phpstan.binPath": "./vendor/bin/phpstan",
+  "phpstan.configPath": "./phpstan.neon",
+  "phpstan.rootDir": "./",
+  "phpstan.enabled": true,
+
+  // PHP専用フォーマッター
+  "[php]": {
+    "editor.defaultFormatter": "open-southeners.laravel-pint"
+  },
+  "[blade]": {
+    "editor.defaultFormatter": "shufo.vscode-blade-formatter"
+  }
+}

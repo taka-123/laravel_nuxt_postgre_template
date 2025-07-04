@@ -44,14 +44,13 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        Auth::guard('api')->login($user);
-        $token = Auth::guard('api')->refresh();
+        $token = Auth::guard('api')->login($user);
 
-        if ($token) {
-            return $this->respondWithToken($token);
+        if (!is_string($token)) {
+            return $this->errorResponse('Could not create token', 500);
         }
 
-        return response()->json(['error' => 'Could not create token'], 500);
+        return $this->respondWithToken($token);
     }
 
     /**
@@ -73,6 +72,10 @@ class AuthController extends Controller
         $token = Auth::guard('api')->attempt($credentials);
         if (! $token) {
             return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        if (!is_string($token)) {
+            return $this->errorResponse('Authentication failed', 401);
         }
 
         return $this->respondWithToken($token);
@@ -102,7 +105,15 @@ class AuthController extends Controller
      */
     public function refresh(): JsonResponse
     {
-        return $this->respondWithToken(Auth::guard('api')->refresh());
+        $guard = Auth::guard('api');
+        if (method_exists($guard, 'refresh')) {
+            $token = $guard->refresh();
+            if (is_string($token)) {
+                return $this->respondWithToken($token);
+            }
+        }
+
+        return $this->errorResponse('Could not refresh token', 401);
     }
 
     /**
@@ -110,11 +121,30 @@ class AuthController extends Controller
      */
     protected function respondWithToken(?string $token): JsonResponse
     {
+        if ($token === null) {
+            return $this->errorResponse('Token generation failed', 500);
+        }
+
+        $guard = Auth::guard('api');
+        $ttl = 3600; // Default 1 hour
+
+        if (method_exists($guard, 'factory') && $guard->factory()) {
+            $ttl = $guard->factory()->getTTL() * 60;
+        }
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
-            'user' => Auth::guard('api')->user(),
+            'expires_in' => $ttl,
+            'user' => $guard->user(),
         ]);
+    }
+
+    /**
+     * 統一的なエラーレスポンス
+     */
+    private function errorResponse(string $message, int $code = 500): JsonResponse
+    {
+        return response()->json(['error' => $message], $code);
     }
 }

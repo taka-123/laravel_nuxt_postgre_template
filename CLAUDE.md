@@ -26,7 +26,7 @@ laravel_nuxt_postgre_template/
 ### バックエンド (Laravel API)
 
 - **ディレクトリ**: `/backend/`
-- **技術スタック**: PHP 8.3, Laravel 12.x, PostgreSQL 17.x
+- **技術スタック**: PHP 8.2+, Laravel 12.x, PostgreSQL 17.x
 - **認証**: `php-open-source-saver/jwt-auth`による JWT 認証
 - **API ルート**: `/backend/routes/api.php`
 - **主要コントローラー**: `/backend/app/Http/Controllers/API/AuthController.php`
@@ -34,8 +34,8 @@ laravel_nuxt_postgre_template/
 ### フロントエンド (Nuxt.js)
 
 - **ディレクトリ**: `/frontend/`
-- **技術スタック**: Node.js 22.x+, Nuxt.js 3.16, Vue.js 3.4+, TypeScript 5.2+
-- **UI フレームワーク**: Vuetify 3.x (Material Design)
+- **技術スタック**: Node.js 22.x+, Nuxt.js 3.16, Vue.js 3.3+, TypeScript 5.2+
+- **UI フレームワーク**: Vuetify 3.4+ (Material Design)
 - **状態管理**: Pinia
 - **認証連携**: `/frontend/composables/useAuth.ts`のカスタムコンポーザブル
 
@@ -118,7 +118,7 @@ npm run lint:css:fix             # stylelint自動修正
 ### 環境設定
 
 - `/backend/.env.example` - Laravel 環境変数テンプレート
-  - `FRONTEND_URL`: フロントエンドURL（本番環境CORS設定用）
+  - `FRONTEND_URL`: フロントエンド URL（本番環境 CORS 設定用）
 - `/frontend/.env.example` - Nuxt 環境変数テンプレート
 - `/docker-compose.yml` - Docker 開発環境
 
@@ -175,29 +175,29 @@ npm run lint:css:fix             # stylelint自動修正
 
 ### バックエンド基準
 
-- **Laravel Pint**: PSR-12準拠のフォーマッター（保存時・コミット時）
+- **Laravel Pint**: PSR-12 準拠のフォーマッター（保存時・コミット時）
 - **PHPStan**: 静的解析（レベル 3）
 - **PHPUnit**: ユニットテスト
 - **PHPCS**: コードスタイルチェック
 
 ### フロントエンド基準
 
-- **ESLint**: TypeScript/Vue 3ルールのリンター（保存時・コミット時）
+- **ESLint**: TypeScript/Vue 3 ルールのリンター（保存時・コミット時）
 - **Prettier**: コードフォーマッター（保存時・コミット時）
-- **stylelint**: CSS/SCSSスタイルリンター（コミット時のみ）
+- **stylelint**: CSS/SCSS スタイルリンター（コミット時のみ）
 - **Vitest**: ユニットテスト
 - 開発効率のため TypeScript strict モードは無効
 
 ### 自動実行タイミング
 
-| ファイル種別 | 保存時 | コミット時 |
-|-------------|--------|------------|
-| **JS/TS/Vue** | ESLint + Prettier | ESLint + Prettier |
-| **CSS/SCSS** | Prettier | stylelint + Prettier |
-| **PHP** | Laravel Pint | Laravel Pint |
-| **JSON/YAML/MD** | Prettier | Prettier |
+| ファイル種別     | 保存時            | コミット時           |
+| ---------------- | ----------------- | -------------------- |
+| **JS/TS/Vue**    | ESLint + Prettier | ESLint + Prettier    |
+| **CSS/SCSS**     | Prettier          | stylelint + Prettier |
+| **PHP**          | Laravel Pint      | Laravel Pint         |
+| **JSON/YAML/MD** | Prettier          | Prettier             |
 
-**Vueファイル**: 全ツールが協調動作（`<script>`: ESLint、`<style>`: stylelint、全体: Prettier）
+**Vue ファイル**: 全ツールが協調動作（`<script>`: ESLint、`<style>`: stylelint、全体: Prettier）
 
 ## エラーハンドリング
 

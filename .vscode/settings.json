@@ -4,7 +4,7 @@
   // ===================================
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll": "explicit"
   },
 
   // ===================================
@@ -15,8 +15,40 @@
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.associations": {
-    "*.blade.php": "blade"
+    "*.env.example": "dotenv",
+    "*.env.local": "dotenv",
+    "*.env.staging": "dotenv",
+    "*.env.production": "dotenv",
+    "Dockerfile*": "dockerfile",
+    "docker-compose*.yml": "dockercompose",
+    "*.toml": "toml"
   },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/storage/logs": true,
+    "**/storage/framework": true,
+    "**/.nuxt": true,
+    "**/dist": true,
+    "**/coverage": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/vendor/**": true,
+    "**/storage/logs/**": true,
+    "**/storage/framework/**": true,
+    "**/.nuxt/**": true,
+    "**/dist/**": true
+  },
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "git.ignoreLimitWarning": true,
 
   // ===================================
   // 言語別フォーマッター指定
@@ -70,7 +102,17 @@
   "eslint.validate": ["javascript", "typescript", "vue"],
 
   // ===================================
-  // Laravel Pint有効化
+  // TypeScript診断制御（IDE警告を抑制）
   // ===================================
-  "laravel-pint.enable": true
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.reportStyleChecksAsWarnings": false,
+  "typescript.surveys.enabled": false,
+  "typescript.preferences.useLabelDetailsInCompletionEntries": true,
+  "typescript.preferences.allowTextChangesInNewFiles": false,
+  "typescript.preferences.jsxAttributeCompletionStyle": "none",
+  "typescript.validate.enable": true
+
+  // ===================================
+  // 注意: PHP/Laravel固有の設定は backend/.vscode/ に移動
+  // ===================================
 }

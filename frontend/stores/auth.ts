@@ -48,21 +48,22 @@ export const useAuthStore = defineStore('auth', {
           password,
         })
 
-        const { access_token, user } = response.data
+        const accessToken = response.data.access_token
+        const user = response.data.user
 
-        this.token = access_token
-        this.refreshToken = access_token
+        this.token = accessToken
+        this.refreshToken = accessToken
         this.user = user
         this.isAuthenticated = true
 
         // トークンをローカルストレージに保存
         if (process.client) {
-          localStorage.setItem('auth_token', access_token)
-          localStorage.setItem('refresh_token', access_token)
+          localStorage.setItem('auth_token', accessToken)
+          localStorage.setItem('refresh_token', accessToken)
         }
 
         return { success: true }
-      } catch (error: any) {
+      } catch (error) {
         // エラーメッセージを日本語化
         let errorMessage = 'ログインに失敗しました'
 
@@ -101,21 +102,22 @@ export const useAuthStore = defineStore('auth', {
           password_confirmation: passwordConfirmation,
         })
 
-        const { access_token, user } = response.data
+        const accessToken = response.data.access_token
+        const user = response.data.user
 
-        this.token = access_token
-        this.refreshToken = access_token
+        this.token = accessToken
+        this.refreshToken = accessToken
         this.user = user
         this.isAuthenticated = true
 
         // トークンをローカルストレージに保存
         if (process.client) {
-          localStorage.setItem('auth_token', access_token)
-          localStorage.setItem('refresh_token', access_token)
+          localStorage.setItem('auth_token', accessToken)
+          localStorage.setItem('refresh_token', accessToken)
         }
 
         return { success: true }
-      } catch (error: any) {
+      } catch (error) {
         return {
           success: false,
           message: error.response?.data?.message || '登録に失敗しました',
@@ -168,7 +170,7 @@ export const useAuthStore = defineStore('auth', {
 
         this.user = response.data
         return { success: true }
-      } catch (error: any) {
+      } catch (error) {
         if (error.response?.status === 401) {
           // 認証エラーの場合はログアウト
           this.logout()

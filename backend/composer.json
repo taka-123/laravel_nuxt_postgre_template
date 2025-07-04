@@ -16,6 +16,7 @@
     "php-open-source-saver/jwt-auth": "^2.8"
   },
   "require-dev": {
+    "barryvdh/laravel-ide-helper": "^3.5",
     "fakerphp/faker": "^1.23",
     "laravel/pail": "^1.2.2",
     "laravel/pint": "^1.13",
@@ -40,7 +41,10 @@
   "scripts": {
     "post-autoload-dump": [
       "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-      "@php artisan package:discover --ansi"
+      "@php artisan package:discover --ansi",
+      "@php artisan ide-helper:generate --quiet || true",
+      "@php artisan ide-helper:models --nowrite --quiet || true",
+      "@php artisan ide-helper:meta --quiet || true"
     ],
     "post-update-cmd": [
       "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
@@ -56,9 +60,14 @@
       "Composer\\Config::disableProcessTimeout",
       "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
     ],
+    "ide-helper": [
+      "@php artisan ide-helper:generate",
+      "@php artisan ide-helper:models --nowrite",
+      "@php artisan ide-helper:meta"
+    ],
     "lint": "./vendor/bin/pint",
     "lint-staged": "lint-staged",
-    "analyze": "phpstan analyse",
+    "analyze": "phpstan analyse --memory-limit=512M",
     "test": "phpunit"
   },
   "extra": {
