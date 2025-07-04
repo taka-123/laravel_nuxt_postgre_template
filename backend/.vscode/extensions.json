@@ -3,10 +3,12 @@
     "bmewburn.vscode-intelephense-client",
     "laravel.vscode-laravel",
     "open-southeners.laravel-pint",
-    "shufo.vscode-blade-formatter"
+    "shufo.vscode-blade-formatter",
+    "ms-vscode.vscode-json"
   ],
   "unwantedRecommendations": [
     "felixfbecker.php-intellisense",
-    "devsense.phptools-vscode"
+    "devsense.phptools-vscode",
+    "ms-vscode.vscode-typescript-tslint-plugin"
   ]
 }
