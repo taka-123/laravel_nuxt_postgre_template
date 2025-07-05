@@ -120,14 +120,6 @@
     "${workspaceFolder}/backend"
   ],
   "intelephense.environment.documentRoot": "${workspaceFolder}/backend/public",
-  "intelephense.index.exclude": [
-    "**/node_modules/**",
-    "**/storage/logs/**",
-    "**/storage/framework/cache/**",
-    "**/storage/framework/sessions/**",
-    "**/storage/framework/views/**",
-    "**/bootstrap/cache/**"
-  ],
   "intelephense.environment.phpVersion": "8.2",
   "intelephense.stubs": [
     "apache",
@@ -203,48 +195,38 @@
     "zlib"
   ],
   "intelephense.files.maxSize": 5000000,
-  "intelephense.files.associations": ["*.php", "*.blade.php"],
+  "intelephense.files.associations": [
+    "*.php",
+    "*.phtml",
+    "*.inc",
+    "*.blade.php"
+  ],
   "intelephense.files.exclude": [
     "**/node_modules/**",
     "**/storage/logs/**",
     "**/storage/framework/cache/**",
     "**/storage/framework/sessions/**",
     "**/storage/framework/views/**",
-    "**/bootstrap/cache/**",
-    "**/tests/**"
+    "**/bootstrap/cache/**"
   ],
+  "intelephense.index.projectRoot": "${workspaceFolder}/backend",
   "intelephense.telemetry.enabled": false,
   "intelephense.completion.insertUseDeclaration": true,
   "intelephense.completion.fullyQualifyGlobalConstantsAndFunctions": false,
   "intelephense.diagnostics.enable": true,
   "intelephense.diagnostics.run": "onSave",
   "intelephense.diagnostics.embeddedLanguages": false,
-  "intelephense.format.enable": true,
-  "intelephense.trace.server": "off",
-  "intelephense.compatibility.correctForBaseClassStaticUnionTypes": true,
-  "intelephense.compatibility.correctForArrayAccessArrayAndTraversableArrayUnionTypes": true,
-  "intelephense.phpdoc.returnVoid": true,
-  "intelephense.phpdoc.functionTemplate": {
-    "summary": "$1",
-    "tags": [
-      "@param ${1:$SYMBOL_TYPE} $SYMBOL_NAME $2",
-      "@return ${1:$SYMBOL_TYPE} $3"
-    ]
-  },
-  "intelephense.references.exclude": ["**/node_modules/**", "**/vendor/**"],
-  "intelephense.rename.exclude": ["**/node_modules/**", "**/vendor/**"],
-  "intelephense.completion.triggerParameterHints": true,
   "intelephense.completion.maxItems": 100,
   "intelephense.hover.references": true,
   "intelephense.hover.types": true,
-  "intelephense.index.projectRoot": "${workspaceFolder}/backend",
   "intelephense.files.watcherExclude": [
     "**/node_modules/**",
     "**/vendor/**",
     "**/storage/logs/**",
     "**/storage/framework/**",
     "**/bootstrap/cache/**"
-  ]
+  ],
+  "intelephense.clearCache": true
 
   // ===================================
   // 注意: PHP/Laravel固有の設定は backend/.vscode/ に移動
