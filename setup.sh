@@ -22,7 +22,7 @@ PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
 
 # 関数: sed用の特殊文字エスケープ
 _escape_sed() {
-  printf '%s' "$1" | sed -e 's#[&|/\\\\@]#\\&#g'
+  printf '%s' "$1" | sed -e 's#[&|/\\@]#\\&#g'
 }
 
 # sed置換用にエスケープされた変数
