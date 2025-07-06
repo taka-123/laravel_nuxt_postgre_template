@@ -102,11 +102,21 @@ if [ "$IS_FIRST_RUN" = true ]; then
     "CLAUDE.md"
     "README_aws.md"
     "setup.sh"
+    "docs/development.md"
+    "directorystructure.md"
+    ".github/workflows/ci.yml"
+    ".github/workflows/deploy-ecs-production.yml.disabled"
+    "frontend/layouts/default.vue"
+    "frontend/.env.example"
+    "backend/.env.example"
+    ".aws/scripts/deploy-infrastructure.sh"
+    ".aws/scripts/delete-infrastructure.sh"
   )
 
   # 包括的なプレースホルダー置換関数
   replace_placeholders() {
     local file="$1"
+    # ファイルの存在チェック（ディレクトリや壊れたシンボリックリンクを除外）
     if [ ! -f "$file" ]; then
       warning "ファイルが見つかりません: $file"
       return
@@ -117,24 +127,27 @@ if [ "$IS_FIRST_RUN" = true ]; then
     # バックアップ作成
     cp "$file" "$file.bak"
     
-    # 基本的なプレースホルダー置換
-    sed -i.tmp "s/laravel-nuxt-template-frontend-dev/${PROJECT_NAME_HYPHEN}-frontend-dev/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template-backend-staging-unique/${PROJECT_NAME_HYPHEN}-backend-staging-unique/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template-frontend-staging-unique/${PROJECT_NAME_HYPHEN}-frontend-staging-unique/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template-db-staging-unique/${PROJECT_NAME_HYPHEN}-db-staging-unique/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template-db-unique/${PROJECT_NAME_HYPHEN}-db-unique/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template-pgsql-main/${PROJECT_NAME_HYPHEN}-pgsql-main/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template-frontend/${PROJECT_NAME_HYPHEN}-frontend/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template-backend/${PROJECT_NAME_HYPHEN}-backend/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template\/backend/${PROJECT_NAME_HYPHEN}\/backend/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template/${PROJECT_NAME_HYPHEN}/g" "$file"
+    # 基本的なプレースホルダー置換（正しいテンプレート名を使用）
+    sed -i.tmp "s|laravel-nuxt-template-frontend-dev|${PROJECT_NAME_HYPHEN}-frontend-dev|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-backend-staging-unique|${PROJECT_NAME_HYPHEN}-backend-staging-unique|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-frontend-staging-unique|${PROJECT_NAME_HYPHEN}-frontend-staging-unique|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-db-staging-unique|${PROJECT_NAME_HYPHEN}-db-staging-unique|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-db-unique|${PROJECT_NAME_HYPHEN}-db-unique|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-pgsql-main|${PROJECT_NAME_HYPHEN}-pgsql-main|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-frontend|${PROJECT_NAME_HYPHEN}-frontend|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-backend|${PROJECT_NAME_HYPHEN}-backend|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template/backend|${PROJECT_NAME_HYPHEN}/backend|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template|${PROJECT_NAME_HYPHEN}|g" "$file"
     
-    # アンダースコア形式のプレースホルダー置換
-    sed -i.tmp "s/laravel_nuxt_template_storage_stg/${PROJECT_NAME_UNDERSCORE}_storage_stg/g" "$file"
-    sed -i.tmp "s/laravel_nuxt_template_storage/${PROJECT_NAME_UNDERSCORE}_storage/g" "$file"
-    sed -i.tmp "s/laravel_nuxt_template_staging/${PROJECT_NAME_UNDERSCORE}_staging/g" "$file"
-    sed -i.tmp "s/laravel_nuxt_template_user/${PROJECT_NAME_UNDERSCORE}_user/g" "$file"
-    sed -i.tmp "s/laravel_nuxt_template/${PROJECT_NAME_UNDERSCORE}/g" "$file"
+    # アンダースコア形式のプレースホルダー置換（正しいテンプレート名を使用）
+    sed -i.tmp "s|laravel_nuxt_template_storage_stg|${PROJECT_NAME_UNDERSCORE}_storage_stg|g" "$file"
+    sed -i.tmp "s|laravel_nuxt_template_storage|${PROJECT_NAME_UNDERSCORE}_storage|g" "$file"
+    sed -i.tmp "s|laravel_nuxt_template_staging|${PROJECT_NAME_UNDERSCORE}_staging|g" "$file"
+    sed -i.tmp "s|laravel_nuxt_template_user|${PROJECT_NAME_UNDERSCORE}_user|g" "$file"
+    sed -i.tmp "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE}|g" "$file"
+    
+    # 追加の固定プレースホルダー置換
+    sed -i.tmp "s|laravel_nuxt_session|${PROJECT_NAME_UNDERSCORE}_session|g" "$file"
     
     # 一時ファイルを削除
     rm -f "$file.tmp"
@@ -186,6 +199,8 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak "s/Laravel 12\.x + Nuxt\.js 3\.16 + PostgreSQL 17\.x を使用したモダンなフルスタック Web アプリケーションテンプレート/${PROJECT_NAME} - Laravel + Nuxt.js フルスタック Web アプリケーション/g" CLAUDE.md
     # データベース名の更新
     sed -i.bak "s/データベース: laravel_nuxt_template/データベース: ${PROJECT_NAME_UNDERSCORE}/g" CLAUDE.md
+    # プロジェクト構造のディレクトリ名を更新
+    sed -i.bak "s/laravel_nuxt_postgre_template\//${PROJECT_NAME_UNDERSCORE}\//g" CLAUDE.md
     # テンプレート関連の説明を調整
     sed -i.bak 's/テンプレート/プロジェクト/g' CLAUDE.md
     rm -f CLAUDE.md.bak
@@ -200,6 +215,33 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak 's/テンプレート/プロジェクト/g' README_aws.md
     rm -f README_aws.md.bak
     success "README_aws.mdの特別処理が完了しました"
+  fi
+
+  # frontend/layouts/default.vueの特別処理
+  if [ -f "frontend/layouts/default.vue" ]; then
+    info "frontend/layouts/default.vueを更新中..."
+    # より安全で精密な置換（titleタグ内のみ対象）
+    sed -i.bak "/<title>/s/Laravel Nuxt Template/${PROJECT_NAME}/g" frontend/layouts/default.vue
+    # アプリ名の置換（より具体的な場所を指定）
+    sed -i.bak "/app-bar-title/s/Laravel Nuxt Template/${PROJECT_NAME}/g" frontend/layouts/default.vue
+    # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
+    PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
+    # 空文字列の場合はデフォルト値を使用
+    if [ -z "$PROJECT_INITIALS" ]; then
+      PROJECT_INITIALS="APP"
+    fi
+    sed -i.bak "s/>LNT</>$PROJECT_INITIALS</g" frontend/layouts/default.vue
+    rm -f frontend/layouts/default.vue.bak
+    success "frontend/layouts/default.vueの特別処理が完了しました"
+  fi
+
+  # directorystructure.mdの特別処理
+  if [ -f "directorystructure.md" ]; then
+    info "directorystructure.mdを更新中..."
+    # プロジェクト構造のルートディレクトリ名を更新
+    sed -i.bak "s/laravel_nuxt_postgre_template\//${PROJECT_NAME_UNDERSCORE}\//g" directorystructure.md
+    rm -f directorystructure.md.bak
+    success "directorystructure.mdの特別処理が完了しました"
   fi
 
   # Gitの初期化（テンプレートの履歴をクリア）
@@ -223,7 +265,9 @@ if [ "$IS_FIRST_RUN" = true ]; then
   find . -name "*.bak" -type f -delete 2>/dev/null || true
   success "バックアップファイルのクリーンアップが完了しました"
 
-  success "🎉 全26箇所のプレースホルダー置換が完了しました！"
+  # 置換数を動的に計算
+  total_files=${#TEMPLATE_FILES[@]}
+  success "🎉 全${total_files}ファイルのプレースホルダー置換が完了しました！"
   echo ""
 fi
 
