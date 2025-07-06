@@ -116,8 +116,8 @@ if [ "$IS_FIRST_RUN" = true ]; then
   # 包括的なプレースホルダー置換関数
   replace_placeholders() {
     local file="$1"
-    # ファイルまたはシンボリックリンクの存在チェック（より堅牢）
-    if [ ! -e "$file" ] && [ ! -L "$file" ]; then
+    # ファイルの存在チェック（ディレクトリや壊れたシンボリックリンクを除外）
+    if [ ! -f "$file" ]; then
       warning "ファイルが見つかりません: $file"
       return
     fi
@@ -220,7 +220,7 @@ if [ "$IS_FIRST_RUN" = true ]; then
   fi
 
   # frontend/layouts/default.vueの特別処理
-  if [ -e "frontend/layouts/default.vue" ]; then
+  if [ -f "frontend/layouts/default.vue" ]; then
     info "frontend/layouts/default.vueを更新中..."
     # より安全で精密な置換（titleタグ内のみ対象）
     sed -i.bak "/<title>/s/Laravel Nuxt Template/${PROJECT_NAME}/g" frontend/layouts/default.vue
