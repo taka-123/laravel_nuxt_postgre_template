@@ -23,7 +23,12 @@ PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
 # 初回実行かどうかの判定
 # テンプレート初期化が完了済みかどうかをREADME.mdで判定
 IS_FIRST_RUN=false
-if grep -q "Laravel + Nuxt + PostgreSQL テンプレート" README.md && ! grep -q "quick-chef" README.md; then
+if [ -f "README.md" ]; then
+  if grep -q "Laravel + Nuxt + PostgreSQL テンプレート" README.md 2>/dev/null && ! grep -q "quick-chef" README.md 2>/dev/null; then
+    IS_FIRST_RUN=true
+  fi
+else
+  # README.mdが存在しない場合は初回実行とみなす
   IS_FIRST_RUN=true
 fi
 
