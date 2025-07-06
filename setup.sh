@@ -147,9 +147,7 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.tmp "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE}|g" "$file"
     
     # 追加の固定プレースホルダー置換
-    sed -i.tmp "s/laravel_nuxt_session/${PROJECT_NAME_UNDERSCORE}_session/g" "$file"
-    sed -i.tmp "s/laravel_nuxt_template/${PROJECT_NAME_UNDERSCORE}/g" "$file"
-    sed -i.tmp "s/laravel-nuxt-template/${PROJECT_NAME_HYPHEN}/g" "$file"
+    sed -i.tmp "s|laravel_nuxt_session|${PROJECT_NAME_UNDERSCORE}_session|g" "$file"
     
     # 一時ファイルを削除
     rm -f "$file.tmp"
