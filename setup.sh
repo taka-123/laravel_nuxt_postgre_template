@@ -22,7 +22,7 @@ PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
 
 # 関数: sed用の特殊文字エスケープ
 _escape_sed() {
-  printf '%s' "$1" | sed -e 's#[&|/\\\\]#\\&#g'
+  printf '%s' "$1" | sed -e 's#[&|/\\\\@]#\\&#g'
 }
 
 # sed置換用にエスケープされた変数
@@ -230,9 +230,9 @@ if [ "$IS_FIRST_RUN" = true ]; then
   if [ -f "frontend/layouts/default.vue" ]; then
     info "frontend/layouts/default.vueを更新中..."
     # より安全で精密な置換（titleタグ内のみ対象）
-    sed -i.bak "/<title>/s/Laravel Nuxt Template/${PROJECT_NAME_HYPHEN_ESCAPED}/g" frontend/layouts/default.vue
+    sed -i.bak "s@<title>Laravel Nuxt Template@<title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
     # アプリ名の置換（より具体的な場所を指定）
-    sed -i.bak "/app-bar-title/s/Laravel Nuxt Template/${PROJECT_NAME_HYPHEN_ESCAPED}/g" frontend/layouts/default.vue
+    sed -i.bak "s@<v-app-bar-title>Laravel Nuxt Template@<v-app-bar-title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
     # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
     PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
     # 空文字列の場合はデフォルト値を使用
