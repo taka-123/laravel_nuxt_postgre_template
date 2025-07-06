@@ -307,35 +307,8 @@ else
   warning "フロントエンド .env ファイルはすでに存在します。スキップします"
 fi
 
-# Dockerコンテナの起動
-info "Dockerコンテナを起動中..."
-$DOCKER_COMPOSE up -d || error "Dockerコンテナの起動に失敗しました"
-success "Dockerコンテナを起動しました"
-
-# バックエンドの依存関係インストール
-info "バックエンドの依存関係をインストール中..."
-$DOCKER_COMPOSE exec backend composer install || warning "Composerインストールに問題が発生しました"
-success "バックエンドの依存関係をインストールしました"
-
-# アプリケーションキーの生成
-info "Laravelアプリケーションキーを生成中..."
-$DOCKER_COMPOSE exec backend php artisan key:generate || warning "アプリケーションキーの生成に問題が発生しました"
-success "アプリケーションキーを生成しました"
-
-# データベースマイグレーション
-info "データベースマイグレーションを実行中..."
-$DOCKER_COMPOSE exec backend php artisan migrate || warning "マイグレーションに問題が発生しました"
-success "データベースマイグレーションを実行しました"
-
-# シードデータの投入
-info "初期データを投入中..."
-$DOCKER_COMPOSE exec backend php artisan db:seed || warning "シードデータの投入に問題が発生しました"
-success "初期データを投入しました"
-
-# フロントエンドの依存関係インストール
-info "フロントエンドの依存関係をインストール中..."
-$DOCKER_COMPOSE exec frontend yarn install || warning "Yarnインストールに問題が発生しました"
-success "フロントエンドの依存関係をインストールしました"
+# 開発環境の準備完了
+success "開発環境の準備が完了しました"
 
 # セットアップ完了
 
@@ -344,13 +317,21 @@ echo ""
 section "🎉 セットアップ完了"
 
 if [ "$IS_FIRST_RUN" = true ]; then
-  echo -e "${GREEN}テンプレートのカスタマイズと開発環境のセットアップが完了しました！${NC}"
+  echo -e "${GREEN}テンプレートのカスタマイズと開発環境の準備が完了しました！${NC}"
 else
-  echo -e "${GREEN}開発環境のセットアップが完了しました！${NC}"
+  echo -e "${GREEN}開発環境の準備が完了しました！${NC}"
 fi
 
 echo ""
-echo "🌐 アプリケーションURL："
+info "🚀 次のコマンドでDockerコンテナを起動してください："
+echo -e "${CYAN}${DOCKER_COMPOSE} up -d${NC}"
+echo ""
+info "💡 初回起動について："
+echo "- 初回はイメージビルドで数分かかります"
+echo "- 進捗確認: ${DOCKER_COMPOSE} logs -f"
+echo "- 起動完了まで待機してください"
+echo ""
+echo "🌐 起動後のアプリケーションURL："
 echo "- フロントエンド: http://localhost:3000"
 echo "- バックエンド API: http://localhost:8000"
 echo "- pgAdmin: http://localhost:5050"
@@ -360,12 +341,16 @@ echo "- 管理者: admin@example.com / password"
 echo "- ユーザー: test@example.com / password"
 echo ""
 echo "🔧 開発コマンド："
-echo "- バックエンドログ: docker compose logs -f backend"
-echo "- フロントエンドログ: docker compose logs -f frontend"
-echo "- 環境停止: docker compose down"
+echo "- バックエンドログ: ${DOCKER_COMPOSE} logs -f backend"
+echo "- フロントエンドログ: ${DOCKER_COMPOSE} logs -f frontend"
+echo "- 環境停止: ${DOCKER_COMPOSE} down"
 echo ""
-echo "💡 ヒント："
+info "💡 ヒント："
 echo "- WWWUSER/WWWGROUPは backend/.env に自動設定済み"
 echo "- 環境変数の警告は表示されません"
 echo ""
-echo "Happy coding! 🚀"
+info "起動確認スクリプト："
+echo "- 起動状態確認: ${DOCKER_COMPOSE} ps"
+echo "- サービス準備完了まで待機: ${DOCKER_COMPOSE} logs -f | grep -E \"(ready|listening|started)\""
+echo ""
+success "Happy coding! 🚀"
