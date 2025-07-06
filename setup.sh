@@ -228,6 +228,10 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak "/app-bar-title/s/Laravel Nuxt Template/${PROJECT_NAME}/g" frontend/layouts/default.vue
     # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
     PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
+    # 空文字列の場合はデフォルト値を使用
+    if [ -z "$PROJECT_INITIALS" ]; then
+      PROJECT_INITIALS="APP"
+    fi
     sed -i.bak "s/>LNT</>$PROJECT_INITIALS</g" frontend/layouts/default.vue
     rm -f frontend/layouts/default.vue.bak
     success "frontend/layouts/default.vueの特別処理が完了しました"
