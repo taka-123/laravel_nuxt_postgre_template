@@ -133,33 +133,26 @@ if [ "$IS_FIRST_RUN" = true ]; then
 
     info "プレースホルダーを置換中: $file"
 
-    # バックアップ作成
-    cp "$file" "$file.bak"
+    sed -i.bak \
+      -e "s|laravel-nuxt-template-frontend-dev|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-dev|g" \
+      -e "s|laravel-nuxt-template-backend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-backend-staging-unique|g" \
+      -e "s|laravel-nuxt-template-frontend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-staging-unique|g" \
+      -e "s|laravel-nuxt-template-db-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-staging-unique|g" \
+      -e "s|laravel-nuxt-template-db-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-unique|g" \
+      -e "s|laravel-nuxt-template-pgsql-main|${PROJECT_NAME_HYPHEN_ESCAPED}-pgsql-main|g" \
+      -e "s|laravel-nuxt-template-frontend|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend|g" \
+      -e "s|laravel-nuxt-template-backend|${PROJECT_NAME_HYPHEN_ESCAPED}-backend|g" \
+      -e "s|laravel-nuxt-template/backend|${PROJECT_NAME_HYPHEN_ESCAPED}/backend|g" \
+      -e "s|laravel-nuxt-template|${PROJECT_NAME_HYPHEN_ESCAPED}|g" \
+      -e "s|laravel_nuxt_template_storage_stg|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage_stg|g" \
+      -e "s|laravel_nuxt_template_storage|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage|g" \
+      -e "s|laravel_nuxt_template_staging|${PROJECT_NAME_UNDERSCORE_ESCAPED}_staging|g" \
+      -e "s|laravel_nuxt_template_user|${PROJECT_NAME_UNDERSCORE_ESCAPED}_user|g" \
+      -e "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE_ESCAPED}|g" \
+      -e "s|laravel_nuxt_session|${PROJECT_NAME_UNDERSCORE_ESCAPED}_session|g" \
+      "$file"
 
-    # 基本的なプレースホルダー置換（正しいテンプレート名を使用）
-    sed -i.tmp "s|laravel-nuxt-template-frontend-dev|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-dev|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template-backend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-backend-staging-unique|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template-frontend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-staging-unique|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template-db-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-staging-unique|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template-db-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-unique|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template-pgsql-main|${PROJECT_NAME_HYPHEN_ESCAPED}-pgsql-main|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template-frontend|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template-backend|${PROJECT_NAME_HYPHEN_ESCAPED}-backend|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template/backend|${PROJECT_NAME_HYPHEN_ESCAPED}/backend|g" "$file"
-    sed -i.tmp "s|laravel-nuxt-template|${PROJECT_NAME_HYPHEN_ESCAPED}|g" "$file"
-
-    # アンダースコア形式のプレースホルダー置換（正しいテンプレート名を使用）
-    sed -i.tmp "s|laravel_nuxt_template_storage_stg|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage_stg|g" "$file"
-    sed -i.tmp "s|laravel_nuxt_template_storage|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage|g" "$file"
-    sed -i.tmp "s|laravel_nuxt_template_staging|${PROJECT_NAME_UNDERSCORE_ESCAPED}_staging|g" "$file"
-    sed -i.tmp "s|laravel_nuxt_template_user|${PROJECT_NAME_UNDERSCORE_ESCAPED}_user|g" "$file"
-    sed -i.tmp "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE_ESCAPED}|g" "$file"
-
-    # 追加の固定プレースホルダー置換
-    sed -i.tmp "s|laravel_nuxt_session|${PROJECT_NAME_UNDERSCORE_ESCAPED}_session|g" "$file"
-
-    # 一時ファイルを削除
-    rm -f "$file.tmp"
+    rm -f "$file.bak"
 
     success "✓ $file の置換が完了しました"
   }
@@ -208,8 +201,6 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak "s@Laravel 12\\.x + Nuxt\\.js 3\\.16 + PostgreSQL 17\\.x を使用したモダンなフルスタック Web アプリケーションテンプレート@${PROJECT_NAME_HYPHEN_ESCAPED} - Laravel + Nuxt.js フルスタック Web アプリケーション@g" CLAUDE.md
     # データベース名の更新
     sed -i.bak "s@データベース: laravel_nuxt_template@データベース: ${PROJECT_NAME_UNDERSCORE_ESCAPED}@g" CLAUDE.md
-    # プロジェクト構造のディレクトリ名を更新
-    sed -i.bak "s@laravel_nuxt_postgre_template/@${PROJECT_NAME_UNDERSCORE_ESCAPED}/@g" CLAUDE.md
     # テンプレート関連の説明を調整
     sed -i.bak 's/テンプレート/プロジェクト/g' CLAUDE.md
     rm -f CLAUDE.md.bak
@@ -242,15 +233,6 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak "s/>LNT</>$PROJECT_INITIALS</g" frontend/layouts/default.vue
     rm -f frontend/layouts/default.vue.bak
     success "frontend/layouts/default.vueの特別処理が完了しました"
-  fi
-
-  # directorystructure.mdの特別処理
-  if [ -f "directorystructure.md" ]; then
-    info "directorystructure.mdを更新中..."
-    # プロジェクト構造のルートディレクトリ名を更新
-    sed -i.bak "s/laravel_nuxt_postgre_template\//${PROJECT_NAME_UNDERSCORE}\//g" directorystructure.md
-    rm -f directorystructure.md.bak
-    success "directorystructure.mdの特別処理が完了しました"
   fi
 
   # Gitの初期化（テンプレートの履歴をクリア）
