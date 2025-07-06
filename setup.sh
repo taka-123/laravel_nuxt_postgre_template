@@ -102,6 +102,11 @@ if [ "$IS_FIRST_RUN" = true ]; then
     "CLAUDE.md"
     "README_aws.md"
     "setup.sh"
+    "docs/development.md"
+    "directorystructure.md"
+    ".github/workflows/ci.yml"
+    ".github/workflows/deploy-ecs-production.yml.disabled"
+    "frontend/layouts/default.vue"
   )
 
   # 包括的なプレースホルダー置換関数
@@ -186,6 +191,8 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak "s/Laravel 12\.x + Nuxt\.js 3\.16 + PostgreSQL 17\.x を使用したモダンなフルスタック Web アプリケーションテンプレート/${PROJECT_NAME} - Laravel + Nuxt.js フルスタック Web アプリケーション/g" CLAUDE.md
     # データベース名の更新
     sed -i.bak "s/データベース: laravel_nuxt_template/データベース: ${PROJECT_NAME_UNDERSCORE}/g" CLAUDE.md
+    # プロジェクト構造のディレクトリ名を更新
+    sed -i.bak "s/laravel_nuxt_postgre_template\//${PROJECT_NAME_UNDERSCORE}\//g" CLAUDE.md
     # テンプレート関連の説明を調整
     sed -i.bak 's/テンプレート/プロジェクト/g' CLAUDE.md
     rm -f CLAUDE.md.bak
@@ -200,6 +207,18 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak 's/テンプレート/プロジェクト/g' README_aws.md
     rm -f README_aws.md.bak
     success "README_aws.mdの特別処理が完了しました"
+  fi
+
+  # frontend/layouts/default.vueの特別処理
+  if [ -f "frontend/layouts/default.vue" ]; then
+    info "frontend/layouts/default.vueを更新中..."
+    # ハードコードされたアプリ名を変更
+    sed -i.bak "s/Laravel Nuxt Template/${PROJECT_NAME}/g" frontend/layouts/default.vue
+    # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
+    PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
+    sed -i.bak "s/>LNT</>$PROJECT_INITIALS</g" frontend/layouts/default.vue
+    rm -f frontend/layouts/default.vue.bak
+    success "frontend/layouts/default.vueの特別処理が完了しました"
   fi
 
   # Gitの初期化（テンプレートの履歴をクリア）
@@ -223,7 +242,7 @@ if [ "$IS_FIRST_RUN" = true ]; then
   find . -name "*.bak" -type f -delete 2>/dev/null || true
   success "バックアップファイルのクリーンアップが完了しました"
 
-  success "🎉 全26箇所のプレースホルダー置換が完了しました！"
+  success "🎉 全31箇所のプレースホルダー置換が完了しました！"
   echo ""
 fi
 
