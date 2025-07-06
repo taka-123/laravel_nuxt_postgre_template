@@ -116,7 +116,8 @@ if [ "$IS_FIRST_RUN" = true ]; then
   # 包括的なプレースホルダー置換関数
   replace_placeholders() {
     local file="$1"
-    if [ ! -f "$file" ]; then
+    # ファイルまたはシンボリックリンクの存在チェック（より堅牢）
+    if [ ! -e "$file" ] && [ ! -L "$file" ]; then
       warning "ファイルが見つかりません: $file"
       return
     fi
@@ -126,24 +127,24 @@ if [ "$IS_FIRST_RUN" = true ]; then
     # バックアップ作成
     cp "$file" "$file.bak"
     
-    # 基本的なプレースホルダー置換
-    sed -i.tmp "s/test-fixed-project-frontend-dev/${PROJECT_NAME_HYPHEN}-frontend-dev/g" "$file"
-    sed -i.tmp "s/test-fixed-project-backend-staging-unique/${PROJECT_NAME_HYPHEN}-backend-staging-unique/g" "$file"
-    sed -i.tmp "s/test-fixed-project-frontend-staging-unique/${PROJECT_NAME_HYPHEN}-frontend-staging-unique/g" "$file"
-    sed -i.tmp "s/test-fixed-project-db-staging-unique/${PROJECT_NAME_HYPHEN}-db-staging-unique/g" "$file"
-    sed -i.tmp "s/test-fixed-project-db-unique/${PROJECT_NAME_HYPHEN}-db-unique/g" "$file"
-    sed -i.tmp "s/test-fixed-project-pgsql-main/${PROJECT_NAME_HYPHEN}-pgsql-main/g" "$file"
-    sed -i.tmp "s/test-fixed-project-frontend/${PROJECT_NAME_HYPHEN}-frontend/g" "$file"
-    sed -i.tmp "s/test-fixed-project-backend/${PROJECT_NAME_HYPHEN}-backend/g" "$file"
-    sed -i.tmp "s/test-fixed-project\/backend/${PROJECT_NAME_HYPHEN}\/backend/g" "$file"
-    sed -i.tmp "s/test-fixed-project/${PROJECT_NAME_HYPHEN}/g" "$file"
+    # 基本的なプレースホルダー置換（正しいテンプレート名を使用）
+    sed -i.tmp "s|laravel-nuxt-template-frontend-dev|${PROJECT_NAME_HYPHEN}-frontend-dev|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-backend-staging-unique|${PROJECT_NAME_HYPHEN}-backend-staging-unique|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-frontend-staging-unique|${PROJECT_NAME_HYPHEN}-frontend-staging-unique|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-db-staging-unique|${PROJECT_NAME_HYPHEN}-db-staging-unique|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-db-unique|${PROJECT_NAME_HYPHEN}-db-unique|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-pgsql-main|${PROJECT_NAME_HYPHEN}-pgsql-main|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-frontend|${PROJECT_NAME_HYPHEN}-frontend|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template-backend|${PROJECT_NAME_HYPHEN}-backend|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template/backend|${PROJECT_NAME_HYPHEN}/backend|g" "$file"
+    sed -i.tmp "s|laravel-nuxt-template|${PROJECT_NAME_HYPHEN}|g" "$file"
     
-    # アンダースコア形式のプレースホルダー置換
-    sed -i.tmp "s/test_fixed_project_storage_stg/${PROJECT_NAME_UNDERSCORE}_storage_stg/g" "$file"
-    sed -i.tmp "s/test_fixed_project_storage/${PROJECT_NAME_UNDERSCORE}_storage/g" "$file"
-    sed -i.tmp "s/test_fixed_project_staging/${PROJECT_NAME_UNDERSCORE}_staging/g" "$file"
-    sed -i.tmp "s/test_fixed_project_user/${PROJECT_NAME_UNDERSCORE}_user/g" "$file"
-    sed -i.tmp "s/test_fixed_project/${PROJECT_NAME_UNDERSCORE}/g" "$file"
+    # アンダースコア形式のプレースホルダー置換（正しいテンプレート名を使用）
+    sed -i.tmp "s|laravel_nuxt_template_storage_stg|${PROJECT_NAME_UNDERSCORE}_storage_stg|g" "$file"
+    sed -i.tmp "s|laravel_nuxt_template_storage|${PROJECT_NAME_UNDERSCORE}_storage|g" "$file"
+    sed -i.tmp "s|laravel_nuxt_template_staging|${PROJECT_NAME_UNDERSCORE}_staging|g" "$file"
+    sed -i.tmp "s|laravel_nuxt_template_user|${PROJECT_NAME_UNDERSCORE}_user|g" "$file"
+    sed -i.tmp "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE}|g" "$file"
     
     # 追加の固定プレースホルダー置換
     sed -i.tmp "s/laravel_nuxt_session/${PROJECT_NAME_UNDERSCORE}_session/g" "$file"
@@ -199,7 +200,7 @@ if [ "$IS_FIRST_RUN" = true ]; then
     # プロジェクト概要の更新
     sed -i.bak "s/Laravel 12\.x + Nuxt\.js 3\.16 + PostgreSQL 17\.x を使用したモダンなフルスタック Web アプリケーションテンプレート/${PROJECT_NAME} - Laravel + Nuxt.js フルスタック Web アプリケーション/g" CLAUDE.md
     # データベース名の更新
-    sed -i.bak "s/データベース: test_fixed_project/データベース: ${PROJECT_NAME_UNDERSCORE}/g" CLAUDE.md
+    sed -i.bak "s/データベース: laravel_nuxt_template/データベース: ${PROJECT_NAME_UNDERSCORE}/g" CLAUDE.md
     # プロジェクト構造のディレクトリ名を更新
     sed -i.bak "s/laravel_nuxt_postgre_template\//${PROJECT_NAME_UNDERSCORE}\//g" CLAUDE.md
     # テンプレート関連の説明を調整
@@ -212,17 +213,19 @@ if [ "$IS_FIRST_RUN" = true ]; then
   if [ -f "README_aws.md" ]; then
     info "README_aws.mdを更新中..."
     sed -i.bak "s/Laravel + Nuxt + PostgreSQL テンプレート/${PROJECT_NAME}/g" README_aws.md
-    sed -i.bak "s/ECR_REPOSITORY: test-fixed-project/ECR_REPOSITORY: ${PROJECT_NAME_HYPHEN}/g" README_aws.md
+    sed -i.bak "s/ECR_REPOSITORY: laravel-nuxt-template/ECR_REPOSITORY: ${PROJECT_NAME_HYPHEN}/g" README_aws.md
     sed -i.bak 's/テンプレート/プロジェクト/g' README_aws.md
     rm -f README_aws.md.bak
     success "README_aws.mdの特別処理が完了しました"
   fi
 
   # frontend/layouts/default.vueの特別処理
-  if [ -f "frontend/layouts/default.vue" ]; then
+  if [ -e "frontend/layouts/default.vue" ]; then
     info "frontend/layouts/default.vueを更新中..."
-    # ハードコードされたアプリ名を変更
-    sed -i.bak "s/Laravel Nuxt Template/${PROJECT_NAME}/g" frontend/layouts/default.vue
+    # より安全で精密な置換（titleタグ内のみ対象）
+    sed -i.bak "/<title>/s/Laravel Nuxt Template/${PROJECT_NAME}/g" frontend/layouts/default.vue
+    # アプリ名の置換（より具体的な場所を指定）
+    sed -i.bak "/app-bar-title/s/Laravel Nuxt Template/${PROJECT_NAME}/g" frontend/layouts/default.vue
     # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
     PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
     sed -i.bak "s/>LNT</>$PROJECT_INITIALS</g" frontend/layouts/default.vue
@@ -260,7 +263,9 @@ if [ "$IS_FIRST_RUN" = true ]; then
   find . -name "*.bak" -type f -delete 2>/dev/null || true
   success "バックアップファイルのクリーンアップが完了しました"
 
-  success "🎉 全38箇所のプレースホルダー置換が完了しました！"
+  # 置換数を動的に計算
+  total_files=${#TEMPLATE_FILES[@]}
+  success "🎉 全${total_files}ファイルのプレースホルダー置換が完了しました！"
   echo ""
 fi
 
@@ -308,7 +313,7 @@ FRONTEND_PORT=3000
 FORWARD_DB_PORT=5432
 
 # データベース設定（docker-compose.yml用）
-DB_DATABASE=${PROJECT_NAME_UNDERSCORE:-test_fixed_project}
+DB_DATABASE=${PROJECT_NAME_UNDERSCORE:-laravel_nuxt_template}
 DB_USERNAME=sail
 DB_PASSWORD=password
 EOF
