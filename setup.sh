@@ -20,6 +20,11 @@ PROJECT_NAME="${1:-$(basename "$PWD")}"
 PROJECT_NAME_HYPHEN="${PROJECT_NAME}"
 PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
 
+# 関数: sed用の特殊文字エスケープ
+_escape_sed() {
+  printf '%s' "$1" | sed -e 's#[&|/\\\\]#\\&#g'
+}
+
 # sed置換用にエスケープされた変数
 PROJECT_NAME_HYPHEN_ESCAPED=$(_escape_sed "$PROJECT_NAME_HYPHEN")
 PROJECT_NAME_UNDERSCORE_ESCAPED=$(_escape_sed "$PROJECT_NAME_UNDERSCORE")
@@ -28,8 +33,8 @@ PROJECT_NAME_UNDERSCORE_ESCAPED=$(_escape_sed "$PROJECT_NAME_UNDERSCORE")
 # テンプレート初期化が完了済みかどうかをREADME.mdで判定
 IS_FIRST_RUN=false
 if [ -f "README.md" ]; then
-  if grep -q "Laravel + Nuxt + PostgreSQL テンプレート" README.md && \
-     ! grep -q "quick-chef" README.md; then
+  if grep -q "Laravel + Nuxt + PostgreSQL テンプレート" README.md &&
+    ! grep -q "quick-chef" README.md; then
     IS_FIRST_RUN=true
   fi
 else
@@ -51,11 +56,6 @@ warning() {
 error() {
   echo -e "${RED}✗ $1${NC}"
   exit 1
-}
-
-# 関数: sed用の特殊文字エスケープ
-_escape_sed() {
-  printf '%s' "$1" | sed 's/[&|]/\\&/g'
 }
 
 # 関数: 進行状況メッセージ
@@ -132,10 +132,10 @@ if [ "$IS_FIRST_RUN" = true ]; then
     fi
 
     info "プレースホルダーを置換中: $file"
-    
+
     # バックアップ作成
     cp "$file" "$file.bak"
-    
+
     # 基本的なプレースホルダー置換（正しいテンプレート名を使用）
     sed -i.tmp "s|laravel-nuxt-template-frontend-dev|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-dev|g" "$file"
     sed -i.tmp "s|laravel-nuxt-template-backend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-backend-staging-unique|g" "$file"
@@ -147,20 +147,20 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.tmp "s|laravel-nuxt-template-backend|${PROJECT_NAME_HYPHEN_ESCAPED}-backend|g" "$file"
     sed -i.tmp "s|laravel-nuxt-template/backend|${PROJECT_NAME_HYPHEN_ESCAPED}/backend|g" "$file"
     sed -i.tmp "s|laravel-nuxt-template|${PROJECT_NAME_HYPHEN_ESCAPED}|g" "$file"
-    
+
     # アンダースコア形式のプレースホルダー置換（正しいテンプレート名を使用）
     sed -i.tmp "s|laravel_nuxt_template_storage_stg|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage_stg|g" "$file"
     sed -i.tmp "s|laravel_nuxt_template_storage|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage|g" "$file"
     sed -i.tmp "s|laravel_nuxt_template_staging|${PROJECT_NAME_UNDERSCORE_ESCAPED}_staging|g" "$file"
     sed -i.tmp "s|laravel_nuxt_template_user|${PROJECT_NAME_UNDERSCORE_ESCAPED}_user|g" "$file"
     sed -i.tmp "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE_ESCAPED}|g" "$file"
-    
+
     # 追加の固定プレースホルダー置換
     sed -i.tmp "s|laravel_nuxt_session|${PROJECT_NAME_UNDERSCORE_ESCAPED}_session|g" "$file"
-    
+
     # 一時ファイルを削除
     rm -f "$file.tmp"
-    
+
     success "✓ $file の置換が完了しました"
   }
 
@@ -172,7 +172,7 @@ if [ "$IS_FIRST_RUN" = true ]; then
 
   # 特別なドキュメント処理
   info "ドキュメントファイルの特別処理中..."
-  
+
   # README.mdの特別処理
   if [ -f "README.md" ]; then
     info "README.mdを更新中..."
