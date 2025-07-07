@@ -1,11 +1,14 @@
 #!/bin/bash
 
 # Laravel + Nuxt + PostgreSQL テンプレート統合セットアップスクリプト
-# 使用方法: ./setup.sh [プロジェクト名]
+# 使用方法:
+#   ./setup.sh [プロジェクト名]           - テンプレートカスタマイズ + 開発環境セットアップ
+#   ./setup.sh [プロジェクト名] --setup-only - 開発環境セットアップのみ
+#   ./setup.sh                           - 開発環境セットアップのみ
 #
 # 機能:
-# - 初回実行時: テンプレートのカスタマイズ + 開発環境セットアップ
-# - 2回目以降: 開発環境セットアップのみ
+# - プロジェクト名指定時: テンプレートのカスタマイズ + 開発環境セットアップ（冪等性確保）
+# - プロジェクト名なしまたは--setup-onlyフラグ: 開発環境セットアップのみ
 
 # 色の定義
 GREEN='\033[0;32m'
@@ -15,8 +18,25 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# プロジェクト名の取得と形式変換
-PROJECT_NAME="${1:-$(basename "$PWD")}"
+# 実行モードの判定（引数解析を最初に実行）
+# --setup-onlyフラグの確認（第1引数または第2引数どちらでも対応）
+SETUP_ONLY=false
+if [ "$1" = "--setup-only" ] || [ "$2" = "--setup-only" ]; then
+  SETUP_ONLY=true
+fi
+
+# プロジェクト名の取得（--setup-onlyフラグを除外）
+if [ "$SETUP_ONLY" = true ] && [ "$1" = "--setup-only" ]; then
+  # 第1引数が--setup-onlyの場合はデフォルト名を使用
+  PROJECT_NAME="$(basename "$PWD")"
+elif [ "$SETUP_ONLY" = true ] && [ "$2" = "--setup-only" ]; then
+  # 第2引数が--setup-onlyの場合は第1引数をプロジェクト名として使用
+  PROJECT_NAME="${1:-$(basename "$PWD")}"
+else
+  # 通常の場合
+  PROJECT_NAME="${1:-$(basename "$PWD")}"
+fi
+
 PROJECT_NAME_HYPHEN="${PROJECT_NAME}"
 PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
 
@@ -26,20 +46,16 @@ _escape_sed() {
 }
 
 # sed置換用にエスケープされた変数
+PROJECT_NAME_ESCAPED=$(_escape_sed "$PROJECT_NAME")
 PROJECT_NAME_HYPHEN_ESCAPED=$(_escape_sed "$PROJECT_NAME_HYPHEN")
 PROJECT_NAME_UNDERSCORE_ESCAPED=$(_escape_sed "$PROJECT_NAME_UNDERSCORE")
 
-# 初回実行かどうかの判定
-# テンプレート初期化が完了済みかどうかをREADME.mdで判定
-IS_FIRST_RUN=false
-if [ -f "README.md" ]; then
-  if grep -q "Laravel + Nuxt + PostgreSQL テンプレート" README.md &&
-    ! grep -q "quick-chef" README.md; then
-    IS_FIRST_RUN=true
-  fi
+# テンプレートカスタマイズの実行判定
+# プロジェクト名が指定され、かつ--setup-onlyフラグがない場合のみカスタマイズを実行
+if [ -n "$1" ] && [ "$1" != "--setup-only" ] && [ "$SETUP_ONLY" != true ]; then
+  CUSTOMIZE_TEMPLATE=true
 else
-  # README.mdが存在しない場合は初回実行とみなす
-  IS_FIRST_RUN=true
+  CUSTOMIZE_TEMPLATE=false
 fi
 
 # 関数: 成功メッセージ
@@ -72,8 +88,8 @@ section() {
 }
 
 # メインヘッダー
-if [ "$IS_FIRST_RUN" = true ]; then
-  section "Laravel + Nuxt テンプレート初期化"
+if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
+  section "Laravel + Nuxt テンプレートカスタマイズ"
   echo -e "プロジェクト名: ${BLUE}${PROJECT_NAME}${NC}"
   echo -e "実行内容: ${YELLOW}テンプレートカスタマイズ + 開発環境セットアップ${NC}"
 else
@@ -84,10 +100,10 @@ fi
 echo ""
 
 # ===========================================
-# テンプレートカスタマイズ（初回のみ）
+# テンプレートカスタマイズ
 # ===========================================
 
-if [ "$IS_FIRST_RUN" = true ]; then
+if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   section "📝 テンプレートのカスタマイズ"
 
   info "プロジェクト名変換："
@@ -133,6 +149,8 @@ if [ "$IS_FIRST_RUN" = true ]; then
 
     info "プレースホルダーを置換中: $file"
 
+    # 冪等性を確保するため、元のテンプレート名と既存のプロジェクト名の両方に対応
+    # 注意：より具体的なパターンを先に実行して、一般的なパターンによる誤置換を防ぐ
     sed -i.bak \
       -e "s|laravel-nuxt-template-frontend-dev|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-dev|g" \
       -e "s|laravel-nuxt-template-backend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-backend-staging-unique|g" \
@@ -140,16 +158,16 @@ if [ "$IS_FIRST_RUN" = true ]; then
       -e "s|laravel-nuxt-template-db-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-staging-unique|g" \
       -e "s|laravel-nuxt-template-db-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-unique|g" \
       -e "s|laravel-nuxt-template-pgsql-main|${PROJECT_NAME_HYPHEN_ESCAPED}-pgsql-main|g" \
-      -e "s|laravel-nuxt-template-frontend|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend|g" \
-      -e "s|laravel-nuxt-template-backend|${PROJECT_NAME_HYPHEN_ESCAPED}-backend|g" \
-      -e "s|laravel-nuxt-template/backend|${PROJECT_NAME_HYPHEN_ESCAPED}/backend|g" \
-      -e "s|laravel-nuxt-template|${PROJECT_NAME_HYPHEN_ESCAPED}|g" \
       -e "s|laravel_nuxt_template_storage_stg|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage_stg|g" \
       -e "s|laravel_nuxt_template_storage|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage|g" \
       -e "s|laravel_nuxt_template_staging|${PROJECT_NAME_UNDERSCORE_ESCAPED}_staging|g" \
       -e "s|laravel_nuxt_template_user|${PROJECT_NAME_UNDERSCORE_ESCAPED}_user|g" \
-      -e "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE_ESCAPED}|g" \
       -e "s|laravel_nuxt_session|${PROJECT_NAME_UNDERSCORE_ESCAPED}_session|g" \
+      -e "s|laravel-nuxt-template-frontend|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend|g" \
+      -e "s|laravel-nuxt-template-backend|${PROJECT_NAME_HYPHEN_ESCAPED}-backend|g" \
+      -e "s|laravel-nuxt-template/backend|${PROJECT_NAME_HYPHEN_ESCAPED}/backend|g" \
+      -e "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE_ESCAPED}|g" \
+      -e "s|laravel-nuxt-template|${PROJECT_NAME_HYPHEN_ESCAPED}|g" \
       "$file"
 
     rm -f "$file.bak"
@@ -188,6 +206,10 @@ if [ "$IS_FIRST_RUN" = true ]; then
     # テンプレート固有の説明を削除・調整
     sed -i.bak '/テンプレートのカスタマイズ/d' README.md
     sed -i.bak 's/テンプレート/プロジェクト/g' README.md
+    # GitHub テンプレート使用例の置換
+    sed -i.bak "s@--template your-org/laravel-nuxt-template@--template your-org/${PROJECT_NAME_HYPHEN_ESCAPED}@g" README.md
+    # git clone 例の置換
+    sed -i.bak "s@laravel-nuxt-template\\.git@${PROJECT_NAME_HYPHEN_ESCAPED}.git@g" README.md
     rm -f README.md.bak
     success "README.mdの特別処理が完了しました"
   fi
@@ -217,13 +239,46 @@ if [ "$IS_FIRST_RUN" = true ]; then
     success "README_aws.mdの特別処理が完了しました"
   fi
 
+  # backend/.env.exampleの特別処理
+  if [ -f "backend/.env.example" ]; then
+    info "backend/.env.exampleを更新中..."
+    # より安全な置換：コメントを保持しながらAPP_NAME値のみを置換
+    sed -i.bak "s@^APP_NAME=\"[^\"]*\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
+    rm -f backend/.env.example.bak
+    success "backend/.env.exampleの特別処理が完了しました"
+  fi
+
+  # frontend/.env.exampleの特別処理
+  if [ -f "frontend/.env.example" ]; then
+    info "frontend/.env.exampleを更新中..."
+    # bulletproof APP_NAME replacement preventing double-processing and syntax errors
+    # Step 1: Handle quoted values: APP_NAME="value" → APP_NAME="new-value"
+    sed -i.bak "s@^APP_NAME=\"[^\"]*\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" frontend/.env.example
+    # Step 2: Handle unquoted values (skip already quoted lines): APP_NAME=value → APP_NAME="new-value"
+    sed -i.bak "/^APP_NAME=\"/!s@^APP_NAME=\(.*\)@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" frontend/.env.example
+    rm -f frontend/.env.example.bak
+    success "frontend/.env.exampleの特別処理が完了しました"
+  fi
+
+  # .github/workflows/ci.ymlの特別処理
+  if [ -f ".github/workflows/ci.yml" ]; then
+    info ".github/workflows/ci.ymlを更新中..."
+    # PostgreSQL データベース名の置換（テスト用）
+    sed -i.bak "s@POSTGRES_DB: laravel_nuxt_template_testing@POSTGRES_DB: ${PROJECT_NAME_UNDERSCORE_ESCAPED}_testing@g" .github/workflows/ci.yml
+    # sed コマンド内のデータベース名置換
+    sed -i.bak "s@DB_DATABASE=laravel_nuxt_template@DB_DATABASE=${PROJECT_NAME_UNDERSCORE_ESCAPED}@g" .github/workflows/ci.yml
+    rm -f .github/workflows/ci.yml.bak
+    success ".github/workflows/ci.ymlの特別処理が完了しました"
+  fi
+
   # frontend/layouts/default.vueの特別処理
   if [ -f "frontend/layouts/default.vue" ]; then
     info "frontend/layouts/default.vueを更新中..."
-    # より安全で精密な置換（titleタグ内のみ対象）
-    sed -i.bak "s@<title>Laravel Nuxt Template@<title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
-    # アプリ名の置換（より具体的な場所を指定）
-    sed -i.bak "s@<v-app-bar-title>Laravel Nuxt Template@<v-app-bar-title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
+    # 安全で冪等性を保つ置換（ユーザーカスタマイズを保護）
+    # 元のテンプレート名のみを対象とし、ユーザーカスタマイズは保護
+    sed -i.bak "s@<title>Laravel Nuxt Template</title>@<title>${PROJECT_NAME_HYPHEN_ESCAPED}</title>@g" frontend/layouts/default.vue
+    sed -i.bak "s@<v-app-bar-title>Laravel Nuxt Template</v-app-bar-title>@<v-app-bar-title>${PROJECT_NAME_HYPHEN_ESCAPED}</v-app-bar-title>@g" frontend/layouts/default.vue
+    sed -i.bak "s@<span class=\"d-none d-sm-block\">Laravel Nuxt Template</span>@<span class=\"d-none d-sm-block\">${PROJECT_NAME_HYPHEN_ESCAPED}</span>@g" frontend/layouts/default.vue
     # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
     PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
     # 空文字列の場合はデフォルト値を使用
@@ -357,7 +412,7 @@ success "開発環境の準備が完了しました"
 echo ""
 section "🎉 セットアップ完了"
 
-if [ "$IS_FIRST_RUN" = true ]; then
+if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   echo -e "${GREEN}テンプレートのカスタマイズと開発環境の準備が完了しました！${NC}"
 else
   echo -e "${GREEN}開発環境の準備が完了しました！${NC}"
