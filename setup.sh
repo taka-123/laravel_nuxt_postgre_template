@@ -233,6 +233,28 @@ if [ "$IS_FIRST_RUN" = true ]; then
     success "frontend/.env.exampleの特別処理が完了しました"
   fi
 
+  # .github/workflows/ci.ymlの特別処理
+  if [ -f ".github/workflows/ci.yml" ]; then
+    info ".github/workflows/ci.ymlを更新中..."
+    # PostgreSQL データベース名の置換（テスト用）
+    sed -i.bak "s@POSTGRES_DB: laravel_nuxt_template_testing@POSTGRES_DB: ${PROJECT_NAME_UNDERSCORE_ESCAPED}_testing@g" .github/workflows/ci.yml
+    # sed コマンド内のデータベース名置換
+    sed -i.bak "s@DB_DATABASE=laravel_nuxt_template@DB_DATABASE=${PROJECT_NAME_UNDERSCORE_ESCAPED}@g" .github/workflows/ci.yml
+    rm -f .github/workflows/ci.yml.bak
+    success ".github/workflows/ci.ymlの特別処理が完了しました"
+  fi
+
+  # README.mdの特別処理
+  if [ -f "README.md" ]; then
+    info "README.mdを更新中..."
+    # GitHub テンプレート使用例の置換
+    sed -i.bak "s@--template your-org/laravel-nuxt-template@--template your-org/${PROJECT_NAME_HYPHEN_ESCAPED}@g" README.md
+    # git clone 例の置換
+    sed -i.bak "s@laravel-nuxt-template\\.git@${PROJECT_NAME_HYPHEN_ESCAPED}.git@g" README.md
+    rm -f README.md.bak
+    success "README.mdの特別処理が完了しました"
+  fi
+
   # frontend/layouts/default.vueの特別処理
   if [ -f "frontend/layouts/default.vue" ]; then
     info "frontend/layouts/default.vueを更新中..."
