@@ -217,6 +217,22 @@ if [ "$IS_FIRST_RUN" = true ]; then
     success "README_aws.mdの特別処理が完了しました"
   fi
 
+  # backend/.env.exampleの特別処理
+  if [ -f "backend/.env.example" ]; then
+    info "backend/.env.exampleを更新中..."
+    sed -i.bak "s@APP_NAME=\"Laravel Nuxt Template\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
+    rm -f backend/.env.example.bak
+    success "backend/.env.exampleの特別処理が完了しました"
+  fi
+
+  # frontend/.env.exampleの特別処理
+  if [ -f "frontend/.env.example" ]; then
+    info "frontend/.env.exampleを更新中..."
+    sed -i.bak "s@APP_NAME=Laravel Nuxt Template@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
+    rm -f frontend/.env.example.bak
+    success "frontend/.env.exampleの特別処理が完了しました"
+  fi
+
   # frontend/layouts/default.vueの特別処理
   if [ -f "frontend/layouts/default.vue" ]; then
     info "frontend/layouts/default.vueを更新中..."
@@ -224,6 +240,8 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak "s@<title>Laravel Nuxt Template@<title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
     # アプリ名の置換（より具体的な場所を指定）
     sed -i.bak "s@<v-app-bar-title>Laravel Nuxt Template@<v-app-bar-title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
+    # スパン内のテンプレート名も置換
+    sed -i.bak "s@<span class=\"d-none d-sm-block\">Laravel Nuxt Template</span>@<span class=\"d-none d-sm-block\">${PROJECT_NAME_HYPHEN_ESCAPED}</span>@g" frontend/layouts/default.vue
     # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
     PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
     # 空文字列の場合はデフォルト値を使用
