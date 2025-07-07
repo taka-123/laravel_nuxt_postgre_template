@@ -140,22 +140,22 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
     info "プレースホルダーを置換中: $file"
 
     sed -i.bak \
-      -e "s|laravel-nuxt-template-frontend-dev|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-dev|g" \
-      -e "s|laravel-nuxt-template-backend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-backend-staging-unique|g" \
-      -e "s|laravel-nuxt-template-frontend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-staging-unique|g" \
-      -e "s|laravel-nuxt-template-db-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-staging-unique|g" \
-      -e "s|laravel-nuxt-template-db-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-unique|g" \
-      -e "s|laravel-nuxt-template-pgsql-main|${PROJECT_NAME_HYPHEN_ESCAPED}-pgsql-main|g" \
-      -e "s|laravel-nuxt-template-frontend|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend|g" \
-      -e "s|laravel-nuxt-template-backend|${PROJECT_NAME_HYPHEN_ESCAPED}-backend|g" \
-      -e "s|laravel-nuxt-template/backend|${PROJECT_NAME_HYPHEN_ESCAPED}/backend|g" \
-      -e "s|laravel-nuxt-template|${PROJECT_NAME_HYPHEN_ESCAPED}|g" \
-      -e "s|laravel_nuxt_template_storage_stg|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage_stg|g" \
-      -e "s|laravel_nuxt_template_storage|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage|g" \
-      -e "s|laravel_nuxt_template_staging|${PROJECT_NAME_UNDERSCORE_ESCAPED}_staging|g" \
-      -e "s|laravel_nuxt_template_user|${PROJECT_NAME_UNDERSCORE_ESCAPED}_user|g" \
-      -e "s|laravel_nuxt_template|${PROJECT_NAME_UNDERSCORE_ESCAPED}|g" \
-      -e "s|laravel_nuxt_session|${PROJECT_NAME_UNDERSCORE_ESCAPED}_session|g" \
+      -e "s|RabitABC-frontend-dev|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-dev|g" \
+      -e "s|RabitABC-backend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-backend-staging-unique|g" \
+      -e "s|RabitABC-frontend-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend-staging-unique|g" \
+      -e "s|RabitABC-db-staging-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-staging-unique|g" \
+      -e "s|RabitABC-db-unique|${PROJECT_NAME_HYPHEN_ESCAPED}-db-unique|g" \
+      -e "s|RabitABC-pgsql-main|${PROJECT_NAME_HYPHEN_ESCAPED}-pgsql-main|g" \
+      -e "s|RabitABC-frontend|${PROJECT_NAME_HYPHEN_ESCAPED}-frontend|g" \
+      -e "s|RabitABC-backend|${PROJECT_NAME_HYPHEN_ESCAPED}-backend|g" \
+      -e "s|RabitABC/backend|${PROJECT_NAME_HYPHEN_ESCAPED}/backend|g" \
+      -e "s|RabitABC|${PROJECT_NAME_HYPHEN_ESCAPED}|g" \
+      -e "s|RabitABC_storage_stg|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage_stg|g" \
+      -e "s|RabitABC_storage|${PROJECT_NAME_UNDERSCORE_ESCAPED}_storage|g" \
+      -e "s|RabitABC_staging|${PROJECT_NAME_UNDERSCORE_ESCAPED}_staging|g" \
+      -e "s|RabitABC_user|${PROJECT_NAME_UNDERSCORE_ESCAPED}_user|g" \
+      -e "s|RabitABC|${PROJECT_NAME_UNDERSCORE_ESCAPED}|g" \
+      -e "s|RabitABC_session|${PROJECT_NAME_UNDERSCORE_ESCAPED}_session|g" \
       "$file"
 
     rm -f "$file.bak"
@@ -195,9 +195,9 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
     sed -i.bak '/テンプレートのカスタマイズ/d' README.md
     sed -i.bak 's/テンプレート/プロジェクト/g' README.md
     # GitHub テンプレート使用例の置換
-    sed -i.bak "s@--template your-org/laravel-nuxt-template@--template your-org/${PROJECT_NAME_HYPHEN_ESCAPED}@g" README.md
+    sed -i.bak "s@--template your-org/RabitABC@--template your-org/${PROJECT_NAME_HYPHEN_ESCAPED}@g" README.md
     # git clone 例の置換
-    sed -i.bak "s@laravel-nuxt-template\\.git@${PROJECT_NAME_HYPHEN_ESCAPED}.git@g" README.md
+    sed -i.bak "s@RabitABC\\.git@${PROJECT_NAME_HYPHEN_ESCAPED}.git@g" README.md
     rm -f README.md.bak
     success "README.mdの特別処理が完了しました"
   fi
@@ -210,7 +210,7 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
     # プロジェクト概要の更新
     sed -i.bak "s@Laravel 12\\.x + Nuxt\\.js 3\\.16 + PostgreSQL 17\\.x を使用したモダンなフルスタック Web アプリケーションテンプレート@${PROJECT_NAME_HYPHEN_ESCAPED} - Laravel + Nuxt.js フルスタック Web アプリケーション@g" CLAUDE.md
     # データベース名の更新
-    sed -i.bak "s@データベース: laravel_nuxt_template@データベース: ${PROJECT_NAME_UNDERSCORE_ESCAPED}@g" CLAUDE.md
+    sed -i.bak "s@データベース: RabitABC@データベース: ${PROJECT_NAME_UNDERSCORE_ESCAPED}@g" CLAUDE.md
     # テンプレート関連の説明を調整
     sed -i.bak 's/テンプレート/プロジェクト/g' CLAUDE.md
     rm -f CLAUDE.md.bak
@@ -221,7 +221,7 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   if [ -f "README_aws.md" ]; then
     info "README_aws.mdを更新中..."
     sed -i.bak "s@Laravel + Nuxt + PostgreSQL テンプレート@${PROJECT_NAME_HYPHEN_ESCAPED}@g" README_aws.md
-    sed -i.bak "s@ECR_REPOSITORY: laravel-nuxt-template@ECR_REPOSITORY: ${PROJECT_NAME_HYPHEN_ESCAPED}@g" README_aws.md
+    sed -i.bak "s@ECR_REPOSITORY: RabitABC@ECR_REPOSITORY: ${PROJECT_NAME_HYPHEN_ESCAPED}@g" README_aws.md
     sed -i.bak 's/テンプレート/プロジェクト/g' README_aws.md
     rm -f README_aws.md.bak
     success "README_aws.mdの特別処理が完了しました"
@@ -230,9 +230,8 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   # backend/.env.exampleの特別処理
   if [ -f "backend/.env.example" ]; then
     info "backend/.env.exampleを更新中..."
-    # 元のテンプレート文字列と既に置換済みの文字列の両方に対応
-    sed -i.bak "s@APP_NAME=\"Laravel Nuxt Template\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
-    sed -i.bak "s@APP_NAME=\".*\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
+    # より安全な置換：コメントを保持しながらAPP_NAME値のみを置換
+    sed -i.bak "s@^APP_NAME=\"[^\"]*\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
     rm -f backend/.env.example.bak
     success "backend/.env.exampleの特別処理が完了しました"
   fi
@@ -240,9 +239,8 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   # frontend/.env.exampleの特別処理
   if [ -f "frontend/.env.example" ]; then
     info "frontend/.env.exampleを更新中..."
-    # 元のテンプレート文字列と既に置換済みの文字列の両方に対応
-    sed -i.bak "s@APP_NAME=Laravel Nuxt Template@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
-    sed -i.bak "s@APP_NAME=.*@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
+    # より安全な置換：コメントを保持しながらAPP_NAME値のみを置換
+    sed -i.bak "s@^APP_NAME=[^#]*@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
     rm -f frontend/.env.example.bak
     success "frontend/.env.exampleの特別処理が完了しました"
   fi
@@ -251,9 +249,9 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   if [ -f ".github/workflows/ci.yml" ]; then
     info ".github/workflows/ci.ymlを更新中..."
     # PostgreSQL データベース名の置換（テスト用）
-    sed -i.bak "s@POSTGRES_DB: laravel_nuxt_template_testing@POSTGRES_DB: ${PROJECT_NAME_UNDERSCORE_ESCAPED}_testing@g" .github/workflows/ci.yml
+    sed -i.bak "s@POSTGRES_DB: RabitABC_testing@POSTGRES_DB: ${PROJECT_NAME_UNDERSCORE_ESCAPED}_testing@g" .github/workflows/ci.yml
     # sed コマンド内のデータベース名置換
-    sed -i.bak "s@DB_DATABASE=laravel_nuxt_template@DB_DATABASE=${PROJECT_NAME_UNDERSCORE_ESCAPED}@g" .github/workflows/ci.yml
+    sed -i.bak "s@DB_DATABASE=RabitABC@DB_DATABASE=${PROJECT_NAME_UNDERSCORE_ESCAPED}@g" .github/workflows/ci.yml
     rm -f .github/workflows/ci.yml.bak
     success ".github/workflows/ci.ymlの特別処理が完了しました"
   fi
@@ -352,7 +350,7 @@ FRONTEND_PORT=3000
 FORWARD_DB_PORT=5432
 
 # データベース設定（docker-compose.yml用）
-DB_DATABASE=${PROJECT_NAME_UNDERSCORE:-laravel_nuxt_template}
+DB_DATABASE=${PROJECT_NAME_UNDERSCORE:-RabitABC}
 DB_USERNAME=sail
 DB_PASSWORD=password
 EOF
