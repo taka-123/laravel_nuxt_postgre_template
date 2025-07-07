@@ -254,8 +254,8 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
     # より安全な置換：コメントと引用符を保持しながらAPP_NAME値のみを置換
     # パターン1: APP_NAME="値" の形式（引用符付き）
     sed -i.bak "s@^APP_NAME=\"[^\"]*\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" frontend/.env.example
-    # パターン2: APP_NAME=値 の形式（引用符なし、#またはEOLまで）
-    sed -i.bak "s@^APP_NAME=\([^#]*[^# ]\)@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
+    # パターン2: APP_NAME=値 の形式（引用符なし、コメントまたはEOLまで、末尾空白を削除）
+    sed -i.bak "s@^APP_NAME=[^#]*@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
     rm -f frontend/.env.example.bak
     success "frontend/.env.exampleの特別処理が完了しました"
   fi
