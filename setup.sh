@@ -26,6 +26,7 @@ _escape_sed() {
 }
 
 # sed置換用にエスケープされた変数
+PROJECT_NAME_ESCAPED=$(_escape_sed "$PROJECT_NAME")
 PROJECT_NAME_HYPHEN_ESCAPED=$(_escape_sed "$PROJECT_NAME_HYPHEN")
 PROJECT_NAME_UNDERSCORE_ESCAPED=$(_escape_sed "$PROJECT_NAME_UNDERSCORE")
 
