@@ -242,8 +242,11 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   # backend/.env.exampleの特別処理
   if [ -f "backend/.env.example" ]; then
     info "backend/.env.exampleを更新中..."
-    # より安全な置換：コメントを保持しながらAPP_NAME値のみを置換
+    # bulletproof APP_NAME replacement preventing double-processing and syntax errors
+    # Step 1: Handle quoted values: APP_NAME="value" → APP_NAME="new-value"
     sed -i.bak "s@^APP_NAME=\"[^\"]*\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
+    # Step 2: Handle unquoted values (skip already quoted lines): APP_NAME=value → APP_NAME="new-value"
+    sed -i.bak "/^APP_NAME=\"/!s@^APP_NAME=\(.*\)@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
     rm -f backend/.env.example.bak
     success "backend/.env.exampleの特別処理が完了しました"
   fi
