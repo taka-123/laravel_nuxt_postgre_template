@@ -189,6 +189,10 @@ if [ "$IS_FIRST_RUN" = true ]; then
     # テンプレート固有の説明を削除・調整
     sed -i.bak '/テンプレートのカスタマイズ/d' README.md
     sed -i.bak 's/テンプレート/プロジェクト/g' README.md
+    # GitHub テンプレート使用例の置換
+    sed -i.bak "s@--template your-org/laravel-nuxt-template@--template your-org/${PROJECT_NAME_HYPHEN_ESCAPED}@g" README.md
+    # git clone 例の置換
+    sed -i.bak "s@laravel-nuxt-template\\.git@${PROJECT_NAME_HYPHEN_ESCAPED}.git@g" README.md
     rm -f README.md.bak
     success "README.mdの特別処理が完了しました"
   fi
@@ -243,17 +247,6 @@ if [ "$IS_FIRST_RUN" = true ]; then
     sed -i.bak "s@DB_DATABASE=laravel_nuxt_template@DB_DATABASE=${PROJECT_NAME_UNDERSCORE_ESCAPED}@g" .github/workflows/ci.yml
     rm -f .github/workflows/ci.yml.bak
     success ".github/workflows/ci.ymlの特別処理が完了しました"
-  fi
-
-  # README.mdの特別処理
-  if [ -f "README.md" ]; then
-    info "README.mdを更新中..."
-    # GitHub テンプレート使用例の置換
-    sed -i.bak "s@--template your-org/laravel-nuxt-template@--template your-org/${PROJECT_NAME_HYPHEN_ESCAPED}@g" README.md
-    # git clone 例の置換
-    sed -i.bak "s@laravel-nuxt-template\\.git@${PROJECT_NAME_HYPHEN_ESCAPED}.git@g" README.md
-    rm -f README.md.bak
-    success "README.mdの特別処理が完了しました"
   fi
 
   # frontend/layouts/default.vueの特別処理
