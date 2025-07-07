@@ -1,11 +1,14 @@
 #!/bin/bash
 
 # Laravel + Nuxt + PostgreSQL テンプレート統合セットアップスクリプト
-# 使用方法: ./setup.sh [プロジェクト名]
+# 使用方法:
+#   ./setup.sh [プロジェクト名]           - テンプレートカスタマイズ + 開発環境セットアップ
+#   ./setup.sh [プロジェクト名] --setup-only - 開発環境セットアップのみ
+#   ./setup.sh                           - 開発環境セットアップのみ
 #
 # 機能:
-# - 初回実行時: テンプレートのカスタマイズ + 開発環境セットアップ
-# - 2回目以降: 開発環境セットアップのみ
+# - プロジェクト名指定時: テンプレートのカスタマイズ + 開発環境セットアップ（冪等性確保）
+# - プロジェクト名なしまたは--setup-onlyフラグ: 開発環境セットアップのみ
 
 # 色の定義
 GREEN='\033[0;32m'
@@ -30,17 +33,19 @@ PROJECT_NAME_ESCAPED=$(_escape_sed "$PROJECT_NAME")
 PROJECT_NAME_HYPHEN_ESCAPED=$(_escape_sed "$PROJECT_NAME_HYPHEN")
 PROJECT_NAME_UNDERSCORE_ESCAPED=$(_escape_sed "$PROJECT_NAME_UNDERSCORE")
 
-# 初回実行かどうかの判定
-# テンプレート初期化が完了済みかどうかをREADME.mdで判定
-IS_FIRST_RUN=false
-if [ -f "README.md" ]; then
-  if grep -q "Laravel + Nuxt + PostgreSQL テンプレート" README.md &&
-    ! grep -q "quick-chef" README.md; then
-    IS_FIRST_RUN=true
-  fi
+# 実行モードの判定
+# --setup-only フラグが指定された場合は開発環境セットアップのみ実行
+SETUP_ONLY=false
+if [ "$2" = "--setup-only" ]; then
+  SETUP_ONLY=true
+fi
+
+# テンプレートカスタマイズの実行判定
+# プロジェクト名が指定された場合は常にカスタマイズを実行（冪等性確保）
+if [ -n "$1" ] && [ "$SETUP_ONLY" != true ]; then
+  CUSTOMIZE_TEMPLATE=true
 else
-  # README.mdが存在しない場合は初回実行とみなす
-  IS_FIRST_RUN=true
+  CUSTOMIZE_TEMPLATE=false
 fi
 
 # 関数: 成功メッセージ
@@ -73,8 +78,8 @@ section() {
 }
 
 # メインヘッダー
-if [ "$IS_FIRST_RUN" = true ]; then
-  section "Laravel + Nuxt テンプレート初期化"
+if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
+  section "Laravel + Nuxt テンプレートカスタマイズ"
   echo -e "プロジェクト名: ${BLUE}${PROJECT_NAME}${NC}"
   echo -e "実行内容: ${YELLOW}テンプレートカスタマイズ + 開発環境セットアップ${NC}"
 else
@@ -85,10 +90,10 @@ fi
 echo ""
 
 # ===========================================
-# テンプレートカスタマイズ（初回のみ）
+# テンプレートカスタマイズ
 # ===========================================
 
-if [ "$IS_FIRST_RUN" = true ]; then
+if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   section "📝 テンプレートのカスタマイズ"
 
   info "プロジェクト名変換："
@@ -225,7 +230,9 @@ if [ "$IS_FIRST_RUN" = true ]; then
   # backend/.env.exampleの特別処理
   if [ -f "backend/.env.example" ]; then
     info "backend/.env.exampleを更新中..."
+    # 元のテンプレート文字列と既に置換済みの文字列の両方に対応
     sed -i.bak "s@APP_NAME=\"Laravel Nuxt Template\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
+    sed -i.bak "s@APP_NAME=\".*\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" backend/.env.example
     rm -f backend/.env.example.bak
     success "backend/.env.exampleの特別処理が完了しました"
   fi
@@ -233,7 +240,9 @@ if [ "$IS_FIRST_RUN" = true ]; then
   # frontend/.env.exampleの特別処理
   if [ -f "frontend/.env.example" ]; then
     info "frontend/.env.exampleを更新中..."
+    # 元のテンプレート文字列と既に置換済みの文字列の両方に対応
     sed -i.bak "s@APP_NAME=Laravel Nuxt Template@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
+    sed -i.bak "s@APP_NAME=.*@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
     rm -f frontend/.env.example.bak
     success "frontend/.env.exampleの特別処理が完了しました"
   fi
@@ -254,10 +263,13 @@ if [ "$IS_FIRST_RUN" = true ]; then
     info "frontend/layouts/default.vueを更新中..."
     # より安全で精密な置換（titleタグ内のみ対象）
     sed -i.bak "s@<title>Laravel Nuxt Template@<title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
+    sed -i.bak "s@<title>[^<]*@<title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
     # アプリ名の置換（より具体的な場所を指定）
     sed -i.bak "s@<v-app-bar-title>Laravel Nuxt Template@<v-app-bar-title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
+    sed -i.bak "s@<v-app-bar-title>[^<]*@<v-app-bar-title>${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
     # スパン内のテンプレート名も置換
     sed -i.bak "s@<span class=\"d-none d-sm-block\">Laravel Nuxt Template</span>@<span class=\"d-none d-sm-block\">${PROJECT_NAME_HYPHEN_ESCAPED}</span>@g" frontend/layouts/default.vue
+    sed -i.bak "s@<span class=\"d-none d-sm-block\">[^<]*</span>@<span class=\"d-none d-sm-block\">${PROJECT_NAME_HYPHEN_ESCAPED}</span>@g" frontend/layouts/default.vue
     # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
     PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
     # 空文字列の場合はデフォルト値を使用
@@ -391,7 +403,7 @@ success "開発環境の準備が完了しました"
 echo ""
 section "🎉 セットアップ完了"
 
-if [ "$IS_FIRST_RUN" = true ]; then
+if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   echo -e "${GREEN}テンプレートのカスタマイズと開発環境の準備が完了しました！${NC}"
 else
   echo -e "${GREEN}開発環境の準備が完了しました！${NC}"
