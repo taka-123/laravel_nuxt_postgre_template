@@ -18,8 +18,25 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# プロジェクト名の取得と形式変換
-PROJECT_NAME="${1:-$(basename "$PWD")}"
+# 実行モードの判定（引数解析を最初に実行）
+# --setup-onlyフラグの確認（第1引数または第2引数どちらでも対応）
+SETUP_ONLY=false
+if [ "$1" = "--setup-only" ] || [ "$2" = "--setup-only" ]; then
+  SETUP_ONLY=true
+fi
+
+# プロジェクト名の取得（--setup-onlyフラグを除外）
+if [ "$SETUP_ONLY" = true ] && [ "$1" = "--setup-only" ]; then
+  # 第1引数が--setup-onlyの場合はデフォルト名を使用
+  PROJECT_NAME="$(basename "$PWD")"
+elif [ "$SETUP_ONLY" = true ] && [ "$2" = "--setup-only" ]; then
+  # 第2引数が--setup-onlyの場合は第1引数をプロジェクト名として使用
+  PROJECT_NAME="${1:-$(basename "$PWD")}"
+else
+  # 通常の場合
+  PROJECT_NAME="${1:-$(basename "$PWD")}"
+fi
+
 PROJECT_NAME_HYPHEN="${PROJECT_NAME}"
 PROJECT_NAME_UNDERSCORE=$(echo "${PROJECT_NAME}" | tr '-' '_')
 
@@ -33,16 +50,9 @@ PROJECT_NAME_ESCAPED=$(_escape_sed "$PROJECT_NAME")
 PROJECT_NAME_HYPHEN_ESCAPED=$(_escape_sed "$PROJECT_NAME_HYPHEN")
 PROJECT_NAME_UNDERSCORE_ESCAPED=$(_escape_sed "$PROJECT_NAME_UNDERSCORE")
 
-# 実行モードの判定
-# --setup-only フラグが指定された場合は開発環境セットアップのみ実行
-SETUP_ONLY=false
-if [ "$2" = "--setup-only" ]; then
-  SETUP_ONLY=true
-fi
-
 # テンプレートカスタマイズの実行判定
-# プロジェクト名が指定された場合は常にカスタマイズを実行（冪等性確保）
-if [ -n "$1" ] && [ "$SETUP_ONLY" != true ]; then
+# プロジェクト名が指定され、かつ--setup-onlyフラグがない場合のみカスタマイズを実行
+if [ -n "$1" ] && [ "$1" != "--setup-only" ] && [ "$SETUP_ONLY" != true ]; then
   CUSTOMIZE_TEMPLATE=true
 else
   CUSTOMIZE_TEMPLATE=false
@@ -241,8 +251,11 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   # frontend/.env.exampleの特別処理
   if [ -f "frontend/.env.example" ]; then
     info "frontend/.env.exampleを更新中..."
-    # より安全な置換：コメントを保持しながらAPP_NAME値のみを置換
-    sed -i.bak "s@^APP_NAME=[^#]*@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
+    # より安全な置換：コメントと引用符を保持しながらAPP_NAME値のみを置換
+    # パターン1: APP_NAME="値" の形式（引用符付き）
+    sed -i.bak "s@^APP_NAME=\"[^\"]*\"@APP_NAME=\"${PROJECT_NAME_ESCAPED}\"@g" frontend/.env.example
+    # パターン2: APP_NAME=値 の形式（引用符なし、スペースまたは#またはEOLまで）
+    sed -i.bak "s@^APP_NAME=\([^\" ][^ ]*\)@APP_NAME=${PROJECT_NAME_ESCAPED}@g" frontend/.env.example
     rm -f frontend/.env.example.bak
     success "frontend/.env.exampleの特別処理が完了しました"
   fi
