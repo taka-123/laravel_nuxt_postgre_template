@@ -274,15 +274,11 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
   # frontend/layouts/default.vueの特別処理
   if [ -f "frontend/layouts/default.vue" ]; then
     info "frontend/layouts/default.vueを更新中..."
-    # より安全で精密な置換（HTML属性を保護）
+    # 安全で冪等性を保つ置換（ユーザーカスタマイズを保護）
+    # 元のテンプレート名のみを対象とし、ユーザーカスタマイズは保護
     sed -i.bak "s@<title>Laravel Nuxt Template</title>@<title>${PROJECT_NAME_HYPHEN_ESCAPED}</title>@g" frontend/layouts/default.vue
-    sed -i.bak "s@<title>[^<]*</title>@<title>${PROJECT_NAME_HYPHEN_ESCAPED}</title>@g" frontend/layouts/default.vue
-    # アプリ名の置換（冪等性を考慮してバーコンテンツのみを対象）
     sed -i.bak "s@<v-app-bar-title>Laravel Nuxt Template</v-app-bar-title>@<v-app-bar-title>${PROJECT_NAME_HYPHEN_ESCAPED}</v-app-bar-title>@g" frontend/layouts/default.vue
-    sed -i.bak "s@<v-app-bar-title>[^<]*</v-app-bar-title>@<v-app-bar-title>${PROJECT_NAME_HYPHEN_ESCAPED}</v-app-bar-title>@g" frontend/layouts/default.vue
-    # スパン内のテンプレート名も置換（完全な要素マッチ）
     sed -i.bak "s@<span class=\"d-none d-sm-block\">Laravel Nuxt Template</span>@<span class=\"d-none d-sm-block\">${PROJECT_NAME_HYPHEN_ESCAPED}</span>@g" frontend/layouts/default.vue
-    sed -i.bak "s@<span class=\"d-none d-sm-block\">[^<]*</span>@<span class=\"d-none d-sm-block\">${PROJECT_NAME_HYPHEN_ESCAPED}</span>@g" frontend/layouts/default.vue
     # ハードコードされた略称を変更（プロジェクト名の頭文字に基づく）
     PROJECT_INITIALS=$(echo "${PROJECT_NAME}" | sed 's/[^A-Za-z]/ /g' | awk '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1))}')
     # 空文字列の場合はデフォルト値を使用
