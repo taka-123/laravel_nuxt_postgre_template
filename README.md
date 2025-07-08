@@ -10,7 +10,7 @@ Laravel 12.x + Nuxt.js 3.16 + PostgreSQL 17.x を使用したモダンなウェ�
 
 ```bash
 # 1. GitHubで「Use this template」をクリック、または：
-gh repo create my-new-project --template your-org/laravel-nuxt-template --private
+gh repo create my-new-project --template your-org/laravel_nuxt_postgre_template --private
 
 # 2. クローンしてセットアップ（1コマンドで完了）
 git clone https://github.com/your-org/my-new-project.git
@@ -21,7 +21,7 @@ cd my-new-project
 ### 直接クローンする場合
 
 ```bash
-git clone https://github.com/your-org/laravel-nuxt-template.git my-project
+git clone https://github.com/your-org/laravel_nuxt_postgre_template.git my-project
 cd my-project
 ./setup.sh my-project
 ```
