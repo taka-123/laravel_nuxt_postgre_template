@@ -289,6 +289,8 @@ if [ "$CUSTOMIZE_TEMPLATE" = true ]; then
       PROJECT_INITIALS="APP"
     fi
     sed -i.bak "s/>LNT</>$PROJECT_INITIALS</g" frontend/layouts/default.vue
+    # フッターの「Sample App」を置換
+    sed -i.bak "s@Sample App@${PROJECT_NAME_HYPHEN_ESCAPED}@g" frontend/layouts/default.vue
     rm -f frontend/layouts/default.vue.bak
     success "frontend/layouts/default.vueの特別処理が完了しました"
   fi
