@@ -85,8 +85,12 @@
 
   // バックエンド（Laravel Pint）
   "[php]": {
-    "editor.defaultFormatter": "open-southeners.laravel-pint"
+    "editor.defaultFormatter": "open-southeners.laravel-pint",
+    "editor.formatOnSave": true
   },
+  "laravel-pint.enable": true,
+  "laravel-pint.executablePath": "./backend/vendor/bin/pint",
+  "laravel-pint.configPath": "./backend/pint.json",
   "[blade]": {
     "editor.defaultFormatter": "shufo.vscode-blade-formatter"
   },
