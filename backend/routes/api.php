@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,4 +23,7 @@ Route::group([
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('refresh', [AuthController::class, 'refresh'])->name('refresh');
     Route::get('me', [AuthController::class, 'me'])->name('me');
+    
+    // Google OAuth認証
+    Route::post('google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('google.callback');
 });

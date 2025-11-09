@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@pinia/nuxt',
+    '@sidebase/nuxt-auth',
     (_options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig', (config) => {
         // @ts-expect-error
@@ -14,6 +15,15 @@ export default defineNuxtConfig({
       })
     },
   ],
+  auth: {
+    baseURL: process.env.NUXT_AUTH_ORIGIN || 'http://localhost:3000',
+    provider: {
+      type: 'authjs',
+    },
+    globalAppMiddleware: {
+      isEnabled: false,
+    },
+  },
   build: {
     transpile: ['vuetify'],
   },
@@ -38,6 +48,11 @@ export default defineNuxtConfig({
     shim: false,
   },
   runtimeConfig: {
+    // サーバーサイド専用（シークレット）
+    authSecret: process.env.NUXT_AUTH_SECRET,
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+
     public: {
       // クライアントサイド（ブラウザ）用API URL
       apiBase: process.env.BROWSER_API_BASE_URL || 'http://localhost:8000/api',

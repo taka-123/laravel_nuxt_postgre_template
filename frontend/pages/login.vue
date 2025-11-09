@@ -39,11 +39,30 @@
             color="primary"
             size="large"
             :loading="loading"
-            :disabled="loading"
+            :disabled="loading || googleLoading"
             block
             class="mb-4"
           >
             ログイン
+          </v-btn>
+
+          <!-- 区切り線 -->
+          <v-divider class="my-4" />
+          <div class="text-center text-caption mb-4">または</div>
+
+          <!-- Googleログインボタン -->
+          <v-btn
+            color="white"
+            size="large"
+            variant="outlined"
+            prepend-icon="mdi-google"
+            :loading="googleLoading"
+            :disabled="loading || googleLoading"
+            block
+            class="mb-4"
+            @click="handleGoogleLogin"
+          >
+            Googleでログイン
           </v-btn>
 
           <div class="text-center">
@@ -61,11 +80,13 @@
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuth } from '~/composables/useAuth'
+import { useEmailAuth } from '~/composables/useEmailAuth'
+import { useGoogleAuth } from '~/composables/useGoogleAuth'
 import { useAuthStore } from '~/stores/auth'
 
 // 認証機能を取得
-const { loginAndRedirect } = useAuth()
+const { loginAndRedirect } = useEmailAuth()
+const { loginWithGoogle } = useGoogleAuth()
 const authStore = useAuthStore()
 const { loading, getError } = storeToRefs(authStore)
 const route = useRoute()
@@ -76,6 +97,7 @@ const email = ref('')
 const password = ref('')
 const emailError = ref('')
 const passwordError = ref('')
+const googleLoading = ref(false)
 
 // バリデーション関数
 const validateForm = () => {
@@ -127,6 +149,20 @@ const login = async () => {
     await loginAndRedirect(email.value, password.value, redirectPath)
   } catch (err) {
     // エラーは認証ストアで処理済み（UIに表示される）
+  }
+}
+
+// Googleログイン処理
+const handleGoogleLogin = async () => {
+  googleLoading.value = true
+  authStore.clearError()
+
+  try {
+    const redirectPath = route.query.redirect || '/'
+    await loginWithGoogle(redirectPath)
+  } catch (err) {
+    // エラーはログインページで処理される
+    googleLoading.value = false
   }
 }
 </script>
